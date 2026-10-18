@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Les lunettes du verbe</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout : une seule colonne centrée, grandes étiquettes-mots tactiles pour le TBI ; rouge = verbe, jaune = ce qu'on remplace par « Il faut » */
+:root{
+  --bg:#f3f6fa; --card:#ffffff; --ink:#1c2333; --muted:#5a6477; --line:#d5dbe5;
+  --accent:#2456a6; --accent-soft:#e3ecfa;
+  --verb:#d3271c; --verb-soft:#fde3df;
+  --zone:#f2c200; --zone-soft:#fff5c4;
+  --ok:#1d8648; --ok-soft:#ddf3e5;
+  --try:#8a5800; --try-soft:#fff0d3;
+  --f-body:"Century Gothic","Avant Garde","URW Gothic","Futura","Trebuchet MS","Verdana",sans-serif;
+  --f-ui:"Trebuchet MS","Segoe UI","Verdana",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#131823; --card:#1c2331; --ink:#eef1f6; --muted:#a4aec0; --line:#323c4e;
+  --accent:#86aefc; --accent-soft:#1f2c47;
+  --verb:#ff6a5c; --verb-soft:#3b1f1c;
+  --zone:#ffd84a; --zone-soft:#3a3318;
+  --ok:#5fd393; --ok-soft:#173420;
+  --try:#ffc568; --try-soft:#3a2b12; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#131823; --card:#1c2331; --ink:#eef1f6; --muted:#a4aec0; --line:#323c4e;
+  --accent:#86aefc; --accent-soft:#1f2c47;
+  --verb:#ff6a5c; --verb-soft:#3b1f1c;
+  --zone:#ffd84a; --zone-soft:#3a3318;
+  --ok:#5fd393; --ok-soft:#173420;
+  --try:#ffc568; --try-soft:#3a2b12; color-scheme:dark}
+
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:17px;line-height:1.5}
+.wrap{max-width:980px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--f-body);text-wrap:balance;margin:0;line-height:1.15}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand h1{font-size:clamp(26px,4vw,38px);font-weight:800}
+.brand h1 span{color:var(--verb)}
+.brand p{margin:2px 0 0;color:var(--muted);font-size:15px;letter-spacing:.04em;text-transform:uppercase}
+
+.btn{border:2px solid var(--line);background:var(--card);border-radius:12px;padding:10px 16px;font-weight:700;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--card)}
+.btn.big{font-size:20px;padding:14px 22px}
+.btn svg{width:20px;height:20px;flex:none}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px clamp(16px,3vw,32px);display:flex;flex-direction:column;gap:16px}
+
+/* Accueil */
+.demo{display:flex;flex-direction:column;gap:10px}
+.modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:760px){.modes{grid-template-columns:1fr}}
+.mode{text-align:left;border:2px solid var(--line);background:var(--card);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.mode:hover{border-color:var(--accent);background:var(--accent-soft)}
+.mode .tag{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+.mode h2{font-size:24px}
+.mode p{margin:0;color:var(--muted)}
+
+/* Phrases */
+.phrase{font-family:var(--f-body);font-size:clamp(24px,4vw,42px);display:flex;flex-wrap:wrap;align-items:center;gap:.28em .3em;line-height:1.3;padding-top:.35em}
+.phrase .punct{margin-left:-.28em}
+.word{border:2px solid var(--line);background:var(--card);border-radius:.3em;padding:.05em .3em;font:inherit;transition:transform .12s}
+.word:hover:not(:disabled){border-color:var(--accent);transform:translateY(-2px)}
+.word:disabled{cursor:default}
+.word.tried{color:var(--muted);text-decoration:line-through;border-style:dashed}
+.word.isverb,.verb{color:var(--verb);font-weight:800}
+.word.isverb{border-color:var(--verb);background:var(--verb-soft)}
+.plain{padding:.05em .05em}
+
+.lunettes{position:relative;display:inline-flex;align-items:center;gap:.2em;padding-top:.3em}
+.lens{border:3px solid var(--verb);color:var(--verb);border-radius:999px;font-weight:800;font-size:.72em;padding:.02em .4em;letter-spacing:.03em;background:var(--card)}
+.bridge{position:absolute;top:0;left:1.1em;right:1.1em;height:.5em;border:3px solid var(--verb);border-bottom:0;border-radius:50% 50% 0 0/100% 100% 0 0}
+.lunettes .inner{font-weight:800;color:var(--verb)}
+.lunettes.bad .lens,.lunettes.bad .bridge{border-color:var(--muted);color:var(--muted)}
+.lunettes.bad .inner{color:var(--ink);font-weight:400}
+.pop{animation:pop .35s ease-out}
+@keyframes pop{from{transform:scale(.85);opacity:.4}to{transform:none;opacity:1}}
+
+.zone{background:var(--zone-soft);border:3px dashed var(--zone);border-radius:.3em;padding:.02em .25em;display:inline-flex;gap:.3em}
+.ilfaut{background:var(--zone);color:#1c2333;border-radius:.3em;padding:.02em .3em;font-weight:800}
+.slot{min-width:4.5em;border-bottom:4px solid var(--verb);text-align:center;color:var(--verb);font-weight:800;padding:0 .2em}
+.slot.wrong{color:var(--muted);border-color:var(--muted);text-decoration:line-through}
+
+.label{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
+.consigne{font-size:19px;margin:0;max-width:65ch}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.choices{display:flex;flex-wrap:wrap;gap:12px}
+.choice{font-family:var(--f-body);font-size:clamp(22px,3.4vw,34px);border:2px solid var(--line);background:var(--card);border-radius:12px;padding:.15em .6em}
+.choice:hover:not(:disabled){border-color:var(--verb)}
+.choice:disabled{color:var(--muted);text-decoration:line-through;border-style:dashed;cursor:default}
+
+.verdict{border-radius:14px;padding:12px 16px;font-size:19px;display:flex;gap:10px;align-items:flex-start}
+.verdict.ok{background:var(--ok-soft);color:var(--ok)}
+.verdict.try{background:var(--try-soft);color:var(--try)}
+.verdict b{color:var(--ink)}
+.verdict .ic{font-weight:900;font-size:22px;line-height:1.2}
+
+.bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--line)}
+.dot.done{background:var(--ok);border-color:var(--ok)}
+.dot.half{background:var(--zone);border-color:var(--zone)}
+.dot.now{border-color:var(--accent);background:var(--accent-soft)}
+.count{font-variant-numeric:tabular-nums;font-weight:700;color:var(--muted)}
+
+.stars{font-size:44px;letter-spacing:.08em;color:var(--zone)}
+.stars .off{color:var(--line)}
+
+/* Leçons */
+.modal{position:fixed;inset:0;background:rgba(10,14,22,.55);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding-block:calc(20px + env(safe-area-inset-top,0px)) 20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));z-index:20}
+.sheet{background:var(--card);border-radius:18px;max-width:760px;width:100%;padding:18px;display:flex;flex-direction:column;gap:14px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;align-items:center}
+.tabs .tb{display:flex;gap:8px;flex-wrap:wrap}
+.tab[aria-selected="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.lecon{border:3px solid var(--line);border-radius:6px;overflow:hidden}
+.lecon-h{display:grid;grid-template-columns:auto 1fr;border-bottom:3px solid var(--line)}
+.lecon-h .code{font-family:var(--f-body);font-weight:800;font-size:22px;padding:6px 16px;border-right:3px solid var(--line)}
+.lecon-h h3{color:var(--verb);font-size:28px;text-align:center;padding:6px;font-style:italic}
+.lecon-b{padding:16px clamp(12px,3vw,24px);display:flex;flex-direction:column;gap:14px;font-family:var(--f-body);font-size:19px}
+.lecon-b p{margin:0}
+.lecon-b big{font-size:1.2em;font-weight:700}
+.ex3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;text-align:center}
+@media (max-width:560px){.ex3{grid-template-columns:1fr}}
+.astuce{border:3px solid var(--line);border-radius:22px;padding:14px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+.astuce.dash{border-style:dashed;border-radius:6px}
+.astuce .phrase{font-size:26px;justify-content:center}
+
+@media (prefers-reduced-motion:reduce){.pop{animation:none}.word{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap" id="app"></div>
+
+<div class="modal" id="modal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Leçons">
+    <div class="tabs">
+      <div class="tb">
+        <button class="btn tab" id="tabG3" aria-selected="true">G3 · Le verbe</button>
+        <button class="btn tab" id="tabC1" aria-selected="false">C1 · L'infinitif</button>
+      </div>
+      <button class="btn" id="closeModal">Fermer</button>
+    </div>
+    <div class="lecon" id="lecG3">
+      <div class="lecon-h"><div class="code">G3</div><h3>Le Verbe</h3></div>
+      <div class="lecon-b">
+        <p>Le <big>verbe</big> est un mot, qui le plus souvent, indique une <big>action</big>.</p>
+        <div class="ex3"><p>Le garçon <b>découpe</b>.</p><p>Le garçon <b>boit</b>.</p><p>Le garçon <b>danse</b>.</p></div>
+        <div class="astuce">
+          <p><big>Pour trouver le verbe, on fabrique la phrase contraire.</big></p>
+          <p>Le verbe est entre les « lunettes ».</p>
+          <div class="phrase"><span>Le</span><span>garçon</span><span class="lunettes"><span class="bridge"></span><span class="lens">NE</span><span class="inner">danse</span><span class="lens">PAS</span></span><span class="punct">.</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="lecon" id="lecC1" hidden>
+      <div class="lecon-h"><div class="code">C1</div><h3>L'infinitif du verbe</h3></div>
+      <div class="lecon-b">
+        <p>Le garçon <b>découpe</b>.<br>Le garçon <b>découpera</b>.<br>Le garçon <b>a découpé</b>.</p>
+        <p>• <b>découpe, découpera, a découpé</b> sont des <i>formes conjuguées</i> du verbe. Elles changent en fonction du temps et de celui qui fait l'action.</p>
+        <p>• Quand le verbe n'est pas dans une phrase, qu'il n'est pas conjugué : le verbe est à l'<big>infinitif</big>.</p>
+        <p>L'<big>infinitif</big> de ce verbe : <b>découper</b></p>
+        <div class="astuce dash">
+          <p>Pour trouver l'infinitif du verbe, on peut utiliser la formule : « il faut »</p>
+          <p><big>il faut <i>découper</i></big></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Phrases : t = mots séparés par des espaces, v = position du verbe, inf = infinitif, alt = formes conjuguées proposées en piège */
+const P = [
+ {t:"Le garçon danse .",v:2,inf:"danser",alt:["danse","dansera"]},
+ {t:"Léa aime les chats .",v:1,inf:"aimer",alt:["aime","aimera"]},
+ {t:"Le chat mange une souris .",v:2,inf:"manger",alt:["mange","mangent"]},
+ {t:"Les enfants jouent dans la cour .",v:2,inf:"jouer",alt:["jouent","joue"]},
+ {t:"Papa lave la voiture .",v:1,inf:"laver",alt:["lave","lavera"]},
+ {t:"Je regarde un dessin animé .",v:1,inf:"regarder",alt:["regarde","regardes"]},
+ {t:"Tu écoutes la maîtresse .",v:1,inf:"écouter",alt:["écoutes","écoute"]},
+ {t:"Nous chantons une chanson .",v:1,inf:"chanter",alt:["chantons","chante"]},
+ {t:"Mamie arrose les fleurs .",v:1,inf:"arroser",alt:["arrose","arrosera"]},
+ {t:"Le bébé dort dans son lit .",v:2,inf:"dormir",alt:["dort","dormira"]},
+ {t:"Les oiseaux volent dans le ciel .",v:2,inf:"voler",alt:["volent","vole"]},
+ {t:"Paul finit son puzzle .",v:1,inf:"finir",alt:["finit","finira"]},
+ {t:"Lucie boit un verre de lait .",v:1,inf:"boire",alt:["boit","boivent"]},
+ {t:"Mon frère lit une histoire .",v:2,inf:"lire",alt:["lit","lira"]},
+ {t:"Le maître écrit au tableau .",v:2,inf:"écrire",alt:["écrit","écrira"]},
+ {t:"Vous ouvrez la porte .",v:1,inf:"ouvrir",alt:["ouvrez","ouvre"]},
+ {t:"Le poisson nage dans l'eau .",v:2,inf:"nager",alt:["nage","nagera"]},
+ {t:"Demain , je jouerai au foot .",v:3,inf:"jouer",alt:["jouerai","joue"]},
+ {t:"Les élèves rangent leurs cahiers .",v:2,inf:"ranger",alt:["rangent","range"]},
+ {t:"Ma sœur prend le bus .",v:2,inf:"prendre",alt:["prend","prendra"]},
+ {t:"Le boulanger fait du pain .",v:2,inf:"faire",alt:["fait","fera"]},
+ {t:"Elle habite à Bayonne .",v:1,inf:"habiter",alt:["habite","habitera"]},
+ {t:"Le lapin saute dans le jardin .",v:2,inf:"sauter",alt:["saute","sautent"]},
+ {t:"Les vaches broutent l'herbe .",v:2,inf:"brouter",alt:["broutent","broute"]},
+ {t:"Je vois la mer .",v:1,inf:"voir",alt:["vois","verrai"]},
+ {t:"Le vent souffle fort .",v:2,inf:"souffler",alt:["souffle","soufflera"]},
+ {t:"Ils construisent une cabane .",v:1,inf:"construire",alt:["construisent","construit"]},
+ {t:"Ce soir , nous mangerons des crêpes .",v:4,inf:"manger",alt:["mangerons","mange"]},
+ {t:"Le joueur attrape le ballon .",v:2,inf:"attraper",alt:["attrape","attrapera"]},
+ {t:"Maman part au travail .",v:1,inf:"partir",alt:["part","partira"]},
+ {t:"La pluie tombe sur le toit .",v:2,inf:"tomber",alt:["tombe","tombent"]},
+ {t:"Mon chien court dans le pré .",v:2,inf:"courir",alt:["court","courra"]}
+].map(p=>({...p,g:"autres"})).concat([
+ /* Phrases inventées autour de « Gare à la maîtresse ! » */
+ {t:"Le loup arrive à l'école .",v:2,inf:"arriver",alt:["arrive","arrivera"]},
+ {t:"Le loup ricane derrière la porte .",v:2,inf:"ricaner",alt:["ricane","ricanent"]},
+ {t:"La maîtresse ouvre la porte de la classe .",v:2,inf:"ouvrir",alt:["ouvre","ouvrira"]},
+ {t:"Le Petit Chaperon rouge apporte une galette .",v:4,inf:"apporter",alt:["apporte","apportera"]},
+ {t:"Hansel et Gretel entrent dans la classe .",v:3,inf:"entrer",alt:["entrent","entre"]},
+ {t:"Le Petit Poucet sème des cailloux .",v:3,inf:"semer",alt:["sème","sèmera"]},
+ {t:"Le loup grommelle dans sa barbe .",v:2,inf:"grommeler",alt:["grommelle","grommellent"]},
+ {t:"La maîtresse fronce les sourcils .",v:2,inf:"froncer",alt:["fronce","froncera"]},
+ {t:"Les élèves font un grand chahut .",v:2,inf:"faire",alt:["font","fait"]},
+ {t:"Le loup cache ses grandes dents .",v:2,inf:"cacher",alt:["cache","cachera"]},
+ {t:"Les enfants rient aux éclats .",v:2,inf:"rire",alt:["rient","rit"]},
+ {t:"La sorcière tâte le doigt de Hansel .",v:2,inf:"tâter",alt:["tâte","tâtera"]},
+ {t:"La sorcière engraisse Hansel .",v:2,inf:"engraisser",alt:["engraisse","engraissera"]},
+ {t:"Le loup saute sur sa bicyclette .",v:2,inf:"sauter",alt:["saute","sautera"]},
+ {t:"Les enfants ligotent le loup .",v:2,inf:"ligoter",alt:["ligotent","ligote"]},
+ {t:"Le loup bafouille une excuse .",v:2,inf:"bafouiller",alt:["bafouille","bafouillera"]},
+ {t:"Demain , la maîtresse lira une histoire .",v:4,inf:"lire",alt:["lira","lit"]},
+ {t:"Le Petit Poucet trouve son chemin .",v:3,inf:"trouver",alt:["trouve","trouvera"]},
+ {t:"Le loup aime les enfants grassouillets .",v:2,inf:"aimer",alt:["aime","aimera"]},
+ {t:"Le Petit Chaperon rouge traverse la forêt .",v:4,inf:"traverser",alt:["traverse","traversera"]}
+].map(p=>({...p,g:"gare"}))).map(p=>({...p,w:p.t.split(" ")}));
+let SRC="tout";
+try{ SRC=localStorage.getItem("lunettes-src")||"tout"; }catch(e){}
+
+const N = 8;
+const isP = w => w==="." || w===",";
+const LOW = new Set(["Le","La","Les","Un","Une","Mon","Ma","Mes","Ce","Cette","Il","Elle","Ils","Elles","Je","Tu","Nous","Vous","On"]);
+const neFor = w => /^[aeiouyhâàéèêëîïôûœ]/i.test(w) ? "N'" : "NE";
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const sentence = arr => arr.join(" ").replace(/ ([.,])/g,"$1");
+
+function h(tag,attrs={},...kids){
+  const e=document.createElement(tag);
+  for(const [k,v] of Object.entries(attrs||{})){
+    if(k==="class") e.className=v; else if(k.startsWith("on")) e.addEventListener(k.slice(2),v);
+    else if(k==="html") e.innerHTML=v; else if(v!==false && v!=null) e.setAttribute(k,v===true?"":v);
+  }
+  for(const c of kids.flat()){ if(c==null||c===false) continue; e.append(c.nodeType?c:document.createTextNode(c)); }
+  return e;
+}
+
+const canSpeak = (()=>{try{return "speechSynthesis" in window}catch(e){return false}})();
+function say(txt){ try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(txt); u.lang="fr-FR"; u.rate=.85; speechSynthesis.speak(u);}catch(e){} }
+const ICON_SPK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+const ICON_BOOK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/></svg>';
+function listenBtn(getText){ if(!canSpeak) return null; return h("button",{class:"btn",onclick:()=>say(getText()),"aria-label":"Écouter la phrase",html:ICON_SPK+"<span>Écouter</span>"}); }
+
+function lunettes(word,ok){
+  return h("span",{class:"lunettes pop"+(ok?"":" bad")},h("span",{class:"bridge"}),h("span",{class:"lens"},neFor(word)),h("span",{class:"inner"},word),h("span",{class:"lens"},"PAS"));
+}
+/* La phrase contraire fabriquée autour du mot touché */
+function contraire(p,idx){
+  const ok = idx===p.v; const nodes=[]; const spoken=[];
+  p.w.forEach((w,i)=>{
+    if(i===idx){
+      const word = (i===0 && LOW.has(w)) ? w.toLowerCase() : w;
+      nodes.push(lunettes(word,ok));
+      const el = neFor(word)==="N'";
+      const ne = i===0 ? (el?"N'"+word:"Ne "+word) : (el?"n'"+word:"ne "+word);
+      spoken.push(ne,"pas");
+    } else {
+      nodes.push(h("span",{class:isP(w)?"punct":"plain"},w)); spoken.push(w);
+    }
+  });
+  const txt = sentence(spoken);
+  return {nodes,txt};
+}
+
+let S = {screen:"home"};
+const cur = () => S.list[S.i];
+
+function start(mode){ const pool=SRC==="tout"?P:P.filter(p=>p.g===SRC); S={screen:"play",mode,list:shuffle(pool).slice(0,N),i:0,results:[]}; load(); }
+function setSrc(s){ SRC=s; try{localStorage.setItem("lunettes-src",s);}catch(e){} render(); }
+function load(){
+  Object.assign(S,{step:S.mode==="inf"?"inf":"verb",err:0,tried:new Set(),found:false,last:null,replaced:false,wrongAlt:new Set(),pick:null,done:false,choices:shuffle([cur().inf,...cur().alt])});
+  render();
+}
+function next(){
+  if(S.mode==="both" && S.step==="verb"){ S.step="inf"; S.last=null; render(); return; }
+  S.results.push(S.err===0?"done":"half"); S.i++;
+  if(S.i>=S.list.length){ S.screen="end"; render(); } else load();
+}
+
+function header(){
+  return h("header",{class:"top"},
+    h("div",{class:"brand"},h("h1",{},"Les lunettes du ",h("span",{},"verbe")),h("p",{},"CE1 · Trouver le verbe et son infinitif")),
+    h("button",{class:"btn",onclick:()=>openLecon("G3"),html:ICON_BOOK+"<span>Les leçons</span>"})
+  );
+}
+
+function home(){
+  const app=document.getElementById("app"); app.replaceChildren(header());
+  const ex = P[0];
+  app.append(
+    h("section",{class:"panel demo"},
+      h("div",{class:"label"},"Exemple"),
+      h("div",{class:"phrase"},h("span",{},"Le"),h("span",{},"garçon"),h("span",{class:"verb"},"danse"),h("span",{class:"punct"},".")),
+      h("div",{class:"phrase"},h("span",{},"Le"),h("span",{},"garçon"),lunettes("danse",true),h("span",{class:"punct"},".")),
+      h("div",{class:"phrase"},h("span",{class:"ilfaut"},"Il faut"),h("span",{class:"verb"},"danser"),h("span",{class:"punct"},"."))
+    ),
+    h("section",{class:"panel",style:"gap:10px"},
+      h("div",{class:"label"},"Les phrases"),
+      h("div",{class:"row"},[["tout","Toutes les phrases"],["gare","Gare à la maîtresse !"],["autres","Phrases de la vie de tous les jours"]].map(([k,l])=>
+        h("button",{class:"btn tab","aria-selected":String(SRC===k),onclick:()=>setSrc(k)},l)))
+    ),
+    h("section",{class:"modes"},
+      h("button",{class:"mode",onclick:()=>start("verb")},h("span",{class:"tag"},"Leçon G3"),h("h2",{},"Trouver le verbe"),h("p",{},"Je fabrique la phrase contraire avec les lunettes NE … PAS.")),
+      h("button",{class:"mode",onclick:()=>start("inf")},h("span",{class:"tag"},"Leçon C1"),h("h2",{},"Trouver l'infinitif"),h("p",{},"J'utilise la formule « Il faut »."),),
+      h("button",{class:"mode",onclick:()=>start("both")},h("span",{class:"tag"},"G3 + C1"),h("h2",{},"Les deux à la suite"),h("p",{},"Je trouve le verbe, puis son infinitif."))
+    ),
+    h("p",{class:"count",style:"margin:0;font-weight:400"},N+" phrases par partie. Une étoile pour chaque phrase réussie du premier coup.")
+  );
+}
+
+function bar(){
+  const dots = S.list.map((_,i)=>h("span",{class:"dot "+(S.results[i]||(i===S.i?"now":""))}));
+  return h("div",{class:"bar"},
+    h("button",{class:"btn",onclick:()=>{S={screen:"home"};render();}},"← Menu"),
+    h("span",{class:"count"},"Phrase "+(S.i+1)+" / "+S.list.length),
+    h("div",{class:"dots"},dots),
+    h("button",{class:"btn",onclick:()=>openLecon(S.step==="verb"?"G3":"C1"),html:ICON_BOOK+"<span>Je m'aide de la leçon</span>"})
+  );
+}
+
+function verdict(ok,...kids){ return h("div",{class:"verdict pop "+(ok?"ok":"try")},h("span",{class:"ic"},ok?"✓":"✗"),h("div",{},...kids)); }
+
+function stepVerb(){
+  const p=cur(); const panel=h("section",{class:"panel"});
+  panel.append(
+    h("div",{class:"label"},S.mode==="both"?"Étape 1 · Trouver le verbe":"Trouver le verbe"),
+    h("p",{class:"consigne"},"Touche le mot qui est peut-être le verbe. On fabrique la phrase contraire : est-ce que ça se dit ?")
+  );
+  const line=h("div",{class:"phrase"});
+  p.w.forEach((w,i)=>{
+    if(isP(w)){ line.append(h("span",{class:"punct"},w)); return; }
+    const cls="word"+(S.tried.has(i)?" tried":"")+(S.found&&i===p.v?" isverb":"");
+    line.append(h("button",{class:cls,disabled:S.found||S.tried.has(i),onclick:()=>tapWord(i)},w));
+  });
+  panel.append(line, h("div",{class:"row"},listenBtn(()=>p.t.replace(/ ([.,])/g,"$1"))));
+  if(S.last!=null){
+    const c=contraire(p,S.last);
+    panel.append(h("div",{class:"label"},"La phrase contraire"), h("div",{class:"phrase"},c.nodes));
+    const lb=listenBtn(()=>c.txt);
+    if(S.last===p.v){
+      panel.append(verdict(true,"Ça se dit ! Le verbe est entre les lunettes : ",h("b",{},p.w[p.v]),"."));
+      panel.append(h("div",{class:"row"},lb,h("button",{class:"btn primary big",onclick:next},S.mode==="both"?"Je cherche l'infinitif →":(S.i+1<S.list.length?"Phrase suivante →":"Voir mes étoiles →"))));
+    } else {
+      panel.append(verdict(false,"Ça ne se dit pas ! ",h("b",{},p.w[S.last])," n'est pas le verbe. Essaie un autre mot."));
+      if(lb) panel.append(h("div",{class:"row"},lb));
+    }
+  }
+  return panel;
+}
+function tapWord(i){
+  const p=cur(); S.last=i;
+  if(i===p.v){ S.found=true; } else { S.tried.add(i); S.err++; }
+  render();
+}
+
+function stepInf(){
+  const p=cur(); const panel=h("section",{class:"panel"});
+  panel.append(
+    h("div",{class:"label"},S.mode==="both"?"Étape 2 · Trouver l'infinitif":"Trouver l'infinitif"),
+    h("p",{class:"consigne"},"Le verbe est en rouge. Je remplace tout ce qui est avant le verbe par « Il faut ».")
+  );
+  const before=p.w.slice(0,p.v), after=p.w.slice(p.v+1);
+  const line=h("div",{class:"phrase"},
+    h("span",{class:"zone"},before.map(w=>h("span",{},w))),
+    h("span",{class:"verb"},p.w[p.v]),
+    after.map(w=>h("span",{class:isP(w)?"punct":""},w))
+  );
+  panel.append(line);
+  if(!S.replaced){
+    panel.append(h("div",{class:"row"},listenBtn(()=>sentence(p.w)),h("button",{class:"btn primary big",onclick:()=>{S.replaced=true;render();}},"Je remplace par « Il faut »")));
+    return panel;
+  }
+  const slotTxt = S.pick || "?";
+  const slot=h("span",{class:"slot"+(S.pick&&S.pick!==p.inf?" wrong":"")},slotTxt);
+  const line2=h("div",{class:"phrase pop"},h("span",{class:"ilfaut"},"Il faut"),slot,after.map(w=>h("span",{class:isP(w)?"punct":""},w)));
+  panel.append(line2);
+  if(!S.done){
+    panel.append(h("p",{class:"consigne"},"Quel mot va après « Il faut » ?"));
+    panel.append(h("div",{class:"choices"},S.choices.map(c=>h("button",{class:"choice",disabled:S.wrongAlt.has(c),onclick:()=>pick(c)},c))));
+  }
+  const spoken=()=>sentence(["Il faut",S.pick||"",...after]);
+  if(S.pick){
+    if(S.done){
+      panel.append(verdict(true,"Ça se dit ! « ",sentence(["Il faut",p.inf,...after])," » L'infinitif de ce verbe : ",h("b",{},p.inf),"."));
+      panel.append(h("div",{class:"row"},listenBtn(spoken),h("button",{class:"btn primary big",onclick:next},S.i+1<S.list.length?"Phrase suivante →":"Voir mes étoiles →")));
+    } else {
+      panel.append(verdict(false,"« ",spoken()," » Ça ne se dit pas. ",h("b",{},S.pick)," est une forme conjuguée. Essaie encore."));
+      const lb=listenBtn(spoken); if(lb) panel.append(h("div",{class:"row"},lb));
+    }
+  }
+  return panel;
+}
+function pick(c){
+  const p=cur(); S.pick=c;
+  if(c===p.inf){ S.done=true; } else { S.wrongAlt.add(c); S.err++; }
+  render();
+}
+
+function end(){
+  const app=document.getElementById("app"); app.replaceChildren(header());
+  const n=S.results.filter(r=>r==="done").length;
+  const stars=h("div",{class:"stars","aria-label":n+" étoiles sur "+S.results.length},S.results.map(r=>h("span",{class:r==="done"?"":"off"},"★")));
+  const msg = n===S.results.length?"Bravo, tout juste du premier coup !": n>=S.results.length/2?"Très bien ! Continue comme ça.":"Tu as trouvé toutes les réponses. Rejoue pour gagner plus d'étoiles !";
+  app.append(h("section",{class:"panel",style:"align-items:flex-start"},
+    h("h2",{style:"font-size:32px"},msg), stars,
+    h("p",{class:"consigne"},n+" phrase"+(n>1?"s":"")+" réussie"+(n>1?"s":"")+" du premier coup sur "+S.results.length+"."),
+    h("div",{class:"row"},h("button",{class:"btn primary big",onclick:()=>start(S.mode)},"Rejouer"),h("button",{class:"btn big",onclick:()=>{S={screen:"home"};render();}},"Changer d'exercice"))
+  ));
+}
+
+function render(){
+  if(S.screen==="home") return home();
+  if(S.screen==="end") return end();
+  const app=document.getElementById("app");
+  app.replaceChildren(header(),bar(),S.step==="verb"?stepVerb():stepInf());
+}
+
+/* Leçons */
+const modal=document.getElementById("modal");
+function openLecon(which){ showTab(which); modal.hidden=false; document.getElementById("closeModal").focus(); }
+function showTab(which){
+  document.getElementById("lecG3").hidden = which!=="G3";
+  document.getElementById("lecC1").hidden = which!=="C1";
+  document.getElementById("tabG3").setAttribute("aria-selected",which==="G3");
+  document.getElementById("tabC1").setAttribute("aria-selected",which==="C1");
+}
+document.getElementById("tabG3").onclick=()=>showTab("G3");
+document.getElementById("tabC1").onclick=()=>showTab("C1");
+document.getElementById("closeModal").onclick=()=>{modal.hidden=true;};
+modal.addEventListener("click",e=>{ if(e.target===modal) modal.hidden=true; });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") modal.hidden=true; });
+
+render();
+</script>
+</body>
+</html>
