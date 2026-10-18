@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Problèmes de composition</title>
+<style>
+:root{
+  --ink:#1d1d1f; --paper:#fbf8f1; --red:#e3262b; --blue:#1f4fb8; --blue-soft:#e8eefc;
+  --orange-f:#ffd28a; --orange-b:#f29a1f; --green-f:#93f293; --green-b:#27b927;
+  --ok:#1b7a2e; --ko:#b3261e;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:"Trebuchet MS",Verdana,Arial,sans-serif;font-size:20px;line-height:1.4}
+button{font:inherit;color:inherit;cursor:pointer}
+.app{max-width:1280px;margin:0 auto;padding:14px 18px 40px}
+
+/* ---------- en-tête ---------- */
+.top{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;justify-content:space-between;
+  border-bottom:3px solid #9a9a9a;padding-bottom:10px;margin-bottom:14px}
+h1{margin:0;font-family:"Segoe Print","Comic Sans MS","Chalkboard SE",cursive;font-size:34px;color:var(--red);font-weight:700}
+.ctrl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:17px}
+.seg{display:inline-flex;border:3px solid var(--ink);border-radius:14px;overflow:hidden;background:#fff}
+.seg button{border:0;background:#fff;padding:8px 18px;font-weight:700}
+.seg button+button{border-left:3px solid var(--ink)}
+.seg button.on{background:var(--ink);color:#fff}
+select{font:inherit;padding:8px 10px;border:3px solid var(--ink);border-radius:14px;background:#fff}
+.btn{border:3px solid var(--ink);background:#fff;border-radius:14px;padding:8px 16px;font-weight:700}
+.btn:hover{background:#f1ecdf}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff;font-size:22px;padding:12px 26px}
+.btn.primary:hover{background:#173d91}
+label.chk{display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+label.chk input{width:22px;height:22px}
+
+.prog{display:flex;align-items:center;gap:8px;margin:0 0 12px;font-size:17px;color:#444}
+.dot{width:20px;height:20px;border-radius:50%;border:3px solid var(--ink);background:#fff}
+.dot.cur{background:#ffe27a}
+.dot.ok{background:var(--green-f)}
+.dot.help{background:var(--orange-f)}
+
+/* ---------- disposition ---------- */
+.grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);grid-template-areas:"enonce model" "panel model";gap:16px 26px;align-items:start}
+.enonce{grid-area:enonce}.panel{grid-area:panel}.modelwrap{grid-area:model;position:sticky;top:10px}
+@media (max-width:900px){
+  .grid{grid-template-columns:1fr;grid-template-areas:"enonce" "model" "panel"}
+  .modelwrap{position:static}
+}
+
+/* ---------- énoncé ---------- */
+.card{background:#fff;border:3px solid var(--ink);border-radius:20px;padding:16px 22px}
+.enonce .card{font-size:26px;line-height:1.65}
+.enonce p{margin:0}
+.enonce p+p{margin-top:2px}
+.num{font-weight:800}
+.w{border-radius:8px;padding:0 4px;transition:background .25s}
+.w.w-hint{border-bottom:3px dotted #8a8a8a}
+.w.w-whole{background:var(--ink);color:#fff;padding:0 9px;border-bottom:0}
+.w.w-orange{background:var(--orange-f);border-bottom:4px solid var(--orange-b)}
+.w.w-green{background:var(--green-f);border-bottom:4px solid var(--green-b)}
+
+/* ---------- étapes ---------- */
+.steps{display:flex;flex-wrap:wrap;gap:6px 8px;margin:0 0 12px;padding:0;list-style:none;font-size:15px}
+.steps li{display:flex;align-items:center;gap:6px;padding:4px 10px 4px 5px;border-radius:999px;border:2px solid #b9b3a4;background:#fff;color:#777}
+.steps li b{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#d9d3c3;color:#fff;font-size:14px}
+.steps li.cur{border-color:var(--blue);color:var(--ink);font-weight:700;background:var(--blue-soft)}
+.steps li.cur b{background:var(--blue)}
+.steps li.done{border-color:var(--green-b);color:#256b25}
+.steps li.done b{background:var(--green-b)}
+
+.stephead{display:flex;gap:12px;align-items:center;border-radius:16px;padding:10px 16px;margin-bottom:12px;background:var(--ink);color:#fff;font-size:24px;font-weight:700}
+.stephead svg{flex:none}
+.stephead.lang{background:var(--blue);font-size:27px;padding:14px 18px}
+.stephead small{display:block;font-weight:400;font-size:17px;opacity:.92}
+
+.chips{display:flex;flex-wrap:wrap;gap:14px;margin:6px 0 4px}
+.chip{border:3px solid var(--ink);background:#fff;border-radius:16px;padding:12px 24px;font-size:28px;font-weight:700;min-width:84px;box-shadow:0 3px 0 rgba(0,0,0,.25);transition:transform .08s}
+.chip:hover{background:#fff7d6}
+.chip:active{transform:translateY(2px)}
+.chip.sel{background:#ffe27a;transform:translateY(-3px);box-shadow:0 7px 0 rgba(0,0,0,.25)}
+.chip.big{font-size:27px;padding:12px 20px}
+.chip.q{font-size:40px;padding:6px 30px;line-height:1.2}
+.chip.used{opacity:.25;pointer-events:none;box-shadow:none}
+
+.hintbox{margin-top:10px;padding:10px 14px;border-radius:14px;background:#fff7d6;border:2px dashed #c9a500;font-size:19px}
+
+.rule{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:4px 0 14px}
+.rule div{border:3px solid var(--ink);border-radius:16px;padding:10px 14px;background:#fff;font-size:19px}
+.rule .r-add{border-color:var(--green-b);background:#eaffea}
+.rule .r-sub{border-color:var(--orange-b);background:#fff3df}
+.rule strong{font-size:22px}
+.opbtns{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:6px 0}
+.opbtn{border:4px solid var(--ink);border-radius:20px;background:#fff;padding:14px 10px;font-size:30px;font-weight:800;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.opbtn small{display:block;font-size:17px;font-weight:400}
+.opbtn:hover{background:#fff7d6}
+.opbtn.chosen{background:#d9f7d9;border-color:var(--green-b)}
+
+.calcline{font-size:46px;font-weight:800;text-align:center;margin:8px 0 10px;letter-spacing:1px}
+.calcline .ans{display:inline-block;min-width:130px;border-bottom:5px solid var(--ink);padding:0 10px;color:var(--blue)}
+.keypad{display:grid;grid-template-columns:repeat(3,76px);gap:10px;justify-content:center;margin:6px auto 4px}
+.key{height:62px;border:3px solid var(--ink);border-radius:14px;background:#fff;font-size:28px;font-weight:700;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.key:hover{background:#fff7d6}
+.key.wide{background:var(--blue);border-color:var(--blue);color:#fff}
+.key.back{font-size:18px}
+
+.sentence{font-size:34px;text-align:center;line-height:1.7;margin:8px 0}
+.gap{display:inline-block;min-width:150px;border-bottom:5px dotted var(--ink);padding:0 10px;text-align:center}
+.gap.filled{border-bottom-color:var(--green-b);color:var(--ok);font-weight:800}
+.qrepeat{font-size:20px;color:#444;text-align:center;margin-bottom:4px}
+
+.msg{margin-top:12px;border-radius:16px;padding:12px 16px;font-size:21px;border:3px solid}
+.msg.ok{background:#e9f9ec;border-color:var(--green-b);color:#17491f}
+.msg.ko{background:#fdecea;border-color:#e57368;color:#6e1a14}
+.msg.info{background:var(--blue-soft);border-color:var(--blue);color:#12306f}
+.msg b{font-weight:800}
+.next{margin-top:14px;text-align:center}
+
+/* ---------- le modèle ---------- */
+.modelcard{padding:14px 16px 18px}
+.modelcard h2{margin:0 0 10px;font-size:20px;text-align:center}
+.model{width:min(100%,470px);margin:0 auto}
+.parts{display:grid;grid-template-columns:1fr 1fr}
+.zone{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:default;text-align:center;padding:30px 6px 10px}
+.zone.orange{background:var(--orange-f);border:5px solid var(--orange-b);min-height:176px}
+.zone.green{background:var(--green-f);border:5px solid var(--green-b);border-left-width:3px;min-height:176px}
+.zone.orange{border-right-width:3px}
+.zone.bar{background:#fff;border:5px solid var(--ink);border-top:5px dashed #333;min-height:112px;margin-top:0}
+.zone.target{cursor:pointer;animation:pulse 1.1s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:inset 0 0 0 7px rgba(31,79,184,.55)}}
+.zone.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+@media (prefers-reduced-motion:reduce){.zone.target{animation:none;outline:5px solid var(--blue)}}
+.pill{position:absolute;left:8px;top:7px;min-width:44px;border:3px solid var(--ink);border-radius:12px;background:#fff;
+  padding:0 9px;font-weight:800;font-size:19px;text-align:center;line-height:1.5;height:32px}
+.pill.empty{border-style:dashed;color:#aaa}
+.zword{font-size:23px;font-weight:700;min-height:32px}
+.zword.empty{color:#7d7662;font-weight:400;font-size:19px;font-style:italic}
+.znum{font-size:50px;font-weight:800;line-height:1.1;min-height:56px}
+.znum.dots{color:#6d6d6d;font-size:36px;letter-spacing:3px;font-weight:400}
+.znum.q{color:var(--ink);font-size:62px}
+.znum.res{color:var(--blue)}
+.zcap{position:absolute;right:10px;top:9px;font-size:14px;color:#555;font-style:italic;max-width:55%;text-align:right;line-height:1.2}
+.legend{margin-top:12px;text-align:center;font-size:16px;color:#555}
+
+/* ---------- fin ---------- */
+.end{text-align:center;padding:26px 18px}
+.end h2{font-family:"Segoe Print","Comic Sans MS",cursive;color:var(--red);font-size:38px;margin:0 0 8px}
+.endlist{display:grid;gap:8px;max-width:640px;margin:16px auto;text-align:left;font-size:20px}
+.endlist div{display:flex;gap:12px;align-items:center;border:3px solid var(--ink);border-radius:14px;padding:8px 14px;background:#fff}
+.endlist .tag{margin-left:auto;font-weight:700;font-size:16px;white-space:nowrap}
+.endlist .tag.ok{color:var(--ok)}.endlist .tag.help{color:#a35a00}
+noscript{display:block;padding:20px;font-size:22px}
+</style>
+</head>
+<body>
+<noscript>Cette application a besoin de JavaScript pour fonctionner.</noscript>
+<div class="app" id="app"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* =====================================================================
+   BANQUE DE CONTEXTES : [mot-tout, singulier, partie A, sing., partie B, sing., lieu, (codes imposés)]
+   ===================================================================== */
+const CTX=[
+ ["animaux","un animal","chiens","un chien","chats","un chat","dans le refuge",{chiens:"CI",chats:"CA"}],
+ ["fruits","un fruit","pommes","une pomme","poires","une poire","dans le panier"],
+ ["fleurs","une fleur","roses","une rose","tulipes","une tulipe","dans le jardin"],
+ ["jouets","un jouet","poupées","une poupée","peluches","une peluche","sur l'étagère"],
+ ["livres","un livre","albums","un album","bandes dessinées","une bande dessinée","dans le coin lecture"],
+ ["instruments","un instrument","guitares","une guitare","flûtes","une flûte","dans la salle de musique"],
+ ["légumes","un légume","carottes","une carotte","poireaux","un poireau","dans la caisse"],
+ ["boissons","une boisson","jus","un jus","sodas","un soda","dans le frigo"],
+ ["véhicules","un véhicule","voitures","une voiture","motos","une moto","dans le parking"],
+ ["arbres","un arbre","pommiers","un pommier","cerisiers","un cerisier","dans le verger"],
+ ["volailles","une volaille","poules","une poule","canards","un canard","dans la basse-cour"],
+ ["bateaux","un bateau","voiliers","un voilier","chalutiers","un chalutier","dans le port"],
+ ["vêtements","un vêtement","pantalons","un pantalon","pulls","un pull","dans le placard"],
+ ["poissons","un poisson","carpes","une carpe","brochets","un brochet","dans l'étang"],
+ ["desserts","un dessert","gâteaux","un gâteau","glaces","une glace","sur la table"],
+ ["fournitures","une fourniture","cahiers","un cahier","classeurs","un classeur","dans le cartable"],
+ ["oiseaux","un oiseau","mésanges","une mésange","moineaux","un moineau","dans le parc"],
+ ["outils","un outil","marteaux","un marteau","tournevis","un tournevis","dans l'atelier"]
+];
+
+/* ---------- utilitaires ---------- */
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(0,i);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const vowel=w=>/^[aeiouyhàâäéèêëîïôöùûü]/i.test(w);
+const dePre=w=>vowel(w)?"d'":"de ";
+const plain=s=>s.normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z]/g,"");
+function codesFor(words,forced){
+  const out={};
+  words.forEach(w=>{
+    if(forced&&forced[w]){out[w]=forced[w];return;}
+    const base=plain(w);
+    let k=1;
+    while(k<base.length && words.some(o=>o!==w && plain(o).slice(0,k)===base.slice(0,k))) k++;
+    out[w]=base.slice(0,k);
+  });
+  return out;
+}
+
+/* ---------- génération d'un problème ---------- */
+function makeNums(level){
+  const ce1=level==="CE1";
+  let x,y;
+  do{
+    x=rnd(ce1?11:101,ce1?70:800); y=rnd(ce1?11:101,ce1?70:800);
+  }while(x+y>(ce1?99:999)||x===y||(!ce1&&(x%100===0||y%100===0)));
+  return [x,y];
+}
+function makeProblem(level,kind,c){
+  const [wW,wO,aW,aO,bW,bO,loc,forced]=c;
+  const [x,y]=makeNums(level);
+  const words={w:{w:wW,o:wO},a:{w:aW,o:aO},b:{w:bW,o:bO}};
+  const nums={a:x,b:y,w:x+y};
+  const ask=kind==="tout"?"w":(Math.random()<.5?"a":"b");
+  const codes=codesFor([wW,aW,bW],forced);
+  return{
+    kind,words,nums,ask,loc,
+    code:{w:codes[wW],a:codes[aW],b:codes[bW]},
+    variant:rnd(0,2),
+    res:nums[ask],
+    wordOrder:shuffle(["w","a","b"]),
+    numOrder:shuffle(["w","a","b"]),
+    partOrder:shuffle(["a","b"])
+  };
+}
+function makeSeries(level,mode,n){
+  const ctx=shuffle(CTX).slice(0,n);
+  let kinds;
+  if(mode==="tout")kinds=Array(n).fill("tout");
+  else if(mode==="partie")kinds=Array(n).fill("partie");
+  else{kinds=[];for(let i=0;i<n;i++)kinds.push(i%2?"partie":"tout");kinds=shuffle(kinds);}
+  return ctx.map((c,i)=>makeProblem(level,kinds[i],c));
+}
+
+/* ---------- état ---------- */
+const N=6;
+let S={level:"CE1",mode:"melange",under:true,screen:"play"};
+
+function newSeries(){
+  S.probs=makeSeries(S.level,S.mode,N);
+  S.i=0;S.results=[];S.screen="play";
+  startProblem();
+}
+function startProblem(){
+  const p=S.probs[S.i];
+  S.p=p;S.step=1;
+  S.zones={orange:{w:null,n:null},green:{w:null,n:null},bar:{w:null,n:null}};
+  S.sel=null;S.msg=null;S.opChosen=null;S.opOk=false;S.input="";S.tries=0;S.err=0;
+  S.calcOk=false;S.revealed=false;S.hint=false;S.wholeFound=false;S.phraseWord=null;S.shake=null;
+}
+
+/* ---------- accès rapides ---------- */
+const W=r=>S.p.words[r].w;
+const O=r=>S.p.words[r].o;
+const knownRole=()=>S.p.ask==="a"?"b":"a";
+function zoneOf(role){ // zone qui contient le mot du rôle donné
+  return ["orange","green","bar"].find(z=>S.zones[z].w===role)||null;
+}
+function questionText(){
+  const a=W(S.p.ask);
+  return `Combien y a-t-il ${dePre(a)}${a} ${S.p.loc} ?`;
+}
+function calcParts(){
+  const p=S.p;
+  if(p.kind==="tout")return{x:p.nums.a,op:"+",y:p.nums.b,sym:"+"};
+  return{x:p.nums.w,op:"−",y:p.nums[knownRole()],sym:"−"};
+}
+
+/* ---------- affichage ---------- */
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+function wcls(r){
+  if(S.wholeFound&&r==="w")return "w-whole";
+  const z=zoneOf(r);
+  if(z==="orange")return "w-orange";
+  if(z==="green")return "w-green";
+  return S.under?"w-hint":"";
+}
+function enonceHTML(){
+  const p=S.p;
+  const Wd=r=>`<span class="w ${wcls(r)}">${esc(W(r))}</span>`;
+  const Nb=r=>`<span class="num">${p.nums[r]}</span>`;
+  const head=`${cap(p.loc)}, il y a`;
+  const ask=p.ask, k=knownRole();
+  const q=`Combien y a-t-il ${dePre(W(ask))}${Wd(ask)} ${esc(p.loc)} ?`;
+  let lines;
+  if(p.kind==="tout"){
+    lines=[`${esc(head)} ${Nb("a")} ${Wd("a")} et ${Nb("b")} ${Wd("b")}.`,
+           `Combien y a-t-il ${dePre(W("w"))}${Wd("w")} ${esc(p.loc)} ?`];
+  }else{
+    const first=`${esc(head)} ${Nb("w")} ${Wd("w")}.`;
+    const known=`Il y a ${Nb(k)} ${Wd(k)}.`;
+    if(p.variant===0)lines=[first,`Il n'y a que des ${Wd("a")} et des ${Wd("b")}.`,known,q];
+    else if(p.variant===1)lines=[first,known,`Les autres sont des ${Wd(ask)}.`,q];
+    else lines=[first,`Il y a des ${Wd("a")} et des ${Wd("b")}.`,known,q];
+  }
+  return lines.map(l=>`<p>${l}</p>`).join("");
+}
+
+function zoneHTML(key){
+  const z=S.zones[key],p=S.p;
+  const targetable=(S.step===2&&S.sel&&S.sel.t==="word"&&key!=="bar"&&!z.w)||
+                   (S.step===3&&S.sel&&S.sel.t==="num"&&!z.n);
+  const wordPart=z.w
+    ? `<div class="pill">${esc(p.code[z.w])}</div><div class="zword">${esc(W(z.w))}</div>`
+    : `<div class="pill empty">&nbsp;</div><div class="zword empty">le mot ?</div>`;
+  let num;
+  if(z.n){
+    if(z.n===p.ask){
+      num=S.calcOk?`<div class="znum res">${p.res}</div>`:`<div class="znum q">?</div>`;
+    }else num=`<div class="znum">${p.nums[z.n]}</div>`;
+  }else num=`<div class="znum dots">.......</div>`;
+  const cap_=key==="bar"?(z.w?"le tout, la grande quantité":""):"une partie";
+  const cls=["zone",key==="bar"?"bar":key];
+  if(targetable)cls.push("target");
+  if(S.shake===key)cls.push("shake");
+  return `<div class="${cls.join(" ")}" data-act="zone" data-z="${key}">${wordPart}${cap_?`<span class="zcap">${cap_}</span>`:""}${num}</div>`;
+}
+function modelHTML(){
+  return `<div class="card modelcard">
+    <h2>Le modèle</h2>
+    <div class="model">
+      <div class="parts">${zoneHTML("orange")}${zoneHTML("green")}</div>
+      ${zoneHTML("bar")}
+    </div>
+    <div class="legend">En haut les deux parties, en bas le mot qui réunit les deux autres.</div>
+  </div>`;
+}
+
+const ICON_SEARCH=`<svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><circle cx="17" cy="17" r="10" fill="none" stroke="#fff" stroke-width="4"/><line x1="25" y1="25" x2="36" y2="36" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>`;
+
+function chipsHTML(roles,kind,selId,used){
+  return `<div class="chips">`+roles.map(r=>{
+    const label=kind==="num"?(r===S.p.ask?"?":S.p.nums[r]):esc(W(r));
+    const cls=["chip"];
+    if(kind==="num"&&r===S.p.ask)cls.push("q");
+    if(selId===r)cls.push("sel");
+    if(used&&used(r))cls.push("used");
+    return `<button class="${cls.join(" ")}" data-act="${kind==="num"?"selNum":kind==="phrase"?"phrase":"selWord"}" data-r="${r}">${label}</button>`;
+  }).join("")+`</div>`;
+}
+
+function panelHTML(){
+  const p=S.p;
+  if(S.step===1){
+    return `<div class="card">
+      <div class="stephead lang">${ICON_SEARCH}<div>Étape 1 · Trouve le mot qui peut réunir les deux autres
+        <small>Un seul des trois mots peut désigner à la fois les deux autres.</small></div></div>
+      <div class="chips">${p.wordOrder.map(r=>`<button class="chip big" data-act="pickWhole" data-r="${r}">${esc(W(r))}</button>`).join("")}</div>
+      <div style="margin-top:10px"><button class="btn" data-act="hint">Un coup de pouce</button></div>
+      ${S.hint?`<div class="hintbox">Teste avec : « ${esc(cap(O("a")))} est ${esc(O("w"))}. » et « ${esc(cap(O("w")))} est ${esc(O("a"))}. »<br>Le mot qui réunit est celui qu'on peut dire pour <b>chacun</b> des autres.</div>`:""}
+    </div>`;
+  }
+  if(S.step===2){
+    const placed=r=>zoneOf(r)!==null;
+    return `<div class="card">
+      <div class="stephead"><div>Étape 2 · Place les deux mots des parties
+        <small>Touche un mot, puis touche une partie du modèle (orange ou verte).</small></div></div>
+      ${chipsHTML(p.partOrder,"word",S.sel&&S.sel.t==="word"?S.sel.r:null,placed)}
+    </div>`;
+  }
+  if(S.step===3){
+    const placed=r=>["orange","green","bar"].some(z=>S.zones[z].n===r);
+    return `<div class="card">
+      <div class="stephead"><div>Étape 3 · Complète les nombres et place le ?
+        <small>Relis l'énoncé : à quel mot va chaque nombre ? Que cherche-t-on ?</small></div></div>
+      ${chipsHTML(p.numOrder,"num",S.sel&&S.sel.t==="num"?S.sel.r:null,placed)}
+    </div>`;
+  }
+  if(S.step===4){
+    const cp=calcParts();
+    let inner=`<div class="stephead"><div>Étape 4 · Écris le calcul
+        <small>${S.opOk?"Calcule le résultat.":"Que cherche-t-on : le tout ou une partie ?"}</small></div></div>`;
+    inner+=`<div class="rule">
+        <div class="r-add"><strong>Je cherche la grande quantité (le tout)</strong><br>→ je fais une <b>addition</b></div>
+        <div class="r-sub"><strong>Je cherche une partie</strong><br>→ je fais une <b>soustraction</b></div>
+      </div>`;
+    if(!S.opOk){
+      inner+=`<div class="opbtns">
+        <button class="opbtn" data-act="op" data-op="add">+ Addition<small>je réunis</small></button>
+        <button class="opbtn" data-act="op" data-op="sub">− Soustraction<small>j'enlève une partie</small></button>
+      </div>`;
+    }else{
+      inner+=`<div class="calcline">${cp.x} ${cp.sym} ${cp.y} = <span class="ans">${esc(S.input)||"&nbsp;"}</span></div>
+      <div class="keypad">
+        ${[1,2,3,4,5,6,7,8,9].map(d=>`<button class="key" data-act="key" data-k="${d}">${d}</button>`).join("")}
+        <button class="key back" data-act="back">Effacer</button>
+        <button class="key" data-act="key" data-k="0">0</button>
+        <button class="key wide" data-act="ok">OK</button>
+      </div>
+      <div class="qrepeat">Pour trouver le résultat, tu peux utiliser les techniques apprises (calcul posé, arbre…).</div>`;
+    }
+    return `<div class="card">${inner}</div>`;
+  }
+  if(S.step===5){
+    const done=S.phraseWord!==null;
+    const gap=done?`<span class="gap filled">${esc(W(S.phraseWord))}</span>`:`<span class="gap">&nbsp;</span>`;
+    return `<div class="card">
+      <div class="stephead"><div>Étape 5 · Écris la phrase réponse
+        <small>Je réponds avec les mots de la question.</small></div></div>
+      <div class="qrepeat">${esc(questionText())}</div>
+      <div class="sentence">Il y a <b>${p.res}</b> ${gap} ${esc(p.loc)}.</div>
+      ${done?"":chipsHTML(p.wordOrder,"phrase",null)}
+    </div>`;
+  }
+  return "";
+}
+function stepsHTML(){
+  const names=["Le mot qui réunit","Les parties","Les nombres et le ?","Le calcul","La phrase réponse"];
+  return `<ol class="steps">`+names.map((n,i)=>{
+    const k=i+1;
+    const cls=S.step>k||(S.step===5&&S.phraseWord!==null)?"done":(S.step===k?"cur":"");
+    return `<li class="${cls}"><b>${k}</b>${n}</li>`;
+  }).join("")+`</ol>`;
+}
+function msgHTML(){
+  if(!S.msg)return "";
+  return `<div class="msg ${S.msg.t}">${S.msg.h}</div>`;
+}
+function nextHTML(){
+  if(S.step===5&&S.phraseWord!==null){
+    const last=S.i===N-1;
+    return `<div class="next"><button class="btn primary" data-act="next">${last?"Voir mon bilan":"Problème suivant →"}</button></div>`;
+  }
+  return "";
+}
+function headerHTML(){
+  return `<div class="top">
+    <h1>Les problèmes de composition</h1>
+    <div class="ctrl">
+      <div class="seg" role="group" aria-label="Niveau">
+        <button class="${S.level==="CE1"?"on":""}" data-act="level" data-v="CE1">CE1</button>
+        <button class="${S.level==="CE2"?"on":""}" data-act="level" data-v="CE2">CE2</button>
+      </div>
+      <select data-act="mode" aria-label="Type de problèmes">
+        <option value="melange"${S.mode==="melange"?" selected":""}>Tout et parties mélangés</option>
+        <option value="tout"${S.mode==="tout"?" selected":""}>Je cherche le tout</option>
+        <option value="partie"${S.mode==="partie"?" selected":""}>Je cherche une partie</option>
+      </select>
+      <label class="chk"><input type="checkbox" data-act="under"${S.under?" checked":""}> Souligner les mots</label>
+      <button class="btn" data-act="new">Nouvelle série</button>
+    </div>
+  </div>`;
+}
+function progHTML(){
+  let d="";
+  for(let i=0;i<N;i++){
+    let c="dot";
+    if(S.results[i]!==undefined)c+=S.results[i]?" ok":" help";
+    else if(i===S.i&&S.screen==="play")c+=" cur";
+    d+=`<span class="${c}"></span>`;
+  }
+  return `<div class="prog">Problème ${Math.min(S.i+1,N)} sur ${N} ${d}</div>`;
+}
+function endHTML(){
+  const good=S.results.filter(Boolean).length;
+  return `<div class="card end">
+    <h2>Bravo !</h2>
+    <div>Tu as réussi ${good} problème${good>1?"s":""} sur ${N} du premier coup.</div>
+    <div class="endlist">${S.probs.map((p,i)=>`<div><span>${i+1}.</span><span>${esc(cap(p.words.a.w))} et ${esc(p.words.b.w)} → <b>${esc(p.words.w.w)}</b></span>
+      <span class="tag ${S.results[i]?"ok":"help"}">${S.results[i]?"du premier coup":"avec de l'aide"}</span></div>`).join("")}</div>
+    <button class="btn primary" data-act="new">Nouvelle série</button>
+  </div>`;
+}
+
+function render(){
+  const root=document.getElementById("app");
+  if(S.screen==="end"){root.innerHTML=headerHTML()+progHTML()+endHTML();return;}
+  root.innerHTML=headerHTML()+progHTML()+`<div class="grid">
+    <div class="enonce"><div class="card">${enonceHTML()}</div></div>
+    <div class="panel">${stepsHTML()}${panelHTML()}${msgHTML()}${nextHTML()}</div>
+    <div class="modelwrap">${modelHTML()}</div>
+  </div>`;
+}
+
+/* ---------- messages ---------- */
+function say(t,h){S.msg={t,h};}
+
+/* ---------- actions ---------- */
+const A={
+  level(el){S.level=el.dataset.v;newSeries();},
+  mode(el){S.mode=el.value;newSeries();},
+  under(el){S.under=el.checked;},
+  new(){newSeries();},
+
+  hint(){S.hint=true;},
+
+  pickWhole(el){
+    const r=el.dataset.r;
+    if(r==="w"){
+      S.wholeFound=true;S.zones.bar.w="w";S.step=2;S.sel=null;
+      say("ok",`Oui ! Le mot <b>${esc(W("w"))}</b> peut désigner à la fois les ${esc(W("a"))} et les ${esc(W("b"))}.<br>${esc(cap(O("a")))} est ${esc(O("w"))}. ${esc(cap(O("b")))} est ${esc(O("w"))}.`);
+    }else{
+      S.err++;
+      const other=r==="a"?"b":"a";
+      say("ko",`Non. ${esc(cap(O(other)))} n'est pas ${esc(O(r))}.<br>Cherche le mot qui peut désigner à la fois les ${esc(W("a"))} et les ${esc(W("b"))}.`);
+    }
+  },
+
+  selWord(el){
+    const r=el.dataset.r;
+    S.sel=(S.sel&&S.sel.t==="word"&&S.sel.r===r)?null:{t:"word",r};
+  },
+  selNum(el){
+    const r=el.dataset.r;
+    S.sel=(S.sel&&S.sel.t==="num"&&S.sel.r===r)?null:{t:"num",r};
+  },
+
+  zone(el){
+    const key=el.dataset.z;
+    const z=S.zones[key];
+    S.shake=null;
+    if(S.step===2){
+      if(key==="bar")return;
+      if(S.sel&&S.sel.t==="word"&&!z.w){
+        z.w=S.sel.r;S.sel=null;
+        if(S.zones.orange.w&&S.zones.green.w){
+          S.step=3;
+          say("ok",`Bien ! Les deux parties sont placées : les <b>${esc(W(S.zones.orange.w))}</b> et les <b>${esc(W(S.zones.green.w))}</b>.`);
+        }else S.msg=null;
+      }else if(!S.sel&&z.w){z.w=null;S.msg=null;}
+    }else if(S.step===3){
+      if(S.sel&&S.sel.t==="num"&&!z.n){
+        const r=S.sel.r;
+        if(z.w===r){
+          z.n=r;S.sel=null;
+          if(["orange","green","bar"].every(k=>S.zones[k].n)){
+            S.step=4;
+            const kind=S.p.kind;
+            say("ok",kind==="tout"
+              ?`Très bien ! On cherche <b>le tout</b> : le mot <b>${esc(W("w"))}</b>.`
+              :`Très bien ! On cherche <b>une partie</b> : les <b>${esc(W(S.p.ask))}</b>.`);
+          }else S.msg=null;
+        }else{
+          S.err++;S.shake=key;S.sel=null;
+          if(r===S.p.ask)say("ko",`Ce n'est pas là. Que cherche-t-on ? Relis la question : « ${esc(questionText())} »`);
+          else say("ko",`Relis l'énoncé : le nombre <b>${S.p.nums[r]}</b> va avec quel mot ?`);
+        }
+      }
+    }
+  },
+
+  op(el){
+    const op=el.dataset.op;
+    const good=S.p.kind==="tout"?"add":"sub";
+    if(op===good){
+      S.opOk=true;
+      say("ok",S.p.kind==="tout"
+        ?`On cherche le tout (la grande quantité), il faut donc réunir les ${esc(W("a"))} et les ${esc(W("b"))}. On fait donc une <b>addition</b>.`
+        :`On cherche une partie, il faut donc faire une <b>soustraction</b> : dans le tout, j'enlève la partie que je connais.`);
+    }else{
+      S.err++;
+      say("ko",S.p.kind==="tout"
+        ?`Non. Tu cherches la grande quantité, le tout : il faut <b>réunir</b> les parties.`
+        :`Non. Tu cherches une partie : on part du tout et on <b>enlève</b> la partie connue.`);
+    }
+  },
+  key(el){if(S.input.length<4)S.input+=el.dataset.k;},
+  back(){S.input=S.input.slice(0,-1);},
+  ok(){
+    if(S.input==="")return;
+    const cp=calcParts();
+    if(parseInt(S.input,10)===S.p.res){
+      S.calcOk=true;S.step=5;
+      say("ok",`Oui : <b>${cp.x} ${cp.sym} ${cp.y} = ${S.p.res}</b>`);
+    }else{
+      S.tries++;S.err++;
+      if(S.tries>=3){
+        S.input=String(S.p.res);S.calcOk=true;S.step=5;S.revealed=true;
+        say("info",`Le résultat est <b>${cp.x} ${cp.sym} ${cp.y} = ${S.p.res}</b>. Refais le calcul posé ou l'arbre pour comprendre.`);
+      }else{
+        S.input="";
+        say("ko","Ce n'est pas le bon résultat. Vérifie ton calcul et essaie encore.");
+      }
+    }
+  },
+
+  phrase(el){
+    const r=el.dataset.r;
+    if(r===S.p.ask){
+      S.phraseWord=r;
+      say("ok",`Bravo ! La phrase réponse utilise le mot de la question : <b>${esc(W(r))}</b>.`);
+    }else{
+      S.err++;
+      say("ko",`Relis la question : « ${esc(questionText())} » On répond avec le mot de la question.`);
+    }
+  },
+
+  next(){
+    S.results[S.i]=(S.err===0);
+    if(S.i>=N-1){S.screen="end";}
+    else{S.i++;startProblem();}
+  }
+};
+
+/* ---------- événements ---------- */
+const root=document.getElementById("app");
+root.addEventListener("click",e=>{
+  const el=e.target.closest("[data-act]");
+  if(!el||el.tagName==="SELECT"||el.tagName==="INPUT")return;
+  const act=el.dataset.act;
+  S.shake=null;
+  if(A[act]){A[act](el);render();}
+});
+root.addEventListener("change",e=>{
+  const el=e.target.closest("[data-act]");
+  if(!el)return;
+  if(A[el.dataset.act]){A[el.dataset.act](el);render();}
+});
+document.addEventListener("keydown",e=>{
+  if(S.screen!=="play"||S.step!==4||!S.opOk)return;
+  if(/^[0-9]$/.test(e.key)){A.key({dataset:{k:e.key}});render();}
+  else if(e.key==="Backspace"){A.back();render();}
+  else if(e.key==="Enter"){A.ok();render();}
+});
+
+newSeries();render();
+window.__app={S:()=>S,A,render,newSeries,CTX}; // pour les tests
+})();
+</script>
+</body>
+</html>

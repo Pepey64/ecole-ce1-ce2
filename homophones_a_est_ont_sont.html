@@ -1,0 +1,397 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Homophones a, est, ont, sont</title>
+<style>
+/* Mise en page : bandeau de technique fixe en haut, onglets d'exercices, une carte d'exercice à la fois. Grands boutons pour le TBI. */
+:root{
+  --bg:#F6F7F4; --paper:#FFFFFF; --ink:#1E2328; --muted:#646B73; --line:#DCE0E3;
+  --verbe:#D32F2F; --verbe-bg:#FDECEC; --inv:#8D5524; --pron:#7B1FA2; --det:#5F6368;
+  --gs:#FFE97A; --ok:#2E8B4E; --ok-bg:#E3F4E8; --ko:#C62828; --ko-bg:#FCE4E4;
+  --accent:#1F2A48; --accent-ink:#FFFFFF; --chip:#EEF0F3;
+  --font: "Andika","Atkinson Hyperlegible","Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#15181C; --paper:#1F2328; --ink:#ECEEF0; --muted:#A3AAB2; --line:#353B42;
+  --verbe:#FF6B66; --verbe-bg:#3A2224; --inv:#D9A066; --pron:#CE8BE6; --det:#B5BAC0;
+  --gs:#6B5A12; --ok:#5CCB84; --ok-bg:#1D3326; --ko:#FF7A72; --ko-bg:#3A2224;
+  --accent:#C9D3F0; --accent-ink:#15181C; --chip:#2A2F35; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#15181C; --paper:#1F2328; --ink:#ECEEF0; --muted:#A3AAB2; --line:#353B42;
+  --verbe:#FF6B66; --verbe-bg:#3A2224; --inv:#D9A066; --pron:#CE8BE6; --det:#B5BAC0;
+  --gs:#6B5A12; --ok:#5CCB84; --ok-bg:#1D3326; --ko:#FF7A72; --ko-bg:#3A2224;
+  --accent:#C9D3F0; --accent-ink:#15181C; --chip:#2A2F35; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:18px;line-height:1.45;margin:0}
+.wrap{max-width:980px;margin:0 auto;padding-inline:16px;padding-block:18px 40px;display:flex;flex-direction:column;gap:16px}
+h1{font-size:clamp(1.5rem,3.5vw,2.1rem);margin:0;text-wrap:balance;color:var(--accent)}
+.sub{color:var(--muted);margin:2px 0 0}
+.v{color:var(--verbe);font-weight:700}.inv{color:var(--inv);font-weight:700}.pr{color:var(--pron);font-weight:700}.det{color:var(--det);font-weight:700}
+.gs{background:var(--gs);border-radius:3px;padding:0 2px}
+.imp{color:var(--verbe);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+
+.tech{background:var(--verbe-bg);border:1.5px solid color-mix(in srgb,var(--verbe) 35%,transparent);border-radius:14px;padding:12px 16px;display:flex;flex-wrap:wrap;gap:8px 22px;align-items:center}
+.tech p{margin:0;flex:1 1 380px;min-width:0}
+.pairs{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:1.05rem}
+.pairs span{white-space:nowrap}
+
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tab{font:inherit;font-size:1rem;border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:8px 16px;cursor:pointer;display:flex;gap:8px;align-items:center}
+.tab .n{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--paper);font-weight:700;font-size:.9rem}
+.tab[aria-selected="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.tab[aria-selected="true"] .n{background:var(--accent-ink);color:var(--accent)}
+.tab .sc{font-size:.85rem;opacity:.8;font-variant-numeric:tabular-nums}
+.tab .sc.done::before{content:"✔ "}
+
+.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:20px clamp(14px,3vw,28px);display:flex;flex-direction:column;gap:16px}
+.card h2{margin:0;font-size:1.3rem;text-wrap:balance}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.score{font-variant-numeric:tabular-nums;color:var(--muted)}
+.btn{font:inherit;font-weight:700;border:2px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:12px;padding:9px 18px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+button:focus-visible,textarea:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 60%,transparent);outline-offset:2px}
+
+/* Exercice 1 */
+.list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:12px}
+.item{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.item.ok{border-color:var(--ok);background:var(--ok-bg)}
+.sent{font-size:1.25rem;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.opt{font:inherit;font-size:1.2rem;font-weight:700;min-width:64px;border:2px solid var(--line);background:var(--chip);color:var(--ink);border-radius:10px;padding:4px 12px;cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt.good{border-color:var(--ok);background:var(--ok);color:var(--paper)}
+.opt.bad{border-color:var(--ko);background:var(--ko-bg);color:var(--ko);text-decoration:line-through}
+.opt:disabled{cursor:default}
+.fb{font-size:1rem;border-radius:10px;padding:8px 12px;background:var(--chip)}
+.fb.ok{background:var(--ok-bg)}.fb.ko{background:var(--ko-bg)}
+.mark{font-weight:700}.mark.ok{color:var(--ok)}.mark.ko{color:var(--ko)}
+@keyframes shake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+.shake{animation:shake .35s}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}}
+
+/* Exercice 2 */
+.row2{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 16px;align-items:center}
+.row2.ok{border-color:var(--ok);background:var(--ok-bg)}
+.row2 .test{font-style:italic;font-size:1.2rem}
+.yn{display:flex;gap:8px}
+.yn .opt{min-width:72px}
+.row2 .step2{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:1.2rem}
+.row2 .q{color:var(--muted);font-size:.95rem;grid-column:1/-1}
+@media (max-width:560px){.row2{grid-template-columns:1fr}}
+
+/* Exercice 3 */
+.text3{font-size:1.3rem;line-height:2.4}
+.blank{font:inherit;font-weight:700;min-width:84px;border:none;border-bottom:3px solid var(--muted);background:var(--chip);color:var(--ink);border-radius:8px 8px 0 0;padding:0 10px;cursor:pointer;line-height:1.6}
+.blank.sel{outline:3px solid var(--accent);outline-offset:1px}
+.blank.good{background:var(--ok-bg);border-bottom-color:var(--ok);color:var(--ok)}
+.blank.badw{background:var(--ko-bg);border-bottom-color:var(--ko);color:var(--ko)}
+.palette{display:flex;flex-wrap:wrap;gap:8px;position:sticky;bottom:calc(8px + env(safe-area-inset-bottom,0px));background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:10px;box-shadow:0 6px 20px rgba(0,0,0,.12)}
+.palette .lbl{flex-basis:100%;font-size:.95rem;color:var(--muted)}
+
+/* Exercice 4 */
+.match{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(48px,1.3fr) minmax(0,1.6fr);gap:0}
+.match svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.col{display:flex;flex-direction:column;gap:10px;justify-content:space-around}
+.mw,.mn{font:inherit;border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:12px;padding:8px 12px;cursor:pointer;text-align:center;position:relative;z-index:1}
+.mw{font-size:1.4rem;font-weight:700}
+.mn{font-size:1.05rem}
+.mw.sel{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent)}
+.mw.linked{background:var(--chip)}
+.mw.good{border-color:var(--ok)}.mw.badw{border-color:var(--ko)}
+.hint{color:var(--muted);font-size:.95rem;margin:0}
+
+/* Exercice 5 */
+textarea{font:inherit;font-size:1.3rem;width:100%;min-height:90px;border:2px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--paper);color:var(--ink);resize:vertical}
+.checks{display:flex;flex-direction:column;gap:10px}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Les homophones grammaticaux</h1>
+    <p class="sub"><span class="v">a</span> / <span class="inv">à</span> · <span class="v">est</span> / <span class="inv">et</span> · <span class="v">ont</span> / <span class="pr">on</span> · <span class="v">sont</span> / <span class="det">son</span></p>
+  </header>
+
+  <section class="tech" aria-label="Ma technique">
+    <p><b>Ma technique :</b> je remplace le mot par le <span class="v">verbe</span> à l'<b>imparfait</b>. Si la phrase veut toujours dire quelque chose, c'est le verbe.</p>
+    <div class="pairs"><span><span class="v">a</span> ➜ <span class="v">avait</span></span><span><span class="v">ont</span> ➜ <span class="v">avaient</span></span><span><span class="v">est</span> ➜ <span class="v">était</span></span><span><span class="v">sont</span> ➜ <span class="v">étaient</span></span></div>
+  </section>
+
+  <nav class="tabs" role="tablist" id="tabs"></nav>
+  <main id="stage"></main>
+</div>
+
+<script>
+"use strict";
+/* ------------------------------------------------------------ données */
+const NAT = {a:"verbe avoir", "à":"mot invariable", est:"verbe être", et:"mot de liaison",
+             on:"pronom personnel", ont:"verbe avoir", son:"déterminant possessif", sont:"verbe être"};
+const CLS = {a:"v", "à":"inv", est:"v", et:"inv", on:"pr", ont:"v", son:"det", sont:"v"};
+const IMPF = {a:"avait", ont:"avaient", est:"était", sont:"étaient"};
+const low = w => w.toLowerCase();
+const cap = (w, up) => up ? w.charAt(0).toUpperCase() + w.slice(1) : w;
+const W = (w) => `<span class="${CLS[low(w)]}">${w}</span>`;
+
+// Exercice 1 : [avant, [mot1, mot2], après, index du bon mot]
+const EX1 = [
+  ["Ludo", ["a","à"], "un vélo rouge.", 0], ["Léo va", ["a","à"], "la plage.", 1],
+  ["Le gâteau", ["est","et"], "délicieux.", 0], ["J'achète du pain", ["est","et"], "du lait.", 1],
+  ["", ["On","Ont"], "joue dans la cour.", 0], ["Les enfants", ["on","ont"], "peur du loup.", 1],
+  ["Ludo cherche", ["son","sont"], "ballon.", 0], ["Les chats", ["son","sont"], "sur le toit.", 1]];
+
+// Exercice 2 : [avant, bon mot, après, paire]
+const EX2 = [
+  ["Ludo","a","un chat.",["a","à"]], ["Elle pense","à","sa maman.",["a","à"]],
+  ["Le ciel","est","gris.",["est","et"]], ["Ludo","et","Léo dansent.",["est","et"]],
+  ["","On","chante une chanson.",["On","Ont"]], ["Mes amis","sont","gentils.",["son","sont"]],
+  ["Léo prend","son","cahier.",["son","sont"]], ["Les oiseaux","ont","faim.",["on","ont"]]];
+
+// Exercice 3 : texte à trous (index impairs = réponses)
+const EX3 = ["Aujourd'hui, Ludo ","et"," Léo vont ","à"," la piscine. Ludo ","a"," un nouveau maillot. Léo met ","son",
+  " bonnet de bain. Les deux amis ","sont"," très contents. ","On"," entend les cris des enfants. Ils ","ont",
+  " un peu froid, mais l'eau ","est"," bonne ! Léo a peur, ","et"," il reste au bord."];
+const PALETTE = ["a","à","est","et","on","ont","son","sont"];
+
+const EX4_W = ["a","à","est","et","on","ont","son","sont"];
+const EX4_N = ["verbe avoir","verbe être","mot invariable","mot de liaison","pronom personnel","déterminant possessif"];
+
+/* verbe de la paire + phrase testée à l'imparfait */
+function verbOf(pair){ return pair.find(w => IMPF[low(w)]); }
+function testSentence(before, pair, after){
+  const v = verbOf(pair); const up = before === "";
+  const imp = cap(IMPF[low(v)], up);
+  return { html: `${before} <span class="imp">${imp}</span> ${after}`.trim(), verb: v };
+}
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+/* ------------------------------------------------------------ état */
+const state = { tab: 0, scores: [null, null, null, null, null] };
+const TABS = [["Entoure","1"],["Je teste","2"],["Le texte","3"],["Relie","4"],["J'écris","5"]];
+const RENDER = [ex1, ex2, ex3, ex4, ex5];
+const stage = document.getElementById("stage");
+
+function renderTabs(){
+  const t = document.getElementById("tabs"); t.innerHTML = "";
+  TABS.forEach(([name, n], i) => {
+    const b = document.createElement("button");
+    b.className = "tab"; b.id = "tab-" + i; b.setAttribute("role", "tab");
+    b.setAttribute("aria-selected", i === state.tab);
+    const s = state.scores[i];
+    b.innerHTML = `<span class="n">${n}</span>${name}` + (s ? ` <span class="sc ${s.done ? "done" : ""}">${s.txt}</span>` : "");
+    b.onclick = () => { state.tab = i; try { localStorage.setItem("homo-tab", i); } catch(e){} show(); };
+    t.appendChild(b);
+  });
+}
+function setScore(i, txt, done){ state.scores[i] = { txt, done }; renderTabs(); }
+function show(){ renderTabs(); stage.innerHTML = ""; RENDER[state.tab](); }
+function el(html){ const d = document.createElement("div"); d.innerHTML = html.trim(); return d.firstElementChild; }
+function card(title, onReset){
+  const c = el(`<section class="card"><div class="bar"><h2>${title}</h2><span class="score" aria-live="polite"></span></div><div class="body" style="display:flex;flex-direction:column;gap:12px"></div><div class="bar foot"></div></section>`);
+  const r = el(`<button class="btn ghost" type="button">Recommencer</button>`); r.onclick = onReset;
+  c.querySelector(".foot").appendChild(r); stage.appendChild(c);
+  return { body: c.querySelector(".body"), score: c.querySelector(".score"), foot: c.querySelector(".foot") };
+}
+function shakeIt(n){ n.classList.remove("shake"); void n.offsetWidth; n.classList.add("shake"); }
+
+/* ------------------------------------------------------------ 1. Entoure */
+let ex1Order = EX1.map((_, i) => i);
+function ex1(){
+  const C = card("Entoure le bon mot.", () => { ex1Order = shuffle(ex1Order); state.scores[0] = null; show(); });
+  const list = el(`<div class="list"></div>`); C.body.appendChild(list);
+  let firstTry = 0, done = 0;
+  const upd = () => { C.score.textContent = `${firstTry} / ${EX1.length} du premier coup`; if (done === EX1.length) setScore(0, `${firstTry}/8`, true); };
+  ex1Order.forEach((idx) => {
+    const [b, pair, a, good] = EX1[idx];
+    const it = el(`<div class="item"><div class="sent"></div><div class="fb" hidden></div></div>`);
+    const s = it.querySelector(".sent"), fb = it.querySelector(".fb");
+    if (b) s.append(b);
+    let tried = false;
+    pair.forEach((w, k) => {
+      const o = el(`<button class="opt" type="button">${w}</button>`);
+      o.onclick = () => {
+        const t = testSentence(b, pair, a);
+        const verbOk = low(pair[good]) === low(t.verb);
+        fb.hidden = false;
+        fb.innerHTML = `Je teste : ${t.html} ` + (verbOk
+          ? `<span class="mark ok">✔</span> ça veut dire quelque chose ➜ c'est le verbe : ${W(pair[good])}.`
+          : `<span class="mark ko">✘</span> ça ne veut rien dire ➜ ce n'est pas le verbe : ${W(pair[good])}, ${NAT[low(pair[good])]}.`);
+        if (k === good){
+          o.classList.add("good"); it.classList.add("ok"); fb.className = "fb ok";
+          it.querySelectorAll(".opt").forEach(x => x.disabled = true);
+          if (!tried) firstTry++; done++; upd();
+        } else {
+          tried = true; o.classList.add("bad"); o.disabled = true; fb.className = "fb ko"; shakeIt(it);
+        }
+      };
+      s.append(o); if (k === 0) s.append(" / ");
+    });
+    s.append(a);
+    list.appendChild(it);
+  });
+  upd();
+}
+
+/* ------------------------------------------------------------ 2. Je teste */
+let ex2Order = EX2.map((_, i) => i);
+function ex2(){
+  const C = card("Je lis la phrase avec l'imparfait. Est-ce qu'elle veut dire quelque chose ?", () => { ex2Order = shuffle(ex2Order); state.scores[1] = null; show(); });
+  let firstTry = 0, done = 0;
+  const upd = () => { C.score.textContent = `${firstTry} / ${EX2.length} du premier coup`; if (done === EX2.length) setScore(1, `${firstTry}/8`, true); };
+  ex2Order.forEach((idx) => {
+    const [b, good, a, pair] = EX2[idx];
+    const t = testSentence(b, pair, a);
+    const sense = low(good) === low(t.verb);
+    const row = el(`<div class="row2"><div class="test">${t.html}</div><div class="yn"></div><div class="q" hidden></div><div class="step2" hidden></div></div>`);
+    const yn = row.querySelector(".yn"), s2 = row.querySelector(".step2"), q = row.querySelector(".q");
+    let errors = 0;
+    [["Oui", true], ["Non", false]].forEach(([lab, val]) => {
+      const o = el(`<button class="opt" type="button">${lab}</button>`);
+      o.onclick = () => {
+        if (val === sense){
+          o.classList.add("good"); yn.querySelectorAll(".opt").forEach(x => x.disabled = true);
+          q.hidden = false; q.innerHTML = sense ? "La phrase a du sens ➜ c'est le verbe. Donc j'écris :" : "Ça ne veut rien dire ➜ ce n'est pas le verbe. Donc j'écris :";
+          s2.hidden = false; buildStep2();
+        } else { errors++; o.classList.add("bad"); o.disabled = true; shakeIt(row); }
+      };
+      yn.appendChild(o);
+    });
+    function buildStep2(){
+      if (b) s2.append(b);
+      pair.forEach((w, k) => {
+        const o = el(`<button class="opt" type="button">${w}</button>`);
+        o.onclick = () => {
+          if (low(w) === low(good)){
+            o.classList.add("good");
+            s2.querySelectorAll(".opt").forEach(x => x.disabled = true);
+            row.classList.add("ok"); if (!errors) firstTry++; done++; upd();
+          } else { errors++; o.classList.add("bad"); o.disabled = true; shakeIt(row); }
+        };
+        s2.append(o); if (k === 0) s2.append(" / ");
+      });
+      s2.append(a);
+    }
+    C.body.appendChild(row);
+  });
+  upd();
+}
+
+/* ------------------------------------------------------------ 3. Le texte */
+function ex3(){
+  const C = card("Complète le texte.", () => { state.scores[2] = null; show(); });
+  const text = el(`<p class="text3" style="margin:0"></p>`);
+  const pal = el(`<div class="palette"><span class="lbl">Clique sur un trou, puis sur le bon mot :</span></div>`);
+  const blanks = []; let sel = null;
+  EX3.forEach((t, i) => {
+    if (i % 2 === 0){ text.append(t); return; }
+    const up = /^[A-ZÀ-Ý]/.test(t);
+    const bl = el(`<button class="blank" type="button" aria-label="trou ${blanks.length + 1}">&nbsp;</button>`);
+    bl.dataset.ans = low(t); bl.dataset.up = up ? "1" : "";
+    bl.onclick = () => { blanks.forEach(x => x.classList.remove("sel")); bl.classList.add("sel"); sel = bl; };
+    blanks.push(bl); text.append(bl);
+  });
+  PALETTE.forEach(w => {
+    const o = el(`<button class="opt" type="button">${w}</button>`);
+    o.onclick = () => {
+      if (!sel) { sel = blanks.find(x => !x.dataset.val) || blanks[0]; }
+      sel.dataset.val = w; sel.textContent = cap(w, !!sel.dataset.up);
+      sel.classList.remove("good","badw","sel");
+      const next = blanks.find(x => !x.dataset.val);
+      sel = next || null; if (next) next.classList.add("sel");
+    };
+    pal.appendChild(o);
+  });
+  blanks[0].classList.add("sel"); sel = blanks[0];
+  C.body.append(text, pal);
+  const chk = el(`<button class="btn" type="button">Je vérifie</button>`);
+  chk.onclick = () => {
+    let n = 0;
+    blanks.forEach(bl => {
+      bl.classList.remove("good","badw","sel");
+      if (!bl.dataset.val) return;
+      if (bl.dataset.val === bl.dataset.ans){ bl.classList.add("good"); n++; } else bl.classList.add("badw");
+    });
+    C.score.textContent = `${n} / ${blanks.length} justes` + (n < blanks.length ? " · corrige les mots en rouge avec l'imparfait" : "");
+    setScore(2, `${n}/${blanks.length}`, n === blanks.length);
+  };
+  C.foot.prepend(chk);
+}
+
+/* ------------------------------------------------------------ 4. Relie */
+function ex4(){
+  const links = {}; let sel = null;
+  const C = card("Relie chaque mot à sa nature.", () => { state.scores[3] = null; show(); });
+  C.body.appendChild(el(`<p class="hint">Clique sur un mot, puis sur sa nature. Un trait les relie.</p>`));
+  const m = el(`<div class="match"><svg aria-hidden="true"></svg><div class="col words"></div><div></div><div class="col nat"></div></div>`);
+  const svg = m.querySelector("svg"), cw = m.querySelector(".words"), cn = m.querySelector(".nat");
+  const wb = {}, nb = {};
+  EX4_W.forEach(w => {
+    const b = el(`<button class="mw" type="button">${W(w)}</button>`); wb[w] = b;
+    b.onclick = () => { Object.values(wb).forEach(x => x.classList.remove("sel")); b.classList.add("sel"); sel = w; };
+    cw.appendChild(b);
+  });
+  EX4_N.forEach(n => {
+    const b = el(`<button class="mn" type="button">${n}</button>`); nb[n] = b;
+    b.onclick = () => {
+      if (!sel) return;
+      links[sel] = n; wb[sel].classList.add("linked"); wb[sel].classList.remove("sel","good","badw");
+      const next = EX4_W.find(w => !links[w]); sel = next || null; if (next) wb[next].classList.add("sel");
+      draw();
+    };
+    cn.appendChild(b);
+  });
+  function draw(checked){
+    const r = m.getBoundingClientRect(); svg.innerHTML = "";
+    Object.entries(links).forEach(([w, n]) => {
+      const a = wb[w].getBoundingClientRect(), b = nb[n].getBoundingClientRect();
+      const ok = NAT[w] === n;
+      const color = checked ? (ok ? "var(--ok)" : "var(--ko)") : "var(--ink)";
+      const ln = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      ln.setAttribute("x1", a.right - r.left); ln.setAttribute("y1", a.top + a.height/2 - r.top);
+      ln.setAttribute("x2", b.left - r.left);  ln.setAttribute("y2", b.top + b.height/2 - r.top);
+      ln.setAttribute("stroke", color); ln.setAttribute("stroke-width", "2.5"); ln.setAttribute("stroke-linecap", "round");
+      ln.style.stroke = color;
+      svg.appendChild(ln);
+    });
+  }
+  let checked = false;
+  new ResizeObserver(() => draw(checked)).observe(m);
+  C.body.appendChild(m);
+  wb[EX4_W[0]].classList.add("sel"); sel = EX4_W[0];
+  const chk = el(`<button class="btn" type="button">Je vérifie</button>`);
+  chk.onclick = () => {
+    checked = true; let n = 0;
+    EX4_W.forEach(w => { wb[w].classList.remove("good","badw","sel"); if (!links[w]) return;
+      if (NAT[w] === links[w]) { wb[w].classList.add("good"); n++; } else wb[w].classList.add("badw"); });
+    draw(true);
+    C.score.textContent = `${n} / ${EX4_W.length} justes` + (n < EX4_W.length ? " · clique sur un mot rouge pour le relier à nouveau" : "");
+    setScore(3, `${n}/8`, n === EX4_W.length);
+  };
+  C.foot.prepend(chk);
+}
+
+/* ------------------------------------------------------------ 5. J'écris */
+function ex5(){
+  const C = card("Écris une phrase avec les mots son et sont.", () => { state.scores[4] = null; show(); });
+  const ta = el(`<textarea id="ex5-text" placeholder="Exemple : Les chiens sont dans son jardin."></textarea>`);
+  const out = el(`<div class="checks"></div>`);
+  C.body.append(ta, out);
+  const chk = el(`<button class="btn" type="button">Je teste ma phrase</button>`);
+  chk.onclick = () => {
+    const txt = ta.value.trim(); out.innerHTML = "";
+    const words = txt.split(/([^A-Za-zÀ-ÿ'’]+)/);
+    const hasSon = words.some(w => low(w) === "son"), hasSont = words.some(w => low(w) === "sont");
+    if (!txt){ out.appendChild(el(`<div class="fb ko">Écris d'abord ta phrase.</div>`)); return; }
+    if (!hasSon || !hasSont){
+      out.appendChild(el(`<div class="fb ko">Ta phrase doit contenir ${!hasSont ? W("sont") : ""}${!hasSon && !hasSont ? " et " : ""}${!hasSon ? W("son") : ""}.</div>`));
+      return;
+    }
+    const swap = target => words.map(w => low(w) === target ? `<span class="imp">étaient</span>` : w.replace(/[<>&]/g, "")).join("");
+    out.appendChild(el(`<div class="fb ok">Je remplace <span class="v">sont</span> : ${swap("sont")} <br>➜ Est-ce que ça veut encore dire quelque chose ? Si oui, <span class="v">sont</span> est bien le verbe.</div>`));
+    out.appendChild(el(`<div class="fb">Je remplace <span class="det">son</span> : ${swap("son")} <br>➜ Ça ne doit rien vouloir dire : <span class="det">son</span> est un déterminant, devant un nom. Je peux dire « <b>mon</b> ».</div>`));
+    out.appendChild(el(`<p class="hint">Lis ta phrase à voix haute et montre-la à la maîtresse ou au maître.</p>`));
+    setScore(4, "écrit", true);
+  };
+  C.foot.prepend(chk);
+}
+
+try { const t = parseInt(localStorage.getItem("homo-tab"), 10); if (t >= 0 && t < 5) state.tab = t; } catch(e){}
+show();
+</script>
+
+</body></html>

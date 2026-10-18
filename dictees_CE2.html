@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dictées CE2 – Ludo et Léo</title>
+<style>
+:root{
+  --table:#e9edf5; --ink:#1d2b53; --ink2:#4a5680; --bleu:#2f5fb3; --bleu-clair:#dbe6fb;
+  --marge:#e5484d; --mot:#cfe0ff; --homo:#ffd9a3; --homo-ink:#8a4300; --ok:#1f7a4d;
+  --u:12px; --fs:22px; --mg:70px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--table);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid #f2b705;outline-offset:2px}
+
+.app{display:grid;grid-template-columns:300px 1fr;gap:22px;max-width:1280px;margin:0 auto;padding:22px}
+@media (max-width:860px){.app{grid-template-columns:1fr}}
+
+/* ---------- Réglages ---------- */
+aside{background:#fff;border-radius:14px;padding:18px 18px 20px;align-self:start;position:sticky;top:22px;
+  box-shadow:0 1px 0 #cfd6e6}
+aside h1{font-size:19px;margin:0 0 2px;letter-spacing:-.01em}
+aside .sous{color:var(--ink2);font-size:13px;margin:0 0 16px}
+.bloc{margin:0 0 15px}
+.bloc>.lbl{display:block;font-weight:650;font-size:13.5px;margin-bottom:6px}
+.sel-dictee{display:flex;gap:6px}
+.sel-dictee select{flex:1;min-width:0;padding:8px 10px;border:1.5px solid #c9d2e6;border-radius:9px;background:#fff}
+.sel-dictee button{width:38px;border:1.5px solid #c9d2e6;border-radius:9px;background:#fff;font-size:17px}
+.seg{display:flex;background:#eef1f8;border-radius:10px;padding:3px;gap:3px}
+.seg button{flex:1;white-space:nowrap;border:0;background:transparent;border-radius:8px;padding:7px 4px;font-size:13.5px;color:var(--ink2)}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--ink);font-weight:650;box-shadow:0 1px 3px rgba(29,43,83,.18)}
+.niveaux button{display:flex;flex-direction:column;align-items:center;line-height:1.15;padding:7px 2px}
+.niveaux .et{color:#e3a600;font-size:14px;letter-spacing:1px}
+.niveaux small{font-size:11.5px}
+.homos{display:flex;flex-wrap:wrap;gap:6px}
+.homos button{border:1.5px solid #d8deec;background:#fff;border-radius:99px;padding:4px 11px;font-size:14px}
+.homos button[aria-pressed="true"]{background:var(--homo);border-color:#f0b35c;color:var(--homo-ink);font-weight:650}
+.go{width:100%;margin-top:6px;border:0;border-radius:11px;background:var(--bleu);color:#fff;font-weight:700;font-size:16px;padding:12px}
+.go:hover{background:#244d96}
+
+/* ---------- Zone dictée ---------- */
+main{min-width:0}
+.mots{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px;align-items:center}
+.mots .titre{font-weight:650;margin-right:4px}
+.mot{border-radius:7px;padding:3px 9px;font-size:14.5px;background:#fff;color:#8a93ad;border:1.5px dashed #c5cde0}
+.mot.pris{background:var(--mot);color:var(--ink);border:1.5px solid #9fbdf3}
+.mot.pris::before{content:"✓ ";color:var(--bleu);font-weight:700}
+
+.barre{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.barre button{border:1.5px solid #c9d2e6;background:#fff;border-radius:9px;padding:6px 12px;font-size:14px}
+.barre button[aria-pressed="true"]{border-color:var(--bleu);background:var(--bleu-clair);font-weight:650}
+.barre button:disabled{opacity:.45;cursor:default}
+.barre .esp{flex:1}
+
+.feuille{background:#fff;border-radius:4px;box-shadow:0 2px 0 #cfd6e6,0 12px 30px -18px rgba(29,43,83,.45);padding:26px 26px 30px 0;position:relative}
+.entete{padding-left:calc(var(--mg) + 18px);display:flex;align-items:baseline;gap:14px;margin-bottom:calc(var(--u)*1)}
+.entete h2{margin:0;font-size:15px;font-weight:700;background:var(--bleu);color:#fff;padding:3px 10px;border-radius:3px}
+.entete .meta{color:var(--ink2);font-size:13px;display:flex;gap:14px}
+.lignes{
+  --base:calc(var(--u)*2 + var(--fs)*0.36);
+  min-height:calc(var(--u)*4*6);
+  padding-left:calc(var(--mg) + 18px);padding-right:10px;
+  font-family:Verdana,"DejaVu Sans",Tahoma,sans-serif;font-size:var(--fs);line-height:calc(var(--u)*4);
+  background-color:#fff;
+  background-image:
+    linear-gradient(90deg,transparent var(--mg),var(--marge) var(--mg),var(--marge) calc(var(--mg) + 2px),transparent calc(var(--mg) + 2px)),
+    repeating-linear-gradient(180deg,#8ea4dc 0 1.3px,transparent 1.3px calc(var(--u)*4)),
+    repeating-linear-gradient(180deg,#d6def3 0 1px,transparent 1px var(--u)),
+    repeating-linear-gradient(90deg,#d6def3 0 1px,transparent 1px calc(var(--u)*4));
+  background-position:0 0,0 var(--base),0 var(--base),var(--mg) 0;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;
+}
+.ph{outline:none;border-radius:4px;padding:2px 0;transition:background .15s}
+.ph:hover{background:rgba(47,95,179,.06)}
+.ph.actif{background:rgba(242,183,5,.16);box-shadow:0 0 0 2px rgba(242,183,5,.55)}
+.w{border-radius:3px}
+.voir-mots .w.sem{background:var(--mot)}
+.voir-homos .w.hom{background:var(--homo);color:var(--homo-ink);font-weight:700}
+.pied{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px;color:var(--ink2);font-size:13.5px}
+.pied b{color:var(--ink)}
+.aide{margin-top:6px;color:var(--ink2);font-size:13px}
+.vide{color:var(--ink2);font-family:system-ui,sans-serif;font-size:15px}
+
+/* ---------- Plein écran (TBI) ---------- */
+.feuille:fullscreen{--u:19px;--fs:35px;--mg:110px;padding:40px 40px 40px 0;overflow:auto;border-radius:0}
+.feuille:fullscreen .entete h2{font-size:24px}
+.feuille:fullscreen .entete .meta{font-size:18px}
+
+/* ---------- Impression ---------- */
+@media print{
+  body{background:#fff}
+  aside,.barre,.mots,.aide,.pied{display:none!important}
+  .app{display:block;padding:0}
+  .feuille{box-shadow:none;padding:10px 0}
+  .ph.actif{background:none;box-shadow:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<style>
+/* ---------- v2 : onglets, carte élève ---------- */
+.onglets{max-width:1280px;margin:0 auto;padding:16px 22px 0;display:flex;gap:6px;align-items:flex-end}
+.onglets button{border:0;background:transparent;padding:10px 18px;border-radius:12px 12px 0 0;font-weight:650;color:var(--ink2);font-size:15px}
+.onglets button[aria-selected="true"]{background:#fff;color:var(--ink)}
+.onglets .note{margin-left:auto;font-size:13px;color:var(--ink2);padding-bottom:8px}
+.app{padding-top:0}
+aside{border-top-left-radius:0}
+aside details{border-top:1px solid #e3e8f2;margin-top:16px;padding-top:12px}
+aside summary{font-weight:700;font-size:15.5px;cursor:pointer;margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{border:1.5px solid #d8deec;background:#fff;border-radius:99px;padding:4px 11px;font-size:14px}
+.chips button[aria-pressed="true"]{background:var(--bleu-clair);border-color:#8fb0ea;color:var(--ink);font-weight:650}
+.voix select{width:100%;padding:7px 9px;border:1.5px solid #c9d2e6;border-radius:9px;background:#fff;font-size:13.5px}
+.essai{margin-top:6px;border:1.5px solid #c9d2e6;background:#fff;border-radius:9px;padding:5px 10px;font-size:13.5px}
+.avert{font-size:12.5px;color:#9a3b00;margin:6px 0 0}
+
+/* ---------- Mode élève ---------- */
+#vueEleve{max-width:1280px;margin:0 auto;padding:0 22px 30px}
+.eleve{display:grid;grid-template-columns:1fr 310px;gap:22px;background:#fff;border-radius:0 14px 14px 14px;padding:24px}
+@media (max-width:900px){.eleve{grid-template-columns:1fr}}
+.e-tete{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:18px}
+.e-tete h2{margin:0 8px 0 0;font-size:24px}
+.gros{border:0;border-radius:12px;padding:12px 18px;font-size:17px;font-weight:700;background:var(--bleu);color:#fff}
+.gros.second{background:#eef1f8;color:var(--ink)}
+.gros:disabled{opacity:.5}
+.phrase{border-top:2px solid #eef1f8;padding:16px 0 18px}
+.p-barre{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.p-num{font-weight:800;color:var(--bleu);margin-right:6px}
+.p-barre button{border:1.5px solid #c9d2e6;background:#fff;border-radius:10px;padding:7px 13px;font-size:15px}
+.p-barre button.joue{border-color:var(--bleu);background:var(--bleu-clair)}
+.texte-eleve{font-family:Verdana,"DejaVu Sans",Tahoma,sans-serif;font-size:24px;line-height:2.25}
+.texte-eleve select{font:inherit;font-size:22px;color:var(--ink);border:2px dashed #7f98d8;border-radius:8px;background:#f5f8ff;padding:0 4px;margin:0 2px;cursor:pointer}
+.texte-eleve select.juste{border:2px solid var(--ok);background:#e3f5ea}
+.texte-eleve select.faux{border:2px solid var(--marge);background:#fde8e8}
+.cahier{font-size:17px;color:var(--ink2);border:2px dashed #d3dbee;border-radius:12px;padding:14px 16px}
+textarea.clavier{width:100%;font-family:Verdana,"DejaVu Sans",Tahoma,sans-serif;font-size:22px;line-height:1.6;padding:10px 12px;border:2px solid #c9d2e6;border-radius:12px;resize:vertical;min-height:88px;color:var(--ink)}
+.retour{font-family:Verdana,"DejaVu Sans",Tahoma,sans-serif;font-size:21px;line-height:1.9;margin-top:8px}
+.retour .err{color:#b3261e;text-decoration:underline wavy #e5484d;text-underline-offset:5px}
+.retour .ok{color:var(--ok)}
+.bilan{font-family:system-ui,sans-serif;font-size:15px;font-weight:650;margin-top:4px}
+.corrige{font-family:Verdana,"DejaVu Sans",Tahoma,sans-serif;font-size:21px;line-height:1.8;margin-top:8px;padding:8px 12px;background:#eaf6ef;border-left:5px solid var(--ok);border-radius:6px}
+.e-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;align-items:center}
+.score{font-size:18px;font-weight:700}
+.aides h3{font-size:16px;margin:0 0 8px}
+.aide-bloc{background:#f4f6fb;border-radius:12px;padding:14px;margin-bottom:12px}
+.aide-bloc .mot{background:#fff;color:var(--ink);border:1.5px solid #c5cde0;border-style:solid}
+.indice{font-size:16px;line-height:1.5}
+.indice b{color:var(--bleu)}
+.relire label{display:flex;gap:9px;align-items:flex-start;font-size:15px;margin:7px 0;cursor:pointer}
+.relire input{flex:none;width:20px;height:20px;margin-top:1px;accent-color:var(--ok)}
+[hidden]{display:none!important}
+/* ---------- v3 : flèches, transposition, deux temps ---------- */
+.lignes{position:relative}
+.lignes.fleches{line-height:calc(var(--u)*8);--base:calc(var(--fs)*0.36)}
+svg.calque{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.fleches .w.suj,.corrige.fleches .w.suj{text-decoration:underline;text-decoration-color:#d6342f;text-decoration-thickness:2px;text-underline-offset:5px}
+.corrige{position:relative}
+.corrige.fleches{line-height:3.1;padding-top:4px}
+.legende{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13.5px;color:var(--ink2);margin-top:8px}
+.legende i{display:inline-block;width:26px;height:0;border-top:3px solid;vertical-align:middle;margin-right:6px}
+.resultats{margin-top:16px;background:#fff;border-radius:12px;padding:14px 16px;font-size:14.5px}
+.resultats h3{margin:0 0 8px;font-size:15px}
+.resultats table{border-collapse:collapse;width:100%}
+.resultats td,.resultats th{text-align:left;padding:5px 8px;border-bottom:1px solid #e3e8f2}
+.resultats .mieux{color:var(--ok);font-weight:700}
+.liste-dictees{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.liste-dictees .item{display:flex;gap:6px;align-items:center;font-size:13px;background:#f4f6fb;border-radius:9px;padding:6px 8px}
+.liste-dictees .item span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.liste-dictees button,.partage button{border:1.5px solid #c9d2e6;background:#fff;border-radius:8px;padding:3px 8px;font-size:13px}
+.partage{display:flex;flex-wrap:wrap;gap:6px}
+.partage input{flex:1;min-width:0;padding:5px 8px;border:1.5px solid #c9d2e6;border-radius:8px;font-size:13px}
+.consigne{background:#fff7e0;border-left:5px solid #f2b705;border-radius:8px;padding:12px 14px;font-size:18px;line-height:1.5;margin-bottom:6px}
+.source{font-family:Verdana,"DejaVu Sans",Tahoma,sans-serif;font-size:22px;line-height:2;background:#f4f6fb;border-radius:10px;padding:6px 12px;margin-bottom:10px}
+.source u{text-decoration-color:#f2b705;text-decoration-thickness:3px;text-underline-offset:6px}
+.temps{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:-6px 0 16px}
+.temps .seg{min-width:330px}
+.temps input{padding:8px 10px;border:1.5px solid #c9d2e6;border-radius:9px;font-size:15px;width:170px}
+.progres{display:block;margin-top:6px;color:var(--ok)}
+</style>
+</head>
+<body>
+<nav class="onglets" role="tablist">
+  <button role="tab" id="tabProf" aria-selected="true">Préparer la dictée</button>
+  <button role="tab" id="tabEleve" aria-selected="false">Mode élève</button>
+  <span class="note" id="noteVoix"></span>
+</nav>
+
+<div id="vueProf">
+<div class="app">
+  <aside aria-label="Réglages">
+    <h1>Dictées CE2</h1>
+    <p class="sous">avec Ludo et Léo, à partir des mots de la semaine</p>
+
+    <div class="bloc">
+      <label class="lbl" for="dictee">Mots de la semaine</label>
+      <div class="sel-dictee">
+        <button id="prev" aria-label="Dictée précédente">‹</button>
+        <select id="dictee"></select>
+        <button id="next" aria-label="Dictée suivante">›</button>
+      </div>
+    </div>
+    <div class="bloc">
+      <span class="lbl">Niveau</span>
+      <div class="seg niveaux" data-k="niveau">
+        <button data-v="1"><span class="et">★</span><small>Facile</small></button>
+        <button data-v="2"><span class="et">★★</span><small>Moyen</small></button>
+        <button data-v="3"><span class="et">★★★</span><small>Difficile</small></button>
+      </div>
+    </div>
+    <div class="bloc">
+      <span class="lbl">Nombre de phrases</span>
+      <div class="seg" data-k="n"><button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button></div>
+    </div>
+    <div class="bloc">
+      <span class="lbl">Groupe sujet (personnages)</span>
+      <div class="seg" data-k="sujet"><button data-v="sg">Singulier</button><button data-v="pl">Pluriel</button><button data-v="mix">Au hasard</button></div>
+    </div>
+    <div class="bloc">
+      <span class="lbl">Autres groupes nominaux</span>
+      <div class="seg" data-k="gn"><button data-v="sg">Singulier</button><button data-v="pl">Pluriel</button><button data-v="mix">Au hasard</button></div>
+    </div>
+    <div class="bloc">
+      <span class="lbl">Adjectifs qualificatifs</span>
+      <div class="seg" data-k="adj"><button data-v="1">Avec</button><button data-v="0">Sans</button></div>
+    </div>
+    <div class="bloc">
+      <span class="lbl">Homophones grammaticaux</span>
+      <div class="homos" id="homos"></div>
+    </div>
+    <button class="go" id="go">Nouvelle dictée</button>
+
+    <details open>
+      <summary>Pour l'élève</summary>
+      <div class="bloc">
+        <span class="lbl">Activité</span>
+        <div class="seg" data-e="activite"><button data-v="dictee">Dictée</button><button data-v="transpo">Transposition</button></div>
+      </div>
+      <div class="bloc" id="blocTranspo">
+        <span class="lbl">Transformer</span>
+        <div class="seg" data-e="sens"><button data-v="pl">Vers le pluriel</button><button data-v="sg">Vers le singulier</button></div>
+        <div class="seg" data-e="portee" style="margin-top:6px"><button data-v="sujet">Le sujet seul</button><button data-v="tout">Sujet et GN</button></div>
+      </div>
+      <div class="bloc">
+        <span class="lbl">L'élève écrit…</span>
+        <div class="seg" data-e="travail"><button data-v="cahier">Au cahier</button><button data-v="clavier">Au clavier</button><button data-v="choix">Par choix</button></div>
+      </div>
+      <div class="bloc">
+        <span class="lbl">Au temps 2 (sans aide), l'élève écrit…</span>
+        <div class="seg" data-e="travail2"><button data-v="clavier">Au clavier</button><button data-v="cahier">Au cahier</button></div>
+      </div>
+      <div class="bloc" id="blocChoix">
+        <span class="lbl">Choix multiples sur</span>
+        <div class="chips" data-e="cats">
+          <button data-v="verbes">Verbes</button><button data-v="noms">Noms</button><button data-v="adjectifs">Adjectifs</button><button data-v="homophones">Homophones</button>
+        </div>
+        <span class="lbl" style="margin-top:10px">Nombre de choix par phrase</span>
+        <div class="seg" data-e="densite"><button data-v="2">2</button><button data-v="4">4</button><button data-v="99">Tous</button></div>
+      </div>
+      <div class="bloc">
+        <span class="lbl">Aides disponibles</span>
+        <div class="chips" data-e="aides">
+          <button data-v="mots">Mots de la semaine</button><button data-v="indices">Comment choisir</button><button data-v="relire">Je relis</button><button data-v="corrige">Voir la correction</button><button data-v="fleches">Flèches d'accord</button>
+        </div>
+      </div>
+      <div class="bloc voix">
+        <label class="lbl" for="selVoix">Voix de lecture</label>
+        <select id="selVoix"></select>
+        <p class="avert" id="avertVoix" hidden></p>
+      </div>
+      <div class="bloc">
+        <span class="lbl">Vitesse</span>
+        <div class="seg" data-e="vitesse"><button data-v="0.72">Lente</button><button data-v="0.85">Moyenne</button><button data-v="0.98">Normale</button></div>
+      </div>
+      <div class="bloc">
+        <span class="lbl">Temps pour écrire chaque groupe</span>
+        <div class="seg" data-e="pause"><button data-v="0.8">Court</button><button data-v="1.3">Moyen</button><button data-v="1.9">Long</button></div>
+      </div>
+      <div class="bloc">
+        <span class="lbl">Dire la ponctuation</span>
+        <div class="seg" data-e="ponct"><button data-v="1">Oui</button><button data-v="0">Non</button></div>
+        <button class="essai" id="essaiVoix">▶ Tester la voix</button>
+      </div>
+    </details>
+    <details>
+      <summary>Mes dictées</summary>
+      <p class="sous" style="margin:0 0 8px">Chaque dictée ouverte en mode élève est gardée ici, pour la reprendre (dictée en deux temps).</p>
+      <div class="liste-dictees" id="listeDictees"></div>
+      <span class="lbl">Partager avec un autre poste</span>
+      <div class="partage">
+        <button id="copierLien">Copier le lien</button><button id="copierCode">Copier le code</button>
+      </div>
+      <div class="partage" style="margin-top:6px"><input id="codeSaisi" placeholder="Coller un code…"><button id="ouvrirCode">Ouvrir</button></div>
+      <p class="avert" id="codeErreur" hidden>Ce code n'est pas reconnu.</p>
+    </details>
+  </aside>
+
+  <main>
+    <div class="mots" id="mots" aria-live="polite"></div>
+    <div class="barre" role="toolbar" aria-label="Affichage">
+      <button id="bMots" aria-pressed="true">Surligner les mots</button>
+      <button id="bHomos" aria-pressed="true">Surligner les homophones</button>
+      <button id="bFleches" aria-pressed="false">Flèches d'accord</button>
+      <button id="bChanger" disabled>↻ Changer la phrase</button>
+      <span class="esp"></span>
+      <button id="bLire">▶ Dicter</button>
+      <button id="bCopier">Copier</button>
+      <button id="bImprimer">Imprimer</button>
+      <button id="bPlein">Plein écran</button>
+    </div>
+    <section class="feuille" id="feuille">
+      <div class="entete"><h2 id="titre">Dictée</h2><span class="meta" id="meta"></span></div>
+      <div class="lignes voir-mots voir-homos" id="texte"></div>
+    </section>
+    <div class="pied" id="pied"></div>
+    <div class="legende" id="legende" hidden><span><i style="border-color:#d6342f"></i>sujet → verbe</span><span><i style="border-color:#2f5fb3"></i>déterminant → nom → adjectif</span><span><i style="border-color:#1f7a4d;border-top-style:dashed"></i>sujet → adjectif attribut</span></div>
+    <div class="resultats" id="resultats" hidden></div>
+    <p class="aide">Clique sur une phrase pour la corriger directement ou la remplacer par une autre. Quand elle te convient, ouvre le mode élève.</p>
+  </main>
+</div>
+</div>
+
+<div id="vueEleve" hidden>
+  <div class="eleve">
+    <div>
+      <div class="e-tete">
+        <h2 id="eTitre">Dictée</h2>
+        <button class="gros" id="eTout">▶ Écouter toute la dictée</button>
+        <button class="gros second" id="eStop" disabled>■ Arrêter</button>
+      </div>
+      <div class="temps" id="eTempsBloc">
+        <div class="seg" id="eTemps"><button data-v="1">Temps 1 : avec aides</button><button data-v="2">Temps 2 : sans aide</button></div>
+        <input id="ePrenom" placeholder="Ton prénom" autocomplete="off">
+      </div>
+      <div class="consigne" id="eConsigne" hidden></div>
+      <div id="ePhrases"></div>
+      <div class="e-actions">
+        <button class="gros" id="eVerifier">Vérifier</button>
+        <button class="gros second" id="eCorrige">Voir la correction</button>
+        <button class="gros second" id="eRecommencer">Recommencer</button>
+        <span class="score" id="eScore" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="aides" id="eAides">
+      <div class="aide-bloc" id="aMots"><h3>Mots de la semaine</h3><div class="mots" id="aMotsListe" style="margin:0"></div></div>
+      <div class="aide-bloc" id="aIndice"><h3>Comment choisir ?</h3><p class="indice" id="aIndiceTxt">Clique sur un mot à choisir : je t'explique comment trouver la bonne réponse.</p></div>
+      <div class="aide-bloc relire" id="aRelire"><h3>Je relis ma dictée</h3></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== Banque de phrases =====
+   $        = personnage(s) principal(aux) : Ludo, Léo, Ludo et Léo… (remplacé par il/ils en reprise)
+   {a|b}    = forme selon le NOMBRE DU PERSONNAGE (singulier|pluriel)
+   <a|b>    = forme selon le NOMBRE DU GROUPE NOMINAL de la phrase (singulier|pluriel)
+   [ ... ]  = adjectif qualificatif facultatif
+   % ... %  = prolongement qui ajoute des homophones grammaticaux
+   Nombre au début = niveau minimal (1, 2, 3)                                   */
+const DICTEES = {
+1:{mots:["découvrir","caverne","avec","contempler","éclairer","cuire","auroch","croquer"],p:[
+[1,"$ {découvre|découvrent} <une caverne|des cavernes>[ <sombre|sombres>]."],
+[1,"$ {entre|entrent} dans la caverne avec une torche[ brillante]."],
+[2,"$ {éclaire|éclairent} la paroi avec {sa|leur} torche et {contemple|contemplent} <un auroch|des aurochs>[ <immense|immenses>] <peint|peints> sur la roche."],
+[2,"Près du feu, <un chasseur cuit|des chasseurs cuisent> la viande de l'auroch% et <la croque|la croquent> avec appétit%."],
+[1,"$ {a|ont} faim%, alors {il|ils} {croque|croquent} une pomme[ bien rouge]%."],
+[3,"Au fond de la caverne, $ {découvre|découvrent} <une lance|des lances>[ <cassée|cassées>] et <un collier|des colliers> en os."],
+[3,"$ {est|sont} {émerveillé|émerveillés} et {contemple|contemplent} <le dessin|les dessins>[ <coloré|colorés>] de la caverne."]]},
+2:{mots:["poisson","lance","se poster","ruisseau","sapin","observer","soudain","lancer"],p:[
+[1,"$ {se poste|se postent} au bord d'un ruisseau[ tranquille] à côté d'un sapin."],
+[1,"$ {observe|observent} <le poisson|les poissons>[ <argenté|argentés>]."],
+[1,"Soudain, <un poisson saute|des poissons sautent> hors de l'eau."],
+[2,"$ {lance|lancent} une pierre dans le ruisseau% et <le poisson se cache|les poissons se cachent>%."],
+[2,"$ {a|ont} une lance[ pointue] pour attraper <un poisson|des poissons>."],
+[3,"Sous <le sapin|les sapins>[ <immense|immenses>], $ {est|sont} {prêt|prêts} à lancer {sa|leur} lance dans le ruisseau."],
+[3,"Soudain, $ {aperçoit|aperçoivent} <un poisson|des poissons>[ <tacheté|tachetés>] qui <nage|nagent> près de la rive."]]},
+3:{mots:["rocheux","grotte","paroi","mélangé","peinture","poudre","eau","couleur"],p:[
+[1,"$ {entre|entrent} dans une grotte[ sombre]."],
+[1,"<La paroi de la grotte est rocheuse|Les parois de la grotte sont rocheuses>."],
+[2,"$ {mélange|mélangent} de la poudre[ rouge] avec de l'eau."],
+[2,"<La poudre mélangée à l'eau donne une couleur|Les poudres mélangées à l'eau donnent des couleurs>[ <vive|vives>]."],
+[2,"Avec <cette peinture|ces peintures>[ <naturelle|naturelles>], $ {décore|décorent} la paroi de la grotte."],
+[3,"$ {peint|peignent} <un animal|des animaux>[ <sauvage|sauvages>] sur la paroi rocheuse% et {son dessin est magnifique|leurs dessins sont magnifiques}%."],
+[3,"Les hommes préhistoriques mélangent de la terre, de l'eau et de la poudre pour obtenir <une couleur|des couleurs>."]]},
+4:{mots:["saison","réaliser","maison","roseau","déposer","provision","envisager","apprivoisé"],p:[
+[1,"$ {construit|construisent} une maison[ solide] avec des roseaux."],
+[1,"<Le roseau|Les roseaux>[ <vert|verts>] <pousse|poussent> au bord de la rivière."],
+[1,"$ {dépose|déposent} <un panier|des paniers> de provisions dans la maison[ neuve]."],
+[2,"$ {réalise|réalisent} <une cabane|des cabanes> en roseaux au bord de l'eau."],
+[2,"$ {a|ont} <un chien apprivoisé|deux chiens apprivoisés> qui {le|les} <suit|suivent> partout."],
+[3,"Pour l'hiver, $ {envisage|envisagent} de construire une grande maison et de déposer des provisions à l'intérieur."],
+[3,"Quand la saison froide arrive, <la provision est prête|les provisions sont prêtes> et la maison est solide."]]},
+5:{mots:["signe","tablette","clou","différent","document","écrit","constitué","dessin"],p:[
+[1,"$ {grave|gravent} des signes sur <une tablette|des tablettes>[ <molle|molles>]."],
+[1,"<Ce document est|Ces documents sont> très <ancien|anciens>."],
+[1,"À côté du texte, $ {fait|font} <un dessin|des dessins>[ <coloré|colorés>]."],
+[2,"<Le signe a la forme d'un clou|Les signes ont la forme de clous>[ <minuscule|minuscules>]."],
+[2,"$ {observe|observent} <un écrit constitué|des écrits constitués> de signes différents."],
+[3,"Sur la tablette, $ {découvre|découvrent} <un document écrit|des documents écrits> avec des signes en forme de clous."],
+[3,"Le texte est constitué de dessins et de signes, mais il est différent de notre écriture."]]},
+6:{mots:["grec","égout","rigole","guider","grâce à","gagner","progrès","grandement"],p:[
+[1,"L'eau sale coule dans <une rigole|des rigoles>[ <étroite|étroites>]."],
+[1,"$ {visite|visitent} <un égout|des égouts>[ <ancien|anciens>] de la ville."],
+[2,"<La rigole guide|Les rigoles guident> l'eau sale jusqu'à l'égout."],
+[2,"Grâce <à l'égout|aux égouts>, la ville est plus propre."],
+[2,"$ {lit|lisent} l'histoire <d'un savant grec|de savants grecs>."],
+[3,"$ {gagne|gagnent} un concours de sciences% et {est|sont} {fier|fiers} de {son|leur} travail%."],
+[3,"Grâce à ces progrès, la vie des habitants s'améliore grandement."]]},
+7:{mots:["jeune","jeu","juge","javelot","jeter","diriger","justesse","jet"],p:[
+[1,"$ {jette|jettent} <un javelot|des javelots>[ <léger|légers>] très loin."],
+[1,"<Le juge mesure|Les juges mesurent> chaque jet."],
+[1,"$ {aime|aiment} beaucoup ce jeu[ amusant]."],
+[2,"<Ce jeune athlète dirige|Ces jeunes athlètes dirigent> le javelot avec justesse."],
+[2,"$ {gagne|gagnent} le jeu de justesse% et le juge {le|les} félicite%."],
+[3,"Le juge dirige le jeu : $ {a|ont} droit à trois jets."],
+[3,"<Le jeune lanceur réussit son jet|Les jeunes lanceurs réussissent leurs jets> de justesse."]]},
+8:{mots:["se baigner","accompagné","panier","champignon","montagne","gagner","éloigné","campagne"],p:[
+[1,"$ {se baigne|se baignent} dans <le lac|les lacs>[ <froid|froids>] de la montagne."],
+[1,"$ {cueille|cueillent} des champignons[ bruns] dans la campagne."],
+[2,"$ {remplit|remplissent} <un panier|deux paniers> de champignons[ délicieux]."],
+[2,"{Accompagné|Accompagnés} de {son|leur} chien, $ {gagne|gagnent} la montagne."],
+[2,"<Le chalet est éloigné|Les chalets sont éloignés> du village."],
+[3,"Dans la campagne, $ {se baigne|se baignent} dans une rivière% et {cherche|cherchent} ensuite des champignons%."],
+[3,"La montagne est éloignée, mais $ {est|sont} {accompagné|accompagnés} de {son|leur} père."]]},
+9:{mots:["cadran","solaire","ombre","tige","observer","heure","journée","planter"],p:[
+[1,"$ {plante|plantent} une tige[ droite] dans le sol."],
+[1,"$ {observe|observent} l'ombre de la tige."],
+[2,"Pendant la journée, <l'ombre bouge|les ombres bougent> avec le soleil."],
+[2,"<Ce cadran solaire indique|Ces cadrans solaires indiquent> l'heure."],
+[2,"$ {fabrique|fabriquent} <un cadran solaire|des cadrans solaires>[ <original|originaux>] dans le jardin."],
+[3,"À chaque heure de la journée, $ {marque|marquent} la place de l'ombre avec un caillou."],
+[3,"Le soleil est haut à midi et l'ombre de la tige est très courte."]]},
+10:{mots:["écorce","plonger","morceau","feuille","fibre","bambou","lamelle","se transformer"],p:[
+[1,"$ {coupe|coupent} <un morceau|des morceaux> de bambou."],
+[1,"$ {plonge|plongent} l'écorce[ sèche] dans l'eau."],
+[2,"<La fibre se transforme|Les fibres se transforment> en pâte."],
+[2,"$ {découpe|découpent} le bambou en fines lamelles."],
+[2,"Avec cette pâte, $ {fabrique|fabriquent} <une feuille|des feuilles> de papier[ <solide|solides>]."],
+[3,"L'écorce et les morceaux de bambou se transforment peu à peu en une feuille de papier."],
+[3,"$ {plonge|plongent} les lamelles de bambou dans l'eau% et {attend|attendent} que les fibres se transforment%."]]},
+11:{mots:["aller","médecin","célèbre","médecine","référence","chez","encyclopédie","rencontrer"],p:[
+[1,"$ {va|vont} chez le médecin."],
+[1,"$ {rencontre|rencontrent} <un médecin célèbre|des médecins célèbres>."],
+[2,"$ {lit|lisent} <une encyclopédie|des encyclopédies>[ <épaisse|épaisses>] sur la médecine."],
+[2,"<Ce livre est une référence|Ces livres sont des références> pour les médecins."],
+[3,"Chez {lui|eux}, $ {cherche|cherchent} le nom d'un médecin célèbre dans l'encyclopédie."],
+[3,"$ {va|vont} rencontrer <un médecin|des médecins> qui <soigne|soignent> les enfants% et {il est|ils sont} très curieux%."]]},
+12:{mots:["caravelle","portugais","peine","mer","émerveillé","capitaine","très","explorer"],p:[
+[1,"<La caravelle|Les caravelles>[ <légère|légères>] <part|partent> sur la mer."],
+[1,"$ {explore|explorent} la mer avec <un capitaine portugais|des marins portugais>."],
+[2,"<Le capitaine a de la peine à guider la caravelle|Les capitaines ont de la peine à guider les caravelles>."],
+[2,"$ {est|sont} {émerveillé|émerveillés} par la mer[ immense]."],
+[2,"La mer est très agitée et le capitaine a peur."],
+[3,"Sur la caravelle, $ {est|sont} très heureux% et {aide|aident} le capitaine portugais%."],
+[3,"<Le marin portugais explore|Les marins portugais explorent> des terres lointaines avec beaucoup de peine."]]},
+13:{mots:["début","sélectionner","gravé","caractère","métal","à côté de","étaler","déposer"],p:[
+[1,"$ {sélectionne|sélectionnent} <un caractère|des caractères> en métal."],
+[1,"$ {étale|étalent} de l'encre[ noire] sur les caractères."],
+[2,"<Chaque lettre est gravée|Les lettres sont gravées> sur un morceau de métal."],
+[2,"$ {dépose|déposent} <une feuille|des feuilles>[ <blanche|blanches>] à côté de la presse."],
+[2,"Au début, l'imprimeur sélectionne les caractères un par un."],
+[3,"$ {dépose|déposent} les caractères gravés à côté de la feuille% et {étale|étalent} l'encre avec soin%."],
+[3,"Au début de l'imprimerie, les livres sont rares et très chers."]]},
+14:{mots:["longtemps","vision","vraiment","se demander","centre","temps","scientifique","profondément"],p:[
+[1,"<Le scientifique observe|Les scientifiques observent> le ciel depuis longtemps."],
+[1,"$ {a|ont} vraiment le temps de regarder le ciel."],
+[2,"$ {se demande|se demandent} où est le centre de la Terre."],
+[2,"Avec une lunette, $ {a|ont} une vision[ très nette] des étoiles."],
+[2,"$ {réfléchit|réfléchissent} profondément à cette question."],
+[3,"Depuis très longtemps, <le scientifique se demande|les scientifiques se demandent> ce qu'il y a au centre de la Terre."],
+[3,"Pendant longtemps, les hommes pensent que la Terre est au centre de l'univers."]]},
+15:{mots:["individu","maintenant","humain","écrivain","injustice","intolérance","insister","interdire"],p:[
+[1,"<L'écrivain écrit un livre|Les écrivains écrivent des livres>[ <célèbre|célèbres>]."],
+[1,"$ {lit|lisent} un livre sur <l'injustice|les injustices>."],
+[1,"Maintenant, $ {veut|veulent} devenir {écrivain|écrivains}."],
+[2,"<Cet écrivain dénonce|Ces écrivains dénoncent> l'intolérance et l'injustice."],
+[2,"Maintenant, $ {insiste|insistent} pour défendre les droits humains."],
+[3,"Chaque individu a des droits et l'injustice est interdite."],
+[3,"$ {insiste|insistent} : il faut interdire l'intolérance entre les humains."]]},
+16:{mots:["colonne","nommer","hommage","professeur","se composer","aussi","aujourd'hui","nouveau"],p:[
+[1,"Aujourd'hui, $ {a|ont} un nouveau professeur."],
+[1,"<La colonne se compose|Les colonnes se composent> de pierres[ <blanches|blanches>]."],
+[2,"Le professeur nomme <le nouvel élève|les nouveaux élèves>."],
+[2,"$ {rend|rendent} hommage à un savant célèbre."],
+[2,"Au tableau, $ {écrit|écrivent} les nombres en colonnes."],
+[3,"Aujourd'hui, $ {rend|rendent} hommage à {son|leur} professeur, et {sa|leur} famille est là aussi."],
+[3,"Ce nouveau livre se compose de trois parties et rend hommage à un professeur."]]},
+17:{mots:["regarder","vapeur","premier","neuf","peu","curieux","peur","intérieur"],p:[
+[1,"$ {regarde|regardent} la vapeur[ blanche] qui sort de la casserole."],
+[1,"$ {a|ont} un peu peur."],
+[1,"$ {achète|achètent} <un vélo neuf|des vélos neufs>."],
+[2,"$ {est|sont} curieux et {regarde|regardent} à l'intérieur de la machine."],
+[2,"<Le premier train à vapeur est très bruyant|Les premiers trains à vapeur sont très bruyants>."],
+[3,"Pour la première fois, $ {monte|montent} dans un train à vapeur% et {a|ont} un peu peur%."],
+[3,"À l'intérieur de la locomotive, le feu produit de la vapeur."]]},
+18:{mots:["malvoyant","braille","feuille","papier","relief","pointillé","merveille","détail"],p:[
+[1,"<Un enfant malvoyant lit|Des enfants malvoyants lisent> le braille avec les doigts."],
+[1,"$ {touche|touchent} les points en relief."],
+[2,"Sur la feuille de papier, les lettres sont en relief."],
+[2,"$ {suit|suivent} le trait en pointillé avec {son|leur} doigt."],
+[2,"$ {découpe|découpent} <la feuille|les feuilles> de papier en suivant le pointillé."],
+[3,"$ {observe|observent} chaque détail du livre en braille% et {est|sont} {émerveillé|émerveillés}%."],
+[3,"Le braille est une merveille : il aide les malvoyants à lire."]]},
+19:{mots:["parent","pouvoir","gratuitement","loi","envie","école","apprendre","compter"],p:[
+[1,"$ {va|vont} à l'école pour apprendre."],
+[1,"$ {a|ont} envie d'apprendre à compter."],
+[2,"<Le parent accompagne|Les parents accompagnent> les enfants à l'école."],
+[2,"$ {compte|comptent} <le livre|les livres>[ <neuf|neufs>] de la bibliothèque."],
+[2,"Grâce à la loi, les enfants peuvent aller à l'école gratuitement."],
+[3,"Aujourd'hui, $ {peut|peuvent} apprendre à lire et à compter gratuitement."],
+[3,"La loi est claire : tous les enfants ont le droit d'apprendre."]]},
+20:{mots:["chienne","malade","morsure","fabuleux","invention","apparition","personne","affection"],p:[
+[1,"$ {a|ont} une chienne[ joueuse]."],
+[1,"<La chienne est malade|Les chiennes sont malades>."],
+[1,"$ {caresse|caressent} la chienne avec affection."],
+[2,"$ {soigne|soignent} la morsure de la chienne."],
+[2,"<Ce vaccin est une invention fabuleuse|Ces vaccins sont des inventions fabuleuses>."],
+[3,"Sans vaccin, une morsure peut rendre une personne très malade."],
+[3,"La chienne est malade, mais $ {la soigne|la soignent} avec beaucoup d'affection."],
+[3,"L'apparition du vaccin est une invention fabuleuse pour les malades."]]},
+21:{mots:["famille","appareil","chenille","bille","éventail","écureuil","paille","épouvantail"],p:[
+[1,"$ {joue|jouent} aux billes avec {sa|leur} famille."],
+[1,"<Une chenille grimpe|Des chenilles grimpent> sur la feuille."],
+[2,"<L'écureuil court|Les écureuils courent> près de l'épouvantail."],
+[2,"$ {fabrique|fabriquent} un épouvantail[ rigolo] avec de la paille."],
+[2,"$ {photographie|photographient} <un écureuil|des écureuils> avec {son|leur} appareil."],
+[3,"Il fait chaud, alors $ {agite|agitent} un éventail% et {boit|boivent} avec une paille%."],
+[3,"Toute la famille est dans le jardin : l'épouvantail est en paille et il a un chapeau."]]},
+22:{mots:["bout","bois","médicament","prudent","petit","bras","développement","alors"],p:[
+[1,"$ {marche|marchent} dans le bois."],
+[1,"$ {est|sont} {prudent|prudents} avec le feu."],
+[1,"Au bout du chemin, $ {trouve|trouvent} un petit bois."],
+[2,"<Un petit oiseau se pose|De petits oiseaux se posent> au bout de la branche."],
+[2,"$ {porte|portent} du bois dans {ses|leurs} bras."],
+[3,"$ {tombe|tombent} et {se fait|se font} mal au bras, alors {il prend|ils prennent} un médicament."],
+[3,"Le médecin surveille le bon développement <du petit enfant|des petits enfants>."]]},
+23:{mots:["passionné","informatique","époque","ordinateur","machine","inventer","indispensable","performant"],p:[
+[1,"$ {est|sont} {passionné|passionnés} d'informatique."],
+[1,"<L'ordinateur est très performant|Les ordinateurs sont très performants>."],
+[1,"$ {utilise|utilisent} <un ordinateur performant|des ordinateurs performants>."],
+[2,"À cette époque, <la machine est énorme|les machines sont énormes>."],
+[2,"$ {veut|veulent} inventer une machine[ extraordinaire]."],
+[3,"Aujourd'hui, l'ordinateur est indispensable à l'école et à la maison."],
+[3,"{Passionné|Passionnés} d'informatique, $ {invente|inventent} un jeu sur {son|leur} ordinateur."]]},
+24:{mots:["année","satellite","espace","suivre","homme","évènement","rêver","lune"],p:[
+[1,"$ {rêve|rêvent} d'aller dans l'espace."],
+[1,"<Le satellite tourne|Les satellites tournent> autour de la Terre."],
+[1,"$ {regarde|regardent} la Lune[ brillante] dans le ciel."],
+[2,"$ {suit|suivent} un évènement[ important] à la télévision."],
+[2,"Cette année-là, un homme marche sur la Lune."],
+[3,"C'est un évènement incroyable : l'homme est sur la Lune !"],
+[3,"Chaque année, $ {suit|suivent} le voyage des satellites dans l'espace et {rêve|rêvent} de devenir {astronaute|astronautes}."]]},
+25:{mots:["milliard","réseau","former","toile","mondial","exposé","chercher","information"],p:[
+[1,"$ {cherche|cherchent} une information sur Internet."],
+[1,"$ {prépare|préparent} un exposé[ intéressant]."],
+[2,"Les ordinateurs forment un réseau[ immense] qui relie le monde."],
+[2,"Des milliards de personnes utilisent la toile."],
+[2,"$ {présente|présentent} {son|leur} exposé à la classe."],
+[3,"Pour {son|leur} exposé, $ {cherche|cherchent} des informations sur le réseau mondial."],
+[3,"Internet est une toile mondiale qui relie des milliards d'ordinateurs."]]}
+};
+
+/* ===== Personnages ===== */
+const SUJETS = {
+  sg:[["Ludo",4],["Léo",4],["le petit garçon",1]],
+  pl:[["Ludo et Léo",4],["Léo et Ludo",3],["les deux amis",1],["les deux garçons",1]]
+};
+
+/* ===== Homophones grammaticaux ===== */
+const HOMOS = ["a/à","et/est","son/sont","on/ont","ou/où","ces/ses","ce/se"];
+const HOMO_TOK = {"a":"a/à","à":"a/à","et":"et/est","est":"et/est","son":"son/sont","sont":"son/sont",
+  "on":"on/ont","ont":"on/ont","ou":"ou/où","où":"ou/où","ces":"ces/ses","ses":"ces/ses","ce":"ce/se","se":"ce/se"};
+
+/* ===== Reconnaissance des mots de la semaine (formes fléchies) ===== */
+const MANUAL = {
+ "cuire":["cuire","cuit","cuite","cuits","cuites","cuisent"],
+ "auroch":["auroch","aurochs"],
+ "aller":["aller","va","vont","vais","allons","allez"],
+ "pouvoir":["pouvoir","peut","peuvent","peux","pouvons","pouvez"],
+ "apprendre":["apprendre","apprend","apprennent","apprends"],
+ "suivre":["suivre","suit","suivent","suis","suivant"],
+ "interdire":["interdire","interdit","interdite","interdits","interdites","interdisent"],
+ "jeter":["jeter","jette","jettent","jettes","jeté","jetée"],
+ "papier":["papier","papiers"],"panier":["panier","paniers"],"mer":["mer","mers"],
+ "premier":["premier","première","premiers","premières"],
+ "nouveau":["nouveau","nouvel","nouvelle","nouveaux","nouvelles"],
+ "curieux":["curieux","curieuse","curieuses"],"fabuleux":["fabuleux","fabuleuse","fabuleuses"],
+ "rocheux":["rocheux","rocheuse","rocheuses"],"mondial":["mondial","mondiale","mondiaux","mondiales"],
+ "grec":["grec","grecs","grecque","grecques"],"neuf":["neuf","neufs","neuve","neuves"],
+ "jeu":["jeu","jeux"],"peu":["peu"],"eau":["eau","eaux"],"loi":["loi","lois"],
+ "jet":["jet","jets"],"très":["très"],"chez":["chez"],"avec":["avec"],"aussi":["aussi"],"alors":["alors"],
+ "découvrir":["découvrir","découvre","découvres","découvrent","découvert","découverte"],
+ "écrit":["écrit","écrits","écrite","écrites"]
+};
+const PHRASES = {
+ "grâce à":/grâce (?:à|aux|au)(?!\p{L})/giu,
+ "à côté de":/à côté d(?:e|u|es|'|’)/giu,
+ "aujourd'hui":/aujourd['’]hui/giu
+};
+function formsOf(w){
+  if (MANUAL[w]) return MANUAL[w];
+  let b = w.startsWith("se ") ? w.slice(3) : w;
+  if (/er$/.test(b)){ const s=b.slice(0,-2); return ["e","es","ent","er","é","ée","és","ées","ons","ez"].map(x=>s+x); }
+  if (/ir$/.test(b)){ const s=b.slice(0,-2); return ["e","es","ent","ir","it","issent"].map(x=>s+x); }
+  return [b,b+"s",b+"x",b+"e",b+"es"];
+}
+function buildMatcher(mots){
+  const map = new Map();                 // forme -> mot de la liste
+  const phrases = [];
+  for (const m of mots){ const b=m.startsWith("se ")?m.slice(3):m; if(!PHRASES[m]) map.set(b,m); }
+  for (const m of mots){
+    if (PHRASES[m]) { phrases.push([m,PHRASES[m]]); continue; }
+    for (const f of formsOf(m)) if(!map.has(f)) map.set(f,m);
+  }
+  return {map,phrases};
+}
+/* Découpe un texte en jetons avec annotations (mot de la semaine, homophone) */
+function annotate(text, matcher){
+  const toks=[]; const re=/\p{L}+/gu; let m;
+  while((m=re.exec(text))) toks.push({s:m.index,e:m.index+m[0].length,w:m[0]});
+  for (const t of toks){
+    const low=t.w.toLowerCase();
+    if (matcher.map.has(low)) t.week=matcher.map.get(low);
+    if (HOMO_TOK[low]) t.homo=HOMO_TOK[low];
+  }
+  for (const [mot,rx] of matcher.phrases){
+    rx.lastIndex=0; let pm;
+    while((pm=rx.exec(text))){
+      const a=pm.index,b=a+pm[0].length;
+      for (const t of toks) if (t.s<b && t.e>a){ t.week=mot; t.homo=null; }
+    }
+  }
+  return toks;
+}
+
+/* ===== Générateur ===== */
+function weighted(arr,rnd){ const tot=arr.reduce((s,x)=>s+x[1],0); let r=rnd()*tot; for(const x of arr){ if((r-=x[1])<0) return x[0]; } return arr[0][0]; }
+function pickNum(mode,rnd){ return mode==="pl" ? true : mode==="sg" ? false : rnd()<0.5; }
+
+function realize(tpl, o, protPl, rnd, forceGn){
+  let s=tpl;
+  s=s.replace(/\[([^\[\]]*)\]/g,(_,x)=>o.adj?x:"");
+  s=s.replace(/%([^%]*)%/g,(_,x)=>o.homos.length?x:"");
+  const gnPl= forceGn===undefined ? pickNum(o.gn,rnd) : forceGn;
+  s=s.replace(/<([^<>|]*)\|([^<>|]*)>/g,(_,a,b)=>gnPl?b:a);
+  s=s.replace(/\{([^{}|]*)\|([^{}|]*)\}/g,(_,a,b)=>protPl?b:a);
+  return {raw:s, hasP:s.includes("$"), gnPl};
+}
+
+function candidates(d,o){
+  const all=DICTEES[d].p.map((x,i)=>({i,lv:x[0],t:x[1]}));
+  let c=all.filter(x=>x.lv<=o.niveau);
+  if (c.length<o.n) c=c.concat(all.filter(x=>x.lv>o.niveau).sort((a,b)=>a.lv-b.lv).slice(0,o.n-c.length));
+  return c;
+}
+
+function scoreText(raw, matcher, covered, o){
+  const toks=annotate(raw.replace(/\$/g,"X"),matcher);
+  const words=new Set(toks.filter(t=>t.week).map(t=>t.week));
+  let fresh=0; for(const w of words) if(!covered.has(w)) fresh++;
+  const hs=new Set(toks.filter(t=>t.homo && o.homos.includes(t.homo)).map(t=>t.homo));
+  return {fresh, homo:hs.size, words};
+}
+
+function generate(d,o,rnd=Math.random){
+  const matcher=buildMatcher(DICTEES[d].mots);
+  const protPl=pickNum(o.sujet,rnd);
+  const sujet=weighted(SUJETS[protPl?"pl":"sg"],rnd);
+  const pool=candidates(d,o).map(c=>({...c, ...realize(c.t,o,protPl,rnd)}));
+  const chosen=[]; const covered=new Set();
+  while(chosen.length<o.n && pool.length){
+    let best=null,bs=-1e9;
+    for(const c of pool){
+      const sc=scoreText(c.raw,matcher,covered,o);
+      const v=sc.fresh*3+sc.homo*1.5+(c.hasP?1.2:0)+rnd()*2.5;
+      if(v>bs){bs=v;best=c;}
+    }
+    pool.splice(pool.indexOf(best),1); chosen.push(best);
+    scoreText(best.raw,matcher,covered,o).words.forEach(w=>covered.add(w));
+  }
+  chosen.sort((a,b)=>a.i-b.i);
+  return {d, protPl, sujet, phrases:chosen.map(c=>({i:c.i, raw:c.raw, hasP:c.hasP, gnPl:c.gnPl, pro:rnd()<0.6}))};
+}
+
+/* Remplace une phrase par une autre de la même dictée */
+function regenerateOne(state,idx,o,rnd=Math.random){
+  const used=new Set(state.phrases.map(p=>p.i));
+  let pool=candidates(state.d,{...o,n:99}).filter(c=>!used.has(c.i));
+  if(!pool.length) pool=candidates(state.d,{...o,n:99}).filter(c=>c.i!==state.phrases[idx].i);
+  if(!pool.length) pool=[DICTEES[state.d].p.map((x,i)=>({i,lv:x[0],t:x[1]}))[state.phrases[idx].i]];
+  const c=pool[Math.floor(rnd()*pool.length)];
+  const r=realize(c.t,o,state.protPl,rnd);
+  state.phrases[idx]={i:c.i, raw:r.raw, hasP:r.hasP, gnPl:r.gnPl, pro:rnd()<0.6};
+}
+
+/* Texte final : personnage nommé la 1re fois, puis il/ils en reprise */
+function resolve(state){
+  let prevP=false, named=false, prevFull=false;
+  return state.phrases.map(p=>{
+    if (p.edited) { prevP=p.hasP; prevFull=false; if(p.hasP) named=true; return p.edited; }
+    let s=p.raw;
+    if (p.hasP){
+      const usePro = named && prevP && (p.pro || prevFull);
+      prevFull = !usePro;
+      const subj = usePro ? (state.protPl?"ils":"il") : state.sujet;
+      s=s.replace("$",subj);
+      named=true;
+    }
+    else prevFull=false;
+    prevP=p.hasP;
+    s=s.replace(/\s+/g," ").replace(/ ([,.])/g,"$1").trim();
+    s=s.replace(/ ([:;!?])/g,"\u00a0$1");
+    return s.charAt(0).toUpperCase()+s.slice(1);
+  });
+}
+
+/* ===== Transposition : mêmes phrases, autres nombres ===== */
+function nomsTransposition(sujet){
+  const a = sujet==="Léo"||sujet==="Léo et Ludo" ? "Léo" : "Ludo", b = a==="Ludo"?"Léo":"Ludo";
+  return {sg:a, pl:a+" et "+b};
+}
+function transposer(state,o,versPluriel,toutLeGN){
+  const noms=nomsTransposition(state.sujet);
+  const mk=(prot,gn)=>{
+    const ph=state.phrases.map(p=>{ const r=realize(DICTEES[state.d].p[p.i][1],o,prot,Math.random, gn===null?!!p.gnPl:gn);
+      return {i:p.i, raw:r.raw, hasP:r.hasP, gnPl:r.gnPl, pro:p.pro}; });
+    return resolve({d:state.d, protPl:prot, sujet:prot?noms.pl:noms.sg, phrases:ph});
+  };
+  const gnS = toutLeGN ? !versPluriel : null, gnC = toutLeGN ? versPluriel : null;
+  return {source:mk(!versPluriel,gnS), cible:mk(versPluriel,gnC), de:versPluriel?noms.sg:noms.pl, vers:versPluriel?noms.pl:noms.sg};
+}
+/* ===== Code de partage d'une dictée ===== */
+function encoderDictee(state,o,e){
+  const data={v:1,d:state.d,o:{n:o.n,niveau:o.niveau,sujet:o.sujet,gn:o.gn,adj:o.adj,homos:o.homos},
+    s:{p:state.protPl?1:0,su:state.sujet,ph:state.phrases.map(p=>[p.i,p.gnPl?1:0,p.pro?1:0,p.edited||""])},e};
+  return btoa(unescape(encodeURIComponent(JSON.stringify(data)))).replace(/=+$/,"");
+}
+function decoderDictee(code){
+  const data=JSON.parse(decodeURIComponent(escape(atob(code.trim().replace(/^#?code=/,"")))));
+  const o=data.o, st={d:data.d,protPl:!!data.s.p,sujet:data.s.su,phrases:data.s.ph.map(([i,g,pr,ed])=>{
+    const r=realize(DICTEES[data.d].p[i][1],o,!!data.s.p,Math.random,!!g);
+    const x={i,raw:r.raw,hasP:r.hasP,gnPl:!!g,pro:!!pr}; if(ed) x.edited=ed; return x; })};
+  return {o:{d:data.d,...o},state:st,e:data.e};
+}
+
+if (typeof module!=="undefined") module.exports={transposer,encoderDictee,DICTEES,generate,resolve,annotate,buildMatcher,regenerateOne,realize,HOMOS};
+
+</script>
+<script>
+/* ===== Analyse grammaticale légère pour les choix multiples ===== */
+const DET = new Set(["le","la","les","l","un","une","des","du","de","d","au","aux","ce","cet","cette","ces","son","sa","ses","leur","leurs","mon","ma","mes","ton","ta","tes","notre","nos","votre","vos","chaque","deux","trois","quatre","tous","toute","toutes"]);
+const PRE_ADJ = new Set(["petit","petite","petits","petites","grand","grande","grands","grandes","gros","grosse","grosses","bon","bonne","bons","bonnes","beau","belle","beaux","belles","nouveau","nouvel","nouvelle","nouveaux","nouvelles","jeune","jeunes","premier","première","premiers","premières","vieux","vieille","fines","fine"]);
+const NOT_VERB = new Set(["papier","panier","premier","hiver","mer","cher","fer","métier","clocher"]);
+const ADVERBES = new Set(["très","bien","trop","plus","si"]);
+const STOP = new Set(["par","qu","peu","hui","aujourd"]);
+const SANS_CHOIX = new Set(["ciel","braille"]);
+const PL_DET = new Set(["les","des","ces","ses","leurs","mes","tes","nos","vos","aux","deux","trois","quatre","tous","toutes","de","d"]);
+const INVAR = new Set(["bois","bras","temps","progrès","fois","os","corps","pays","repas","dos","prix","voix","nez","riz","fils","héros"]);
+function isAdj(w){
+  if (LEX.adjs.has(w) || ADJ_TABLE.has(w)) return true;
+  for (const c of [w.replace(/s$/,""), w.replace(/e$/,""), w.replace(/es$/,""), w.replace(/aux$/,"al"), w.replace(/é(s?)$/,"ée$1")])
+    if (c!==w && (LEX.adjs.has(c)||ADJ_TABLE.has(c))) return true;
+  return false;
+}
+const NOUN_FORCE = new Set(["forme","lance","marche","jeu"]);
+const NOUN_IRR = {caillou:"cailloux",bijou:"bijoux",chou:"choux",genou:"genoux",hibou:"hiboux",travail:"travaux",corail:"coraux",vitrail:"vitraux",œil:"yeux"};
+const EPICENES = new Set(["préhistorique","propre","sale","incroyable","sombre","rouge","immense","solide","tranquille","sauvage","magnifique","minuscule","célèbre","malade","énorme","extraordinaire","rare","jeune","solaire","scientifique","indispensable","rigolo","pâle","riche","humide","étrange","facile","difficile","utile","agréable","rapide","vide","large","calme"]);
+const INF_PREV = new Set(["à","de","d","pour","va","vont","veut","veulent","peut","peuvent","aime","aiment","sans","faut"]);
+const HOMO_OPTS = {"a/à":["a","à"],"et/est":["et","est"],"son/sont":["son","sont"],"on/ont":["on","ont"],"ou/où":["ou","où"],"ces/ses":["ces","ses"],"ce/se":["ce","se"]};
+
+function lexTokens(s){ return s.toLowerCase().replace(/[’']/g,"' ").replace(/[.,:;!?]/g," ").split(/\s+/).filter(Boolean).map(t=>t.replace(/'$/,"")); }
+
+/* Lexique construit à partir de la banque de phrases */
+const LEX = (function(){
+  const verbs=new Map(), nouns=new Map(), adjs=new Map();
+  const addPair=(m,a,b)=>{ const p={sg:a,pl:b}; m.set(a,p); m.set(b,p); };
+  for (const d in DICTEES) for (const [,t] of DICTEES[d].p){
+    // adjectifs entre crochets
+    t.replace(/\[([^\[\]]*)\]/g,(_,x)=>{
+      const pa=[]; x.replace(/<([^<>|]*)\|([^<>|]*)>/g,(__,a,b)=>{pa.push([a.trim(),b.trim()]);});
+      pa.forEach(([a,b])=>{ if(a!==b) addPair(adjs,a,b); else adjs.set(a,{sg:a,pl:null}); });
+      lexTokens(x.replace(/<[^>]*>/g,"")).forEach(w=>{ if(!ADVERBES.has(w) && !adjs.has(w)) adjs.set(w,{sg:w,pl:null}); });
+      return "";
+    });
+    const clean=t.replace(/[\[\]%]/g,"");
+    const re=/[{<]([^{}<>|]*)\|([^{}<>|]*)[}>]/g; let m;
+    while((m=re.exec(clean))){
+      const A=lexTokens(m[1]), B=lexTokens(m[2]);
+      if (A.length!==B.length) continue;
+      A.forEach((a,i)=>{
+        const b=B[i]; if(a===b) return;
+        const prev=i>0?A[i-1]:lexTokens(clean.slice(0,m.index)).pop();
+        const isVerb = (/ent$/.test(b) && !/ent$/.test(a)) || (a==="a"&&b==="ont") || (a==="est"&&b==="sont") || (a==="va"&&b==="vont") || (a==="fait"&&b==="font");
+        if (isVerb) addPair(verbs,a,b);
+        else if (DET.has(a) || DET.has(b) || ["il","ils","lui","eux"].includes(a)) return;
+        else if (prev && (DET.has(prev) || PRE_ADJ.has(prev)) && !PRE_ADJ.has(a)) addPair(nouns,a,b);
+        else if (PRE_ADJ.has(a)) addPair(adjs,a,b);
+        else addPair(adjs,a,b);
+      });
+    }
+  }
+  // corrections manuelles
+  [["félicite","félicitent"],["coule","coulent"],["améliore","améliorent"],["relie","relient"],["surveille","surveillent"],
+   ["nomme","nomment"],["sort","sortent"],["arrive","arrivent"],["pense","pensent"],["forme","forment"],["produit","produisent"],
+   ["rend","rendent"],["aide","aident"],["utilise","utilisent"],["dit","disent"]].forEach(([a,b])=>addPair(verbs,a,b));
+  ["différent","curieux","heureux","portugais","grec","préhistorique","mondial","propre","sale","froid","court","lointain",
+   "rare","clair","incroyable","indispensable","cher","humain","agité","haut","interdit","joueur","sec","blanc","neuf","nouveau","mou","net","épais"]
+   .forEach(w=>{ if(!adjs.has(w)) adjs.set(w,{sg:w,pl:null}); });
+  ["écrivain","écrivains","astronaute","astronautes"].forEach(w=>adjs.delete(w));
+  addPair(nouns,"écrivain","écrivains"); addPair(nouns,"astronaute","astronautes");
+  return {verbs,nouns,adjs};
+})();
+
+/* ---- formes ---- */
+function nounPlural(sg){
+  if (NOUN_IRR[sg]) return NOUN_IRR[sg];
+  if (/[sxz]$/.test(sg)) return sg;
+  if (/(eau|au|eu)$/.test(sg) && sg!=="pneu" && sg!=="bleu") return sg+"x";
+  if (/al$/.test(sg) && !["bal","festival","carnaval","chacal","récital"].includes(sg)) return sg.slice(0,-2)+"aux";
+  return sg+"s";
+}
+const ADJ_IRR = [
+ ["nouveau","nouvelle","nouveaux","nouvelles"],["nouvel","nouvelle","nouveaux","nouvelles"],["blanc","blanche","blancs","blanches"],
+ ["sec","sèche","secs","sèches"],["neuf","neuve","neufs","neuves"],["vif","vive","vifs","vives"],["épais","épaisse","épais","épaisses"],
+ ["mou","molle","mous","molles"],["net","nette","nets","nettes"],["bon","bonne","bons","bonnes"],["gros","grosse","gros","grosses"],
+ ["joueur","joueuse","joueurs","joueuses"],["grec","grecque","grecs","grecques"],["frais","fraîche","frais","fraîches"],
+ ["long","longue","longs","longues"],["doux","douce","doux","douces"],["ancien","ancienne","anciens","anciennes"],
+ ["fabuleux","fabuleuse","fabuleux","fabuleuses"],["rocheux","rocheuse","rocheux","rocheuses"],["délicieux","délicieuse","délicieux","délicieuses"],
+ ["curieux","curieuse","curieux","curieuses"],["heureux","heureuse","heureux","heureuses"],["portugais","portugaise","portugais","portugaises"],
+ ["mondial","mondiale","mondiaux","mondiales"],["original","originale","originaux","originales"]];
+const ADJ_TABLE = new Map(); ADJ_IRR.forEach(f=>f.forEach(x=>{ if(!ADJ_TABLE.has(x)) ADJ_TABLE.set(x,f); }));
+function adjGender(w){                 // renvoie l'autre genre (ou null)
+  const pl=/s$/.test(w) && !/(eux|ais|os)$/.test(w) ? "s":""; const b=pl?w.slice(0,-1):w;
+  if (EPICENES.has(b)) return null;
+  let r=null;
+  if (/ée$/.test(b)) r=b.slice(0,-1);
+  else if (/é$/.test(b)) r=b+"e";
+  else if (/euse$/.test(b)) r=b.slice(0,-4)+"eux";
+  else if (/eux$/.test(w)) return w.slice(0,-3)+"euse";
+  else if (/ère$/.test(b)) r=b.slice(0,-3)+"er";
+  else if (/er$/.test(b)) r=b.slice(0,-2)+"ère";
+  else if (/ive$/.test(b)) r=b.slice(0,-3)+"if";
+  else if (/elle$/.test(b)) r=b.slice(0,-2);
+  else if (/el$/.test(b)) r=b+"le";
+  else if (/enne$/.test(b)) r=b.slice(0,-2);
+  else if (/ien$/.test(b)) r=b+"ne";
+  else if (/(t|d|s|n|u|i|l|r)e$/.test(b)) r=b.slice(0,-1);
+  else if (/(t|d|s|n|u|i|l|r)$/.test(b)) r=b+"e";
+  else if (/aux$/.test(w)) return w.slice(0,-3)+"ales";
+  return r ? (/x$/.test(r)? r : r+pl) : null;
+}
+function adjNumber(w){
+  const e=LEX.adjs.get(w); if(e && e.pl) return w===e.sg?e.pl:e.sg;
+  if (/eux$/.test(w)) return null;
+  if (/aux$/.test(w)) return w.slice(0,-3)+"al";
+  if (/s$/.test(w)) return w.slice(0,-1);
+  if (/al$/.test(w)) return w.slice(0,-2)+"aux";
+  return w+"s";
+}
+function verbWrong(sg){
+  if (sg==="a") return "as"; if (sg==="est") return "es"; if (sg==="va") return "vas";
+  if (/e$/.test(sg)) return sg+"s";
+  if (sg==="peut"||sg==="veut") return sg.slice(0,-1)+"x";
+  if (/[td]$/.test(sg)) return sg.replace(/t$/,"")+"s";
+  return null;
+}
+function uniq(a){ return [...new Set(a.filter(Boolean))]; }
+function shuffle(a,rnd=Math.random){ a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function keepCase(model,w){ return model[0]===model[0].toUpperCase() && model[0]!==model[0].toLowerCase() ? w.charAt(0).toUpperCase()+w.slice(1) : w; }
+
+/* ---- classification d'une phrase ----
+   Renvoie les jetons avec : cls (verbe|infinitif|nom|adjectif|homophone), options[] */
+function analyse(text, cats){
+  const toks=[]; const re=/\p{L}+/gu; let m;
+  while((m=re.exec(text))) toks.push({s:m.index,e:m.index+m[0].length,w:m[0],low:m[0].toLowerCase()});
+  const nextIsInf = i => { const n=toks[i+1]; return n && /(er|ir|re)$/.test(n.low) && n.low.length>3 && !NOT_VERB.has(n.low); };
+  const isDet = i => { const t=toks[i]; if(!t || !DET.has(t.low)) return false;
+    if ((t.low==="de"||t.low==="d") && nextIsInf(i)) return false; return true; };
+  // étiquetage
+  toks.forEach((t,i)=>{
+    const w=t.low, prevDet=isDet(i-1), prev=toks[i-1]?.low;
+    if (HOMO_TOK[w]) t.homo=HOMO_TOK[w];
+    if (DET.has(w) || w.length<2) { if(t.homo) t.cls="homophone"; return; }
+    if (STOP.has(w)) return;
+    if (t.w[0]!==t.w[0].toLowerCase() && i>0) { if(prevDet){ t.cls="nom"; t.propre=true; } return; }   // nom propre
+    if (prevDet && PRE_ADJ.has(w) && toks[i+1]) { t.cls="adjectif"; toks[i+1].forceNom=true; return; }
+    if (isAdj(w) && ["nom","adjectif"].includes(toks[i-1]?.cls)) { t.cls="adjectif"; return; }
+    if (LEX.verbs.has(w) && (!prevDet || ["le","la","les","l"].includes(prev) && !t.forceNom && !LEX.nouns.has(w) && !NOUN_FORCE.has(w))) { t.cls="verbe"; return; }
+    if (prevDet || t.forceNom) {
+      const plDet = PL_DET.has(prev) || (PRE_ADJ.has(prev) && /[sx]$/.test(prev));
+      if (!/[sxz]$/.test(w) || LEX.nouns.has(w) || (plDet && !INVAR.has(w))) t.cls="nom"; return; }
+    if (isAdj(w)) { t.cls="adjectif"; return; }
+    if (/er$/.test(w) && w.length>4 && !NOT_VERB.has(w) && INF_PREV.has(prev)) { t.cls="infinitif"; return; }
+    if (t.homo) t.cls="homophone";
+  });
+  // options
+  for (const t of toks){
+    const w=t.low; let opts=null, cat=t.cls;
+    if (t.homo && cats.includes("homophones") && ["a","à","et","est","son","sont","on","ont","ou","où","ces","ses","ce","se"].includes(w)) {
+      cat="homophone"; opts=HOMO_OPTS[t.homo];
+    } else if (cat==="verbe" && cats.includes("verbes")) {
+      const p=LEX.verbs.get(w); opts=uniq([p.sg,p.pl,verbWrong(p.sg)]);
+    } else if (cat==="infinitif" && cats.includes("verbes")) {
+      const st=w.slice(0,-2); opts=[st+"er",st+"é",st+"ez"];
+    } else if (cat==="nom" && cats.includes("noms") && !t.propre && !SANS_CHOIX.has(w)) {
+      const p=LEX.nouns.get(w);
+      const inv=Object.entries(NOUN_IRR).find(([a,b])=>b===w);
+      let sg=p?p.sg:inv?inv[0]:(/[sx]$/.test(w) && !/[sxz]$/.test(w.slice(0,-1)) ? w.slice(0,-1) : w);
+      if (/aux$/.test(w) && !p) sg=w.slice(0,-3)+"al";
+      const pl=p?p.pl:nounPlural(sg);
+      if (sg!==pl) { opts=[sg,pl]; if(/x$/.test(pl)) opts.push(sg+"s"); }
+    } else if (cat==="adjectif" && cats.includes("adjectifs")) {
+      if (ADJ_TABLE.has(w)) opts=uniq([w,...ADJ_TABLE.get(w)]).slice(0,4);
+      else { const g=adjGender(w), n=adjNumber(w); opts=uniq([w,n,g, g?adjNumber(g):null]).slice(0,4); }
+      if (opts.length<2) opts=null;
+    } else if (t.homo && !cats.includes("homophones")) { opts=null; }
+    if (opts && opts.includes(w) && opts.length>1) { t.cat=cat; t.opts=opts.map(o=>keepCase(t.w,o)); }
+  }
+  return toks;
+}
+
+const AIDES = {
+  "verbe":"Trouve le sujet en posant la question « Qui est-ce qui … ? ». S'il est au pluriel (ils), le verbe se termine souvent par -nt.",
+  "nom":"Regarde le déterminant devant le nom : le, la, un, une → singulier. Les, des, ces, ses, leurs → pluriel (-s ou -x).",
+  "adjectif":"Cherche le nom que l'adjectif accompagne. Il s'accorde avec lui : féminin → souvent -e ; pluriel → -s ou -x.",
+  "a/à":"Remplace par « avait ». Si la phrase a du sens → a (verbe avoir). Sinon → à.",
+  "et/est":"Remplace par « était ». Si ça marche → est. Si on peut dire « et puis » → et.",
+  "son/sont":"Remplace par « étaient ». Si ça marche → sont. Sinon → son (le sien).",
+  "on/ont":"Remplace par « avaient ». Si ça marche → ont. Si on peut dire « il » → on.",
+  "ou/où":"Si on peut dire « ou bien » → ou. Si ça parle d'un lieu → où.",
+  "ces/ses":"Si on peut dire « les siens » → ses. Si on montre (ces … -là) → ces.",
+  "ce/se":"Devant un verbe → se (on peut dire « me » : me poster). Devant un nom → ce.",
+  "infinitif":"Remplace par « mordre » : si ça marche → -er. Si on dit « mordu » → -é."
+};
+
+if (typeof module!=="undefined") module.exports={analyse,LEX,AIDES,shuffle};
+
+/* ===== Chaînes d'accord (pour les flèches) =====
+   type "sv" : sujet → verbe ; "gn" : déterminant → nom → adjectif ; "attr" : sujet → adjectif attribut */
+const CLITIQUES=new Set(["se","s","le","la","les","l","lui","leur","en","y","ne","n","me","m","te","t"]);
+const PRONOMS=new Set(["il","ils","elle","elles","on"]);
+const DET_LIEN=new Set(["le","la","les","l","un","une","des","ce","cet","cette","ces","son","sa","ses","leur","leurs","mon","ma","mes","chaque","deux","trois","du","au","aux"]);
+const LIAISON_ATTR=new Set(["très","aussi","si","plus","un","peu","bien","vraiment"]);
+function accords(text){
+  const toks=analyse(text,["verbes","noms","adjectifs","homophones"]);
+  const liens=[]; const gnDe=new Map();           // index du nom -> [début,fin] du groupe nominal
+  const estNom=i=>toks[i]&&toks[i].cls==="nom", estAdj=i=>toks[i]&&toks[i].cls==="adjectif";
+  const nomPropre=i=>toks[i]&&/^[A-ZÉ]/.test(toks[i].w)&&["ludo","léo"].includes(toks[i].low);
+  // groupes nominaux
+  toks.forEach((t,i)=>{
+    if(!estNom(i)) return;
+    let d=i-1; const avant=[];
+    while(d>=0 && estAdj(d) && PRE_ADJ.has(toks[d].low)){ avant.push(d); d--; }
+    let debut=i;
+    if(d>=0 && DET_LIEN.has(toks[d].low)){ liens.push({de:[d,d],a:i,type:"gn"}); debut=d;
+      while(debut>0 && DET_LIEN.has(toks[debut-1].low) && ["deux","trois"].includes(toks[debut].low)) debut--; }
+    else if(avant.length) debut=avant[avant.length-1];
+    avant.forEach(a=>liens.push({de:[i,i],a,type:"gn"}));
+    let f=i+1; while(estAdj(f) && !PRE_ADJ.has(toks[f].low)){ liens.push({de:[i,i],a:f,type:"gn"}); f++; }
+    gnDe.set(i,[debut,f-1]);
+  });
+  // sujet de chaque verbe
+  const sujetDe=[]; let dernier=null;
+  const trouverSujet=(i)=>{
+    let j=i-1; while(j>=0 && CLITIQUES.has(toks[j].low)) j--;
+    if(j<0) return null;
+    const w=toks[j].low;
+    if(PRONOMS.has(w)) return [j,j];
+    if(nomPropre(j)){ if(j>=2 && toks[j-1].low==="et" && nomPropre(j-2)) return [j-2,j]; return [j,j]; }
+    if(w==="et"||w==="puis") return dernier;
+    if(w==="qui"){ let k=j-1; while(k>=0 && estAdj(k)) k--; if(estNom(k)) return gnDe.get(k)||[k,k]; return null; }
+    let k=j; while(k>=0 && estAdj(k)) k--;
+    // complément du nom : « le train à vapeur », « la vie des habitants »
+    const tete=g=>{
+      const d0=toks[g[0]]?.low, p=toks[g[0]-1]?.low;
+      if((d0==="des"||d0==="du") && estNom(g[0]-1)) return [(gnDe.get(g[0]-1)||[g[0]-1])[0], g[1]];
+      if(p==="de"||p==="d"||p==="à"){ let m=g[0]-2; while(m>=0&&estAdj(m)) m--; if(estNom(m)) return [(gnDe.get(m)||[m])[0], g[1]]; }
+      return g;
+    };
+    if(estNom(k)) return tete(gnDe.get(k)||[k,k]);
+    if(k>=2 && ["à","de","d"].includes(toks[k-1].low)){ let m=k-2; while(m>=0&&estAdj(m)) m--; if(estNom(m)) return [(gnDe.get(m)||[m])[0], k]; }
+    return null;
+  };
+  toks.forEach((t,i)=>{
+    if(t.cls!=="verbe" && !(t.homo && ["a","est","sont","ont"].includes(t.low) && t.cls!=="nom")) return;
+    if(!(t.cls==="verbe" || LEX.verbs.has(t.low))) return;
+    const sj=trouverSujet(i); if(!sj) return; dernier=sj;
+    liens.push({de:sj,a:i,type:"sv"});
+    // attribut : est/sont (+ très…) + adjectif
+    if(["est","sont"].includes(t.low)){ let k=i+1; while(toks[k]&&LIAISON_ATTR.has(toks[k].low)) k++;
+      while(estAdj(k)){ liens.push({de:sj,a:k,type:"attr"}); k++;
+        if(toks[k]&&toks[k].low==="et"){ k++; while(toks[k]&&LIAISON_ATTR.has(toks[k].low)) k++; } else break; } }
+  });
+  // participe en tête de phrase : « Accompagnés de leur chien, Ludo et Léo… »
+  if(estAdj(0) && /,/.test(text)){
+    const v=liens.find(l=>l.type==="sv"); if(v) liens.push({de:v.de,a:0,type:"attr"});
+  }
+  // on retire les liens du sujet vers un nom déjà lié à son déterminant (évite les doublons)
+  return {toks,liens};
+}
+if (typeof module!=="undefined") module.exports.accords=accords;
+
+</script>
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const PRESETS={
+  1:{n:2,sujet:"sg",gn:"sg",adj:false,homos:["a/à"]},
+  2:{n:3,sujet:"mix",gn:"mix",adj:true,homos:["a/à","et/est","son/sont"]},
+  3:{n:4,sujet:"pl",gn:"mix",adj:true,homos:["a/à","et/est","son/sont","on/ont","ces/ses","ce/se"]}
+};
+const o={d:1,niveau:2,...structuredClone(PRESETS[2])};
+const e={travail2:"clavier",activite:"dictee",sens:"pl",portee:"tout",travail:"choix",cats:["verbes","noms","adjectifs","homophones"],densite:"4",
+  aides:["mots","indices","relire","corrige","fleches"],vitesse:"0.85",pause:"1.3",ponct:"1",voix:""};
+let state=null, sel=-1, fleches=false;
+
+/* ================= Stockage local (cet ordinateur) ================= */
+const LS={get(k,d){try{const v=localStorage.getItem("dictees-ce2:"+k);return v?JSON.parse(v):d;}catch(err){return d;}},
+          set(k,v){try{localStorage.setItem("dictees-ce2:"+k,JSON.stringify(v));}catch(err){}}};
+const cleDictee=()=>encoderDictee(state,o,null);
+
+/* ================= Réglages ================= */
+const selD=$("#dictee");
+Object.keys(DICTEES).forEach(k=>{const opt=document.createElement("option");opt.value=k;
+  opt.textContent="Dictée "+k+" – "+DICTEES[k].mots.slice(0,3).join(", ")+"…";selD.appendChild(opt);});
+const hb=$("#homos");
+HOMOS.forEach(h=>{const b=document.createElement("button");b.textContent=h;b.dataset.h=h;hb.appendChild(b);});
+
+function syncUI(){
+  selD.value=o.d;
+  document.querySelectorAll(".seg[data-k]").forEach(seg=>{const k=seg.dataset.k;
+    seg.querySelectorAll("button").forEach(b=>{let v=o[k]; if(k==="adj") v=o.adj?"1":"0"; b.setAttribute("aria-pressed",String(String(v)===b.dataset.v));});});
+  hb.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(o.homos.includes(b.dataset.h))));
+  document.querySelectorAll("[data-e]").forEach(g=>{const k=g.dataset.e;
+    g.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(Array.isArray(e[k])?e[k].includes(b.dataset.v):e[k]===b.dataset.v)));});
+  $("#blocChoix").hidden = e.travail!=="choix";
+  $("#blocTranspo").hidden = e.activite!=="transpo";
+}
+document.querySelectorAll(".seg[data-k]").forEach(seg=>seg.addEventListener("click",ev=>{
+  const b=ev.target.closest("button"); if(!b) return; const k=seg.dataset.k, v=b.dataset.v;
+  if(k==="niveau"){ o.niveau=+v; Object.assign(o,structuredClone(PRESETS[v])); }
+  else if(k==="n") o.n=+v; else if(k==="adj") o.adj=v==="1"; else o[k]=v;
+  syncUI(); nouvelle();
+}));
+document.querySelectorAll("[data-e]").forEach(g=>g.addEventListener("click",ev=>{
+  const b=ev.target.closest("button"); if(!b) return; const k=g.dataset.e, v=b.dataset.v;
+  if(Array.isArray(e[k])) e[k]=e[k].includes(v)?e[k].filter(x=>x!==v):[...e[k],v]; else e[k]=v;
+  syncUI();
+}));
+hb.addEventListener("click",ev=>{const b=ev.target.closest("button"); if(!b) return;
+  const h=b.dataset.h; o.homos=o.homos.includes(h)?o.homos.filter(x=>x!==h):[...o.homos,h]; syncUI(); nouvelle();});
+selD.addEventListener("change",()=>{o.d=+selD.value;nouvelle();});
+$("#prev").onclick=()=>{o.d=Math.max(1,o.d-1);syncUI();nouvelle();};
+$("#next").onclick=()=>{o.d=Math.min(Object.keys(DICTEES).length,o.d+1);syncUI();nouvelle();};
+$("#go").onclick=nouvelle;
+
+/* ================= Rendu d'une phrase (chaque mot dans un span) ================= */
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function markup(text,matcher,homosVisibles){
+  const toks=annotate(text,matcher||{map:new Map(),phrases:[]}); let h="",pos=0;
+  toks.forEach((t,k)=>{ h+=esc(text.slice(pos,t.s));
+    const cls=["w",matcher&&t.week?"sem":"",(homosVisibles&&t.homo&&homosVisibles.includes(t.homo))?"hom":""].filter(Boolean).join(" ");
+    h+=`<span class="${cls}" data-k="${k}">${esc(t.w)}</span>`; pos=t.e; });
+  return h+esc(text.slice(pos));
+}
+
+/* ================= Flèches d'accord ================= */
+const COUL={sv:"#d6342f",gn:"#2f5fb3",attr:"#1f7a4d"};
+function dessinerFleches(cont, items){
+  cont.querySelectorAll("svg.calque").forEach(x=>x.remove());
+  const NS="http://www.w3.org/2000/svg", svg=document.createElementNS(NS,"svg"); svg.setAttribute("class","calque");
+  svg.innerHTML=Object.entries(COUL).map(([k,c])=>`<marker id="fl-${k}-${cont.id||"c"}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="${c}"/></marker>`).join("");
+  svg.innerHTML="<defs>"+svg.innerHTML+"</defs>";
+  cont.appendChild(svg);
+  const cr=cont.getBoundingClientRect(), W=cont.clientWidth;
+  const padL=parseFloat(getComputedStyle(cont).paddingLeft)||0;
+  const box=el=>{const r=el.getClientRects()[0]||el.getBoundingClientRect();return {x:(r.left+r.right)/2-cr.left,y:r.top-cr.top,g:r.left-cr.left,d:r.right-cr.left,h:r.height};};
+  items.forEach(({el,text})=>{
+    const {toks,liens}=accords(text);
+    const spans=new Map(); el.querySelectorAll("[data-k]").forEach(s=>spans.set(+s.dataset.k,s));
+    el.querySelectorAll(".suj").forEach(s=>s.classList.remove("suj"));
+    liens.forEach(l=>{
+      if(l.type==="sv") for(let k=l.de[0];k<=l.de[1];k++) spans.get(k)?.classList.add("suj");
+      // point de départ : le nom noyau du sujet, sinon le milieu du groupe
+      let dep=null; for(let k=l.de[0];k<=l.de[1];k++) if(toks[k].cls==="nom"){dep=k;break;}
+      let A;
+      if(dep!==null && l.de[0]!==l.de[1]) A=box(spans.get(dep));
+      else { const a=box(spans.get(l.de[0])), b=box(spans.get(l.de[1])); A=Math.abs(a.y-b.y)<4?{...a,x:(a.g+b.d)/2}:a; }
+      const B=box(spans.get(l.a)); if(!A||!B) return;
+      const base=l.type==="gn"?0.55:l.type==="sv"?0.95:1.25;
+      const H=Math.min(A.h*base+Math.abs(B.x-A.x)*0.06, A.h*1.8);
+      const y1=A.y+2, y2=B.y+2, c=COUL[l.type], dash=l.type==="attr"?' stroke-dasharray="6 4"':"";
+      const m=`url(#fl-${l.type}-${cont.id||"c"})`;
+      const trace=d=>`<path d="${d}" fill="none" stroke="${c}" stroke-width="2.2"${dash} stroke-linecap="round"/>`;
+      let h="";
+      if(Math.abs(y1-y2)<6){
+        h=trace(`M${A.x},${y1} C${A.x},${y1-H} ${B.x},${y2-H} ${B.x},${y2}`).replace("/>",` marker-end="${m}"/>`);
+      } else if(y1<y2){
+        h=trace(`M${A.x},${y1} C${A.x},${y1-H} ${W-6},${y1-H} ${W-2},${y1-H*0.5}`)+
+          trace(`M${padL-10},${y2-H*0.5} C${padL},${y2-H} ${B.x},${y2-H} ${B.x},${y2}`).replace("/>",` marker-end="${m}"/>`);
+      } else {
+        h=trace(`M${A.x},${y1} C${A.x},${y1-H} ${padL},${y1-H} ${padL-10},${y1-H*0.5}`)+
+          trace(`M${W-2},${y2-H*0.5} C${W-6},${y2-H} ${B.x},${y2-H} ${B.x},${y2}`).replace("/>",` marker-end="${m}"/>`);
+      }
+      svg.insertAdjacentHTML("beforeend",h);
+    });
+  });
+}
+
+/* ================= Vue enseignant ================= */
+function nouvelle(){ state=generate(o.d,o); sel=-1; render(); }
+function render(){
+  const D=DICTEES[o.d], matcher=buildMatcher(D.mots), phrases=resolve(state);
+  const zone=$("#texte"); zone.innerHTML="";
+  const items=[];
+  phrases.forEach((p,i)=>{
+    const s=document.createElement("span");
+    s.className="ph"+(i===sel?" actif":""); s.contentEditable="true"; s.spellcheck=false;
+    s.innerHTML=markup(p,matcher,o.homos);
+    s.addEventListener("focus",()=>{sel=i;document.querySelectorAll(".ph").forEach(x=>x.classList.toggle("actif",x===s));$("#bChanger").disabled=false;});
+    s.addEventListener("input",()=>{state.phrases[i].edited=s.textContent;});
+    s.addEventListener("blur",()=>{if(state.phrases[i].edited!==undefined) render();});
+    s.addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();s.blur();}});
+    zone.appendChild(s); if(i<phrases.length-1) zone.appendChild(document.createTextNode(" "));
+    items.push({el:s,text:p});
+  });
+  zone.classList.toggle("fleches",fleches);
+  if(fleches) requestAnimationFrame(()=>dessinerFleches(zone,items));
+  $("#legende").hidden=!fleches;
+  $("#bChanger").disabled=sel<0;
+  const full=phrases.join(" "), toks=annotate(full,matcher);
+  const used=new Set(toks.filter(t=>t.week).map(t=>t.week));
+  const homs=[...new Set(toks.filter(t=>t.homo).map(t=>t.homo))];
+  const nbMots=full.split(/[\s’']+/).filter(w=>/\p{L}/u.test(w)).length;
+  $("#mots").innerHTML='<span class="titre">Mots de la semaine</span>'+D.mots.map(m=>`<span class="mot${used.has(m)?" pris":""}">${esc(m)}</span>`).join("");
+  $("#titre").textContent="Dictée "+o.d;
+  $("#meta").innerHTML=["Niveau "+"★".repeat(o.niveau),phrases.length+(phrases.length>1?" phrases":" phrase"),nbMots+" mots"].map(x=>"<span>"+x+"</span>").join("");
+  const hSel=homs.filter(h=>o.homos.includes(h)), hAutres=homs.filter(h=>!o.homos.includes(h));
+  $("#pied").innerHTML=`<span><b>${used.size}/${D.mots.length}</b> mots de la semaine utilisés</span>`+
+    `<span>Homophones travaillés : <b>${hSel.length?hSel.join(", "):"aucun"}</b>${hAutres.length?" (présents aussi : "+hAutres.join(", ")+")":""}</span>`+
+    `<span>Personnage${state.protPl?"s":""} : <b>${esc(state.sujet.charAt(0).toUpperCase()+state.sujet.slice(1))}</b></span>`;
+  afficherResultats();
+}
+function toggle(btn,cls){const on=btn.getAttribute("aria-pressed")!=="true";btn.setAttribute("aria-pressed",String(on));$("#texte").classList.toggle(cls,on);}
+$("#bMots").onclick=()=>toggle($("#bMots"),"voir-mots");
+$("#bHomos").onclick=()=>toggle($("#bHomos"),"voir-homos");
+$("#bFleches").onclick=()=>{
+  fleches=!fleches; $("#bFleches").setAttribute("aria-pressed",String(fleches));
+  // les surlignages gênent la lecture des flèches : on les retire (ils restent réactivables)
+  if(fleches) [["#bMots","voir-mots"],["#bHomos","voir-homos"]].forEach(([b,c])=>{$(b).setAttribute("aria-pressed","false");$("#texte").classList.remove(c);});
+  render();};
+window.addEventListener("resize",()=>{ if(fleches && !$("#vueProf").hidden) render(); });
+document.addEventListener("fullscreenchange",()=>{$("#bPlein").textContent=document.fullscreenElement?"Quitter le plein écran":"Plein écran"; if(fleches) setTimeout(render,120);});
+$("#bChanger").addEventListener("mousedown",ev=>ev.preventDefault());
+$("#bChanger").onclick=()=>{if(sel<0)return;regenerateOne(state,sel,o);render();};
+$("#bImprimer").onclick=()=>window.print();
+$("#bPlein").onclick=()=>{const f=$("#feuille");if(document.fullscreenElement)document.exitFullscreen();else if(f.requestFullscreen)f.requestFullscreen();};
+async function copier(txt,btn,lbl){
+  try{await navigator.clipboard.writeText(txt);}catch(err){const t=document.createElement("textarea");t.value=txt;document.body.appendChild(t);t.select();document.execCommand("copy");t.remove();}
+  const old=btn.textContent; btn.textContent=lbl||"Copié"; setTimeout(()=>btn.textContent=old,1400);
+}
+$("#bCopier").onclick=()=>copier(resolve(state).join(" ").replace(/\u00a0/g," "),$("#bCopier"));
+$("#bLire").onclick=()=>{ if(lecture) return stop(); dicterTout(resolve(state), $("#bLire")); };
+document.addEventListener("click",ev=>{if(!ev.target.closest(".ph")&&!ev.target.closest(".barre")){sel=-1;document.querySelectorAll(".ph").forEach(x=>x.classList.remove("actif"));$("#bChanger").disabled=true;}});
+
+/* ================= Mes dictées, code, lien ================= */
+function memoriser(){
+  const code=encoderDictee(state,o,e), cle=cleDictee();
+  let l=LS.get("liste",[]).filter(x=>x.cle!==cle);
+  l.unshift({cle,code,d:o.d,date:new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"}),apercu:resolve(state)[0].slice(0,60)});
+  LS.set("liste",l.slice(0,12)); afficherListe();
+}
+function ouvrirCode(code){
+  const r=decoderDictee(code);
+  Object.assign(o,r.o); state=r.state; if(r.e) Object.assign(e,r.e);
+  sel=-1; syncUI(); render();
+}
+function afficherListe(){
+  const l=LS.get("liste",[]), box=$("#listeDictees");
+  box.innerHTML=l.length?"":'<span class="sous" style="margin:0">Aucune dictée gardée pour l\'instant.</span>';
+  l.forEach((x,i)=>{
+    const d=document.createElement("div"); d.className="item";
+    d.innerHTML=`<span title="${esc(x.apercu)}"><b>Dictée ${x.d}</b> · ${x.date} · ${esc(x.apercu)}…</span><button>Ouvrir</button><button aria-label="Retirer">✕</button>`;
+    const [bo,bx]=d.querySelectorAll("button");
+    bo.onclick=()=>{ ouvrirCode(x.code); window.scrollTo({top:0,behavior:"smooth"}); };
+    bx.onclick=()=>{ LS.set("liste",LS.get("liste",[]).filter(y=>y.cle!==x.cle)); afficherListe(); };
+    box.appendChild(d);
+  });
+}
+$("#copierCode").onclick=()=>copier(encoderDictee(state,o,e),$("#copierCode"));
+$("#copierLien").onclick=()=>copier(location.href.split("#")[0]+"#code="+encoderDictee(state,o,e),$("#copierLien"));
+$("#ouvrirCode").onclick=()=>{
+  try{ ouvrirCode($("#codeSaisi").value); $("#codeErreur").hidden=true; $("#codeSaisi").value=""; }
+  catch(err){ $("#codeErreur").hidden=false; }
+};
+
+/* ================= Résultats (dictée en deux temps) ================= */
+function noterResultat(temps,val,texte,mode){
+  const prenom=($("#ePrenom").value.trim()||"Sans prénom"), cle=cleDictee();
+  const R=LS.get("resultats",{}); R[cle]=R[cle]||{}; R[cle][prenom]=R[cle][prenom]||{};
+  const deja=R[cle][prenom]["t"+temps];
+  if(!deja){ R[cle][prenom]["t"+temps]={val,texte,mode,date:new Date().toLocaleDateString("fr-FR")}; LS.set("resultats",R); }
+  return R[cle][prenom];
+}
+function afficherResultats(){
+  const R=LS.get("resultats",{})[cleDictee()], box=$("#resultats");
+  if(!R||!Object.keys(R).length){ box.hidden=true; return; }
+  box.hidden=false;
+  const lignes=Object.entries(R).sort().map(([p,r])=>{
+    const lib={choix:" (choix)",clavier:" (clavier)"};
+    const t1=r.t1?r.t1.texte+(lib[r.t1.mode]||""):"–", t2=r.t2?r.t2.texte+(lib[r.t2.mode]||""):"–";
+    const mieux=r.t1&&r.t2&&r.t1.mode===r.t2.mode&&r.t2.val>r.t1.val;
+    return `<tr><td>${esc(p)}</td><td>${esc(t1)}</td><td class="${mieux?"mieux":""}">${esc(t2)}${mieux?" ↗":""}</td></tr>`;
+  }).join("");
+  box.innerHTML=`<h3>Résultats de cette dictée (sur cet ordinateur)</h3><table><tr><th>Élève</th><th>Temps 1</th><th>Temps 2</th></tr>${lignes}</table>
+    <button class="essai" id="effacerRes">Effacer ces résultats</button>`;
+  $("#effacerRes").onclick=()=>{ const A=LS.get("resultats",{}); delete A[cleDictee()]; LS.set("resultats",A); afficherResultats(); };
+}
+
+/* ================= Voix (synthèse vocale de l'ordinateur) ================= */
+const synth=window.speechSynthesis; let voix=[], lecture=null;
+function chargerVoix(){
+  if(!synth) return;
+  voix=synth.getVoices().filter(v=>/^fr/i.test(v.lang)).sort((a,b)=>(b.localService-a.localService)||(/fr-FR/i.test(b.lang)-/fr-FR/i.test(a.lang)));
+  const s=$("#selVoix"); s.innerHTML="";
+  voix.forEach(v=>{const op=document.createElement("option");op.value=v.name;op.textContent=v.name+(v.localService?"":" (Internet)");s.appendChild(op);});
+  if(!e.voix && voix[0]) e.voix=voix[0].name; s.value=e.voix;
+  const av=$("#avertVoix");
+  if(!voix.length){ av.hidden=false; av.textContent="Aucune voix française n'est installée sur cet ordinateur : la lecture à voix haute sera indisponible."; $("#noteVoix").textContent="Pas de voix française sur cet ordinateur"; }
+  else { av.hidden=true; $("#noteVoix").textContent=""; }
+}
+if(synth){ chargerVoix(); synth.onvoiceschanged=chargerVoix; }
+else { $("#noteVoix").textContent="Lecture à voix haute indisponible dans ce navigateur"; }
+$("#selVoix").onchange=ev=>{e.voix=ev.target.value;};
+function dire(txt,rate){ return new Promise(res=>{
+  if(!synth||!voix.length) return res();
+  const u=new SpeechSynthesisUtterance(txt); const v=voix.find(x=>x.name===e.voix)||voix[0];
+  u.voice=v; u.lang=v.lang; u.rate=rate; u.onend=res; u.onerror=res; synth.speak(u); }); }
+const attendre=ms=>new Promise(r=>setTimeout(r,ms));
+function ponctuer(g){ if(e.ponct!=="1") return g.replace(/[.,:;!?]/g,"");
+  return g.replace(/\s*,/g," virgule").replace(/\s*:/g," deux points").replace(/\s*!/g," point d'exclamation").replace(/\s*\?/g," point d'interrogation").replace(/\s*\./g," point"); }
+const COUPE=new Set(["et","dans","avec","sur","sous","pour","qui","que","à","au","aux","près","hors","mais","alors","puis","pendant","depuis","entre","chez","par","jusqu'à","autour","sans","en","quand"]);
+function groupes(ph){
+  const mots=ph.replace(/\u00a0/g," ").split(/\s+/).filter(Boolean); const gs=[]; let cur=[];
+  mots.forEach(m=>{ const low=m.toLowerCase().replace(/[.,:;!?]/g,"");
+    if(cur.length>=3 && COUPE.has(low)){ gs.push(cur); cur=[]; }
+    cur.push(m); if(/[,:;]$/.test(m) || cur.length>=6){ gs.push(cur); cur=[]; } });
+  if(cur.length) gs.push(cur);
+  for(let i=gs.length-1;i>0;i--) if(gs[i].length===1){ gs[i-1]=gs[i-1].concat(gs[i]); gs.splice(i,1); }
+  return gs.map(g=>g.join(" "));
+}
+function stop(){ if(lecture){lecture.stop=true;} if(synth) synth.cancel(); lecture=null;
+  document.querySelectorAll(".joue").forEach(b=>b.classList.remove("joue")); $("#eStop").disabled=true; $("#bLire").textContent="▶ Dicter"; }
+async function lancer(fn,btn){
+  stop(); const moi={stop:false}; lecture=moi; if(btn) btn.classList.add("joue"); $("#eStop").disabled=false;
+  if(btn===$("#bLire")) btn.textContent="■ Arrêter";
+  try{ await fn(moi); } finally { if(lecture===moi) stop(); }
+}
+const rate=()=>parseFloat(e.vitesse);
+async function dicterPhrase(ph,moi){
+  await dire(ph.replace(/\u00a0/g," "),rate()); if(moi.stop) return; await attendre(1200);
+  for(const g of groupes(ph)){ if(moi.stop) return;
+    await dire(ponctuer(g),rate()*0.92); if(moi.stop) return;
+    await attendre(1000*parseFloat(e.pause)*g.split(" ").length); }
+  if(moi.stop) return; await dire(ph.replace(/\u00a0/g," "),rate()); await attendre(600);
+}
+function dicterTout(phrases,btn){ lancer(async moi=>{ for(const ph of phrases){ if(moi.stop) return; await dicterPhrase(ph,moi); await attendre(1500);} },btn); }
+$("#essaiVoix").onclick=()=>lancer(async()=>{await dire("Ludo et Léo se postent au bord d'un ruisseau.",rate());});
+$("#eStop").onclick=stop;
+
+/* ================= Mode élève ================= */
+let es=null, temps=1;
+const PRIO={verbe:1,infinitif:2,homophone:2,adjectif:3,nom:4};
+const motsDe=t=>(t.toLowerCase().match(/\p{L}+/gu)||[]);
+function diffIndices(a,b){          // indices des mots de a absents de la plus longue sous-suite commune avec b
+  const n=a.length,m=b.length,L=Array.from({length:n+1},()=>new Array(m+1).fill(0));
+  for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)L[i][j]=a[i]===b[j]?L[i+1][j+1]+1:Math.max(L[i+1][j],L[i][j+1]);
+  const garde=new Set();let i=0,j=0;while(i<n&&j<m){if(a[i]===b[j]){garde.add(i);i++;j++;}else if(L[i+1][j]>=L[i][j+1])i++;else j++;}
+  return new Set([...Array(n).keys()].filter(k=>!garde.has(k)));
+}
+function choisirTrous(text,filtre){
+  const matcher=buildMatcher(DICTEES[o.d].mots);
+  const toks=analyse(text,e.cats);
+  let gaps=toks.map((t,k)=>({...t,k})).filter(t=>t.opts && (t.cat!=="homophone" || o.homos.includes(t.homo)) && (!filtre||(filtre.has(t.k)&&t.low!=="et")));
+  const week=new Set(annotate(text,matcher).filter(t=>t.week).map(t=>t.s));
+  gaps.forEach(g=>{ g.prio=PRIO[g.cat]+(week.has(g.s)?-0.5:0)+(g.cat==="nom"&&/[sx]$/.test(g.low)?-0.3:0)+Math.random()*0.4; });
+  gaps=gaps.sort((a,b)=>a.prio-b.prio).slice(0,+e.densite).sort((a,b)=>a.s-b.s);
+  gaps.forEach(g=>g.shown=shuffle(g.opts));
+  return gaps;
+}
+const modeEffectif=()=> (e.activite!=="transpo" && temps===2) ? e.travail2 : e.travail;
+function preparerEleve(){
+  const mode=modeEffectif();
+  if(e.activite==="transpo"){
+    const T=transposer(state,o,e.sens==="pl",e.portee==="tout");
+    es={transpo:true,de:T.de,vers:T.vers,phrases:T.cible.map((cible,i)=>{
+      const src=T.source[i];
+      const change=diffIndices(motsDe(cible),motsDe(src));           // mots de la cible qui changent
+      const changeSrc=diffIndices(motsDe(src),motsDe(cible));        // mots de la source qui changent
+      return {text:cible, source:src, changeSrc, gaps:mode==="choix"?choisirTrous(cible,change):[]};
+    })};
+  } else {
+    es={phrases:resolve(state).map(p=>({text:p,gaps:mode==="choix"?choisirTrous(p):[]}))};
+  }
+  es.mode=mode;
+}
+function sourceSoulignee(ph){
+  // souligne les déterminants et les noms qui vont changer (pas les verbes ni les adjectifs : à l'élève de les trouver)
+  const toks=analyse(ph.source,[]); let h="",pos=0;
+  toks.forEach((t,k)=>{ h+=esc(ph.source.slice(pos,t.s));
+    const aSouligner=ph.changeSrc.has(k) && (t.cls==="nom" || (DET.has(t.low) && !["son","sa","ses","leur","leurs"].includes(t.low))) && e.portee==="tout";
+    h+=aSouligner?`<u>${esc(t.w)}</u>`:esc(t.w); pos=t.e; });
+  h=h+esc(ph.source.slice(pos));
+  return h.replace(/<\/u>(\s)<u>/g,"$1");
+}
+function construireEleve(){
+  $("#eTitre").textContent=(es.transpo?"Transposition – dictée ":"Dictée ")+o.d;
+  $("#eTempsBloc").hidden=!!es.transpo;
+  document.querySelectorAll("#eTemps button").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.v===temps)));
+  $("#eTout").hidden=!!es.transpo;
+  const cons=$("#eConsigne");
+  if(es.transpo){
+    const pron=es.phrases.some(p=>/\b(il|ils)\b/i.test(p.source));
+    const pl=e.sens==="pl";
+    cons.hidden=false;
+    cons.innerHTML=`Réécris chaque phrase en remplaçant <b>${esc(es.de)}</b> par <b>${esc(es.vers)}</b>`+
+      (e.portee==="tout"?` et en mettant ${pl?"au pluriel":"au singulier"} les groupes soulignés.`:".")+
+      (pron?` Attention : <b>${pl?"il":"ils"}</b> devient <b>${pl?"ils":"il"}</b>.`:"")+
+      ` Pense aux accords des verbes${o.adj?" et des adjectifs":""} !`;
+  } else cons.hidden=true;
+  const zone=$("#ePhrases"); zone.innerHTML="";
+  es.phrases.forEach((ph,i)=>{
+    const d=document.createElement("div"); d.className="phrase";
+    if(es.transpo){
+      d.innerHTML=`<div class="p-barre"><span class="p-num">Phrase ${i+1}</span><button data-a="ecouter">▶ Écouter</button></div><div class="source">${sourceSoulignee(ph)}</div>`;
+    } else {
+      d.innerHTML=`<div class="p-barre"><span class="p-num">Phrase ${i+1}</span><button data-a="ecouter">▶ Écouter</button><button data-a="dicter">🐢 Dicter lentement</button></div>`;
+    }
+    const corps=document.createElement("div");
+    if(es.mode==="choix"){
+      corps.className="texte-eleve"; let h="",pos=0;
+      ph.gaps.forEach((g,j)=>{ h+=esc(ph.text.slice(pos,g.s));
+        h+=`<select data-p="${i}" data-g="${j}" aria-label="Choisis le bon mot"><option value="">…</option>${g.shown.map(x=>`<option>${esc(x)}</option>`).join("")}</select>`; pos=g.e; });
+      corps.innerHTML=h+esc(ph.text.slice(pos));
+    } else if(es.mode==="clavier"){
+      corps.innerHTML=`<textarea class="clavier" data-p="${i}" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="${es.transpo?"Écris la nouvelle phrase…":"Écris la phrase que tu entends…"}"></textarea>`;
+    } else {
+      corps.innerHTML=`<div class="cahier">${es.transpo?"Écris la nouvelle phrase dans ton cahier.":"Écoute la phrase et écris-la dans ton cahier."}</div>`;
+    }
+    d.appendChild(corps);
+    const ret=document.createElement("div"); ret.className="zone-retour"; d.appendChild(ret);
+    const aLire=es.transpo?ph.source:ph.text;
+    d.querySelector('[data-a="ecouter"]').onclick=ev=>lancer(async()=>{await dire(aLire.replace(/\u00a0/g," "),rate());},ev.currentTarget);
+    const bd=d.querySelector('[data-a="dicter"]'); if(bd) bd.onclick=ev=>lancer(async moi=>{await dicterPhrase(ph.text,moi);},ev.currentTarget);
+    zone.appendChild(d);
+  });
+  zone.querySelectorAll("select").forEach(s=>{
+    s.addEventListener("focus",()=>montrerIndice(es.phrases[s.dataset.p].gaps[s.dataset.g]));
+    s.addEventListener("change",()=>{s.classList.remove("juste","faux");});
+  });
+  // aides (le temps 2 retire les aides pendant l'écriture)
+  const t2=!es.transpo && temps===2;
+  $("#aMots").hidden=!e.aides.includes("mots")||t2;
+  $("#aMotsListe").innerHTML=DICTEES[o.d].mots.map(m=>`<span class="mot">${esc(m)}</span>`).join("");
+  $("#aIndice").hidden=!(e.aides.includes("indices") && es.mode==="choix")||t2;
+  $("#aIndiceTxt").textContent="Clique sur un mot à choisir : je t'explique comment trouver la bonne réponse.";
+  $("#aRelire").hidden=!e.aides.includes("relire");
+  const items=["J'ai mis une majuscule au début de chaque phrase.","J'ai mis un point à la fin de chaque phrase.",
+    "J'ai trouvé le sujet de chaque verbe et j'ai accordé le verbe.","J'ai accordé les noms et les adjectifs avec leur déterminant.",
+    "J'ai vérifié les homophones (a/à, et/est…).","J'ai vérifié l'orthographe des mots de la semaine."];
+  $("#aRelire").innerHTML="<h3>Je relis ma dictée</h3>"+items.map(t=>`<label><input type="checkbox"> ${t}</label>`).join("");
+  $("#eCorrige").hidden=!e.aides.includes("corrige") || (t2 && !es.verifie && es.mode!=="cahier");
+  $("#eVerifier").hidden=es.mode==="cahier";
+  $("#eScore").textContent="";
+}
+$("#eTemps").addEventListener("click",ev=>{const b=ev.target.closest("button"); if(!b) return; temps=+b.dataset.v; stop(); preparerEleve(); construireEleve();});
+function montrerIndice(g){
+  if(!g) return; const cle=g.cat==="homophone"?g.homo:g.cat;
+  const noms={verbe:"C'est un verbe.",infinitif:"C'est un verbe après « à », « de » ou « pour ».",nom:"C'est un nom.",adjectif:"C'est un adjectif.",homophone:"Attention, homophone : "+g.homo+"."};
+  $("#aIndiceTxt").innerHTML=`<b>${noms[g.cat]}</b><br>${esc(AIDES[cle]||"")}`;
+}
+function tokensDe(s){ return (s.replace(/[’]/g,"'").replace(/\u00a0/g," ").match(/[\p{L}\-]+'?|[.,:;!?]/gu)||[]); }
+function comparer(saisie,modele){
+  const a=tokensDe(saisie), b=tokensDe(modele), n=a.length, m=b.length;
+  const L=Array.from({length:n+1},()=>new Array(m+1).fill(0));
+  for(let i=n-1;i>=0;i--) for(let j=m-1;j>=0;j--) L[i][j]=a[i]===b[j]?L[i+1][j+1]+1:Math.max(L[i+1][j],L[i][j+1]);
+  const ok=new Array(n).fill(false); let i=0,j=0;
+  while(i<n&&j<m){ if(a[i]===b[j]){ok[i]=true;i++;j++;} else if(L[i+1][j]>=L[i][j+1]) i++; else j++; }
+  return {a,ok,manquants:m-L[0][0]};
+}
+$("#eVerifier").onclick=()=>{
+  let bons=0,total=0,erreurs=0,texte="",val=0;
+  if(es.mode==="choix"){
+    document.querySelectorAll("#ePhrases select").forEach(s=>{
+      const g=es.phrases[s.dataset.p].gaps[s.dataset.g]; total++;
+      const juste=s.value===g.w; s.classList.toggle("juste",juste); s.classList.toggle("faux",!juste); if(juste) bons++;
+    });
+    texte=`${bons} / ${total}`; val=total?bons/total:1;
+    $("#eScore").textContent=`${bons} / ${total} bonnes réponses`+(bons<total?" – corrige les mots en rouge et vérifie encore.":" – bravo !");
+  } else {
+    document.querySelectorAll("#ePhrases textarea").forEach(t=>{
+      const i=+t.dataset.p, box=t.parentElement.nextElementSibling;
+      if(!t.value.trim()){ box.innerHTML='<div class="bilan">Tu n\'as encore rien écrit.</div>'; erreurs++; return; }
+      const r=comparer(t.value,es.phrases[i].text);
+      const faux=r.ok.filter(x=>!x).length, fautes=Math.max(faux,r.manquants), oublis=Math.max(0,r.manquants-faux); erreurs+=fautes;
+      let h=""; r.a.forEach((w,k)=>{ const colle=/^[.,:;!?]$/.test(w)||k===0||/'$/.test(r.a[k-1]); h+=(colle?"":" ")+`<span class="${r.ok[k]?"ok":"err"}">${esc(w)}</span>`; });
+      box.innerHTML=`<div class="retour">${h}</div><div class="bilan">${fautes===0?"Aucune erreur, bravo !":fautes+(fautes>1?" erreurs":" erreur")+(oublis?" (dont "+oublis+(oublis>1?" mots oubliés)":" mot oublié)"):"")+" – les mots soulignés sont à revoir."}</div>`;
+    });
+    texte=erreurs+(erreurs>1?" erreurs":" erreur"); val=-erreurs;
+    $("#eScore").textContent=erreurs===0?"Aucune erreur, bravo !":"Relis les mots soulignés et corrige-les.";
+  }
+  if(!es.transpo){
+    const r=noterResultat(temps,val,texte,es.mode);
+    if(temps===2 && r.t1 && r.t2){
+      const memeMode=r.t1.mode===r.t2.mode;
+      const prog=!memeMode?"":r.t2.val>r.t1.val?" Tu as progressé, bravo !":r.t2.val===r.t1.val?" Même résultat qu'au temps 1.":"";
+      $("#eScore").insertAdjacentHTML("beforeend",`<span class="progres">Temps 1 : ${esc(r.t1.texte)} → Temps 2 : ${esc(r.t2.texte)}.${prog}</span>`);
+    }
+    es.verifie=true; if(e.aides.includes("corrige")) $("#eCorrige").hidden=false;
+  }
+};
+$("#eCorrige").onclick=()=>{
+  const blocs=[...document.querySelectorAll("#ePhrases .phrase")];
+  if(blocs.some(d=>d.querySelector(".corrige"))){ blocs.forEach(d=>d.querySelector(".corrige")?.remove()); return; }
+  const avecFleches=e.aides.includes("fleches");
+  blocs.forEach((d,i)=>{
+    const c=document.createElement("div"); c.className="corrige"+(avecFleches?" fleches":""); c.id="corr"+i;
+    c.innerHTML=markup(es.phrases[i].text,null,null); d.appendChild(c);
+    if(avecFleches) requestAnimationFrame(()=>dessinerFleches(c,[{el:c,text:es.phrases[i].text}]));
+  });
+};
+$("#eRecommencer").onclick=()=>{ stop(); preparerEleve(); construireEleve(); };
+$("#eTout").onclick=ev=>dicterTout(es.phrases.map(p=>p.text),ev.currentTarget);
+
+/* ================= Onglets ================= */
+function onglet(eleve){
+  stop(); $("#tabProf").setAttribute("aria-selected",String(!eleve)); $("#tabEleve").setAttribute("aria-selected",String(eleve));
+  $("#vueProf").hidden=eleve; $("#vueEleve").hidden=!eleve;
+  if(eleve){ memoriser(); preparerEleve(); construireEleve(); } else render();
+}
+$("#tabProf").onclick=()=>onglet(false);
+$("#tabEleve").onclick=()=>onglet(true);
+
+/* ================= Démarrage ================= */
+syncUI(); afficherListe();
+const h=location.hash.match(/code=([^&]+)/);
+let ouvert=false;
+if(h){ try{ ouvrirCode(decodeURIComponent(h[1])); ouvert=true; }catch(err){} }
+if(!ouvert) nouvelle();
+if(ouvert) onglet(true);
+})();
+</script>
+</body>
+</html>

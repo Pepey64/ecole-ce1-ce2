@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Passer par 10 (CE1)</title>
+<style>
+:root {
+  --paper: #FAF6EA;
+  --line: rgba(46,111,149,0.16);
+  --ink: #243B2C;
+  --red: #D6483D;
+  --blue: #2E6F95;
+  --yellow: #F2B33D;
+  --green: #4C9A5B;
+  --purple: #7C5CA6;
+  --card-border: #B9C4CC;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; min-height: 100vh; color: var(--ink);
+  background-color: var(--paper);
+  background-image: repeating-linear-gradient(var(--line) 0px, var(--line) 1px, transparent 1px, transparent 28px);
+  font-family: 'Nunito', 'Segoe UI', Verdana, sans-serif;
+}
+.hand { font-family: 'Patrick Hand', 'Segoe Print', 'Comic Sans MS', 'Bradley Hand', cursive; }
+.wrap { max-width: 56rem; margin: 0 auto; padding: 2rem 1rem 4rem; }
+
+.top { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; flex-wrap: wrap; margin-bottom: .5rem; }
+h1 { margin: 0; font-size: 3rem; line-height: 1; font-weight: 400; }
+.sub { margin: .25rem 0 0; font-weight: 600; color: var(--blue); }
+button { font-family: inherit; cursor: pointer; border: 0; color: white; font-weight: 700; border-radius: 9999px; transition: transform .15s; }
+button:active { transform: scale(.95); }
+.btn-new { background: var(--red); padding: .5rem 1rem; font-size: .875rem; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+.btn-all { background: var(--purple); padding: .25rem .75rem; font-size: .75rem; margin-left: .5rem; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.btn-check { background: var(--blue); padding: .25rem .75rem; font-size: .75rem; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+.legend { display: flex; align-items: center; gap: .75rem 1rem; flex-wrap: wrap; margin: .5rem 0; font-size: .875rem; font-weight: 600; }
+.legend .item { display: inline-flex; align-items: center; gap: .35rem; }
+.swatch { display: inline-block; width: 14px; height: 14px; border-radius: 4px; border: 3px solid; }
+
+.progress { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.dot { width: 1.75rem; height: 1.75rem; border-radius: 9999px; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 800; background: white; color: #B7AF92; border: 2px solid #E4DCC4; }
+.dot.done { background: var(--green); color: white; border-color: var(--green); }
+.count { font-size: .875rem; font-weight: 700; margin-left: .25rem; }
+.bravo { background: var(--yellow); border-radius: 1rem; padding: 1rem; margin-bottom: 1.5rem; text-align: center; font-weight: 800; font-size: 1.125rem; }
+.bravo[hidden] { display: none; }
+
+.group { margin: 2rem 0 .75rem; }
+.group h2 { margin: 0; font-size: 1.5rem; font-weight: 400; }
+.group p { margin: 0; font-size: .875rem; color: #7A7458; }
+.grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+@media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .grid { grid-template-columns: repeat(3, 1fr); } .wrap { max-width: 64rem; } }
+
+.card { background: white; border: 2px solid #E4DCC4; border-left: 8px solid var(--red); border-radius: 1rem; padding: 1rem; }
+.card.success { border-left-color: var(--green); }
+.card-body { display: flex; align-items: stretch; gap: .75rem; }
+.arrow { flex: 0 0 30px; position: relative; }
+.arrow svg.curve { position: absolute; left: 0; top: 0; width: 30px; height: 100%; }
+.arrow svg.head { position: absolute; left: 14px; bottom: calc(4% - 8px); width: 16px; height: 16px; }
+.content { flex: 1; min-width: 0; }
+.big { font-size: 1.6rem; color: var(--ink); }
+.line1 { display: flex; align-items: center; gap: 1rem; margin-bottom: .5rem; }
+.row { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; font-weight: 700; font-size: 1.125rem; }
+.row.second { align-items: flex-start; }
+.row.third { margin-top: .5rem; }
+.lead2 { margin-top: 20px; }
+.branch-box { width: 116px; }
+.branch-box svg { display: block; width: 100%; height: 18px; }
+.branch-cells { display: flex; align-items: center; gap: .5rem; margin-top: .25rem; }
+.purple { color: var(--purple); }
+
+input.cell {
+  width: 3rem; height: 2.5rem; text-align: center; font: inherit; font-size: 1rem; font-weight: 700; color: var(--ink);
+  background: white; border: 3px solid var(--card-border); border-radius: .5rem; outline: none; padding: 0;
+}
+input.cell.wide { width: 3.5rem; }
+input.cell:focus { box-shadow: 0 0 0 3px rgba(46,111,149,.25); }
+input.cell.ok { background: #E7F5E8; }
+input.cell.ko { background: #FBEAE8; }
+input.cell.role-green { border-color: var(--green); }
+input.cell.role-red { border-color: var(--red); }
+
+.foot { margin-top: .75rem; display: flex; align-items: center; gap: .5rem; }
+.msg { font-size: .75rem; font-weight: 800; }
+.msg.good { color: var(--green); }
+.msg.bad { color: var(--red); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1 class="hand">🔟 Passer par 10</h1>
+      <p class="sub">Décompose le plus petit nombre pour atteindre 10, puis termine le calcul.</p>
+    </div>
+    <button class="btn-new" id="btn-new">🔄 Nouveaux calculs</button>
+  </div>
+
+  <div class="legend">
+    <span class="item"><span class="swatch" style="border-color:var(--green)"></span>la quantité qui reste</span>
+    <span class="item"><span class="swatch" style="border-color:var(--red)"></span>le 10 à trouver</span>
+  </div>
+
+  <div class="progress" id="progress"></div>
+  <div class="bravo hand" id="bravo" hidden>🎉 Bravo, tous les calculs sont justes ! 🎉</div>
+
+  <div id="groups"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+  function parseSafe(s) {
+    if (s === undefined || s === null || String(s).trim() === "") return NaN;
+    return parseInt(s, 10);
+  }
+  function el(tag, props, children) {
+    var node = document.createElement(tag);
+    if (props) Object.keys(props).forEach(function (k) {
+      if (k === "class") node.className = props[k];
+      else if (k === "text") node.textContent = props[k];
+      else node.setAttribute(k, props[k]);
+    });
+    (children || []).forEach(function (c) { node.appendChild(c); });
+    return node;
+  }
+
+  /* ---------- génération : a de 6 à 9, b à un chiffre qui dépasse 10 - a ---------- */
+  function genPair(type) {
+    var a = randInt(6, 9);
+    var complement = 10 - a;
+    return { type: type, a: a, b: randInt(complement + 1, 9) };
+  }
+  function genSet() {
+    var tries = 0, set, unique;
+    do {
+      set = [genPair("given"), genPair("given"), genPair("given"),
+             genPair("toFind"), genPair("toFind"), genPair("toFind")];
+      var keys = set.map(function (p) { return p.a + "+" + p.b; });
+      unique = keys.every(function (k, i) { return keys.indexOf(k) === i; });
+      tries++;
+    } while (!unique && tries < 100);
+    return set;
+  }
+
+  var cards = [];
+  var groupsEl = document.getElementById("groups");
+  var progressEl = document.getElementById("progress");
+  var bravoEl = document.getElementById("bravo");
+  var NS = "http://www.w3.org/2000/svg";
+
+  /* flèche rouge courbe */
+  function curlyArrow() {
+    var frag = document.createDocumentFragment();
+    var svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("class", "curve");
+    svg.setAttribute("viewBox", "0 0 34 100");
+    svg.setAttribute("preserveAspectRatio", "none");
+    var path = document.createElementNS(NS, "path");
+    path.setAttribute("d", "M27 4 C5 4 5 32 5 50 C5 68 5 92 20 96");
+    path.setAttribute("fill", "none"); path.setAttribute("stroke", "#D6483D");
+    path.setAttribute("stroke-width", "4"); path.setAttribute("stroke-linecap", "round");
+    path.setAttribute("vector-effect", "non-scaling-stroke");
+    svg.appendChild(path);
+    var head = document.createElementNS(NS, "svg");
+    head.setAttribute("class", "head"); head.setAttribute("viewBox", "0 0 16 16");
+    var tri = document.createElementNS(NS, "path");
+    tri.setAttribute("d", "M1 1 L15 8 L1 15 z"); tri.setAttribute("fill", "#D6483D");
+    head.appendChild(tri);
+    frag.appendChild(svg); frag.appendChild(head);
+    return frag;
+  }
+
+  /* deux petites branches qui partent du 2e nombre */
+  function branches() {
+    var svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 100 18");
+    svg.setAttribute("preserveAspectRatio", "none");
+    [[50, 0, 18, 17], [50, 0, 82, 17]].forEach(function (c) {
+      var l = document.createElementNS(NS, "line");
+      l.setAttribute("x1", c[0]); l.setAttribute("y1", c[1]); l.setAttribute("x2", c[2]); l.setAttribute("y2", c[3]);
+      l.setAttribute("stroke", "#243B2C"); l.setAttribute("stroke-width", "2.5"); l.setAttribute("stroke-linecap", "round");
+      svg.appendChild(l);
+    });
+    return svg;
+  }
+
+  function makeCell(card, key, roleClass, wide) {
+    var input = el("input", {
+      type: "text", inputmode: "numeric", maxlength: "2", autocomplete: "off",
+      "class": "cell " + (roleClass || "") + (wide ? " wide" : ""), "aria-label": key
+    });
+    input.addEventListener("input", function () {
+      input.value = input.value.replace(/[^0-9]/g, "");
+      card.values[key] = input.value;
+      input.classList.remove("ok", "ko");
+    });
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") checkCard(card); });
+    card.inputs[key] = input;
+    return input;
+  }
+
+  function sp(txt, cls) { return el("span", { "class": cls || "", text: txt }); }
+
+  function buildCard(pair) {
+    var card = { pair: pair, values: { c1: "", c2: "", c2b: "", total: "", dizaine: "" }, inputs: {}, ok: null };
+
+    var line1 = el("div", { "class": "line1 hand big" }, [
+      el("b", { text: String(pair.a) }), sp("+"), el("b", { text: String(pair.b) }), sp("=")
+    ]);
+
+    var bcells = el("div", { "class": "branch-cells" }, [
+      makeCell(card, "c1", ""), sp("+"), makeCell(card, "c2", "role-green")
+    ]);
+    var row2 = el("div", { "class": "row second" }, [
+      sp(pair.a + " +", "lead2"),
+      el("div", { "class": "branch-box" }, [branches(), bcells])
+    ]);
+
+    var row3 = el("div", { "class": "row third" });
+    if (pair.type === "toFind") {
+      row3.appendChild(makeCell(card, "dizaine", "role-red", true));
+    } else {
+      row3.appendChild(sp("10", "purple"));
+    }
+    row3.appendChild(sp("+"));
+    row3.appendChild(makeCell(card, "c2b", "role-green"));
+    row3.appendChild(sp("="));
+    row3.appendChild(makeCell(card, "total", "", true));
+
+    var content = el("div", { "class": "content" }, [line1, row2, row3]);
+    var msg = el("span", { "class": "msg" });
+    var btn = el("button", { "class": "btn-check", text: "Vérifier" });
+    btn.addEventListener("click", function () { checkCard(card); });
+
+    card.root = el("div", { "class": "card" }, [
+      el("div", { "class": "card-body" }, [el("div", { "class": "arrow" }, [curlyArrow()]), content]),
+      el("div", { "class": "foot" }, [btn, msg])
+    ]);
+    card.msg = msg;
+    return card;
+  }
+
+  function checkCard(card) {
+    var p = card.pair, v = card.values;
+    var complement = 10 - p.a, reste = p.b - complement, total = p.a + p.b;
+    var res = {
+      c1: parseSafe(v.c1) === complement,
+      c2: parseSafe(v.c2) === reste,
+      c2b: parseSafe(v.c2b) === reste,
+      total: parseSafe(v.total) === total
+    };
+    if (p.type === "toFind") res.dizaine = parseSafe(v.dizaine) === 10;
+    var all = Object.keys(res).every(function (k) { return res[k]; });
+    card.ok = all;
+    Object.keys(res).forEach(function (k) {
+      card.inputs[k].classList.remove("ok", "ko");
+      card.inputs[k].classList.add(res[k] ? "ok" : "ko");
+    });
+    card.root.classList.toggle("success", all);
+    card.msg.textContent = all ? "✓ Bravo !" : "✗ Essaie encore";
+    card.msg.className = "msg " + (all ? "good" : "bad");
+    updateProgress();
+  }
+
+  function updateProgress() {
+    var done = cards.filter(function (c) { return c.ok; }).length;
+    progressEl.innerHTML = "";
+    cards.forEach(function (c, i) {
+      progressEl.appendChild(el("div", { "class": "dot" + (c.ok ? " done" : ""), text: String(i + 1) }));
+    });
+    progressEl.appendChild(el("span", { "class": "count", text: done + " / " + cards.length + " réussis" }));
+    var all = el("button", { "class": "btn-all", text: "Tout vérifier" });
+    all.addEventListener("click", function () { cards.forEach(checkCard); });
+    progressEl.appendChild(all);
+    bravoEl.hidden = done !== cards.length;
+  }
+
+  function groupHeader(title, subtitle) {
+    return el("div", { "class": "group" }, [el("h2", { "class": "hand", text: title }), el("p", { text: subtitle })]);
+  }
+
+  function render() {
+    cards = genSet().map(buildCard);
+    groupsEl.innerHTML = "";
+    [{ from: 0, to: 3, title: "1. Passer par 10", sub: "Le 10 à atteindre est déjà écrit." },
+     { from: 3, to: 6, title: "2. Passer par 10", sub: "À toi de trouver le 10 à atteindre (case rouge)." }
+    ].forEach(function (d) {
+      groupsEl.appendChild(groupHeader(d.title, d.sub));
+      var grid = el("div", { "class": "grid" });
+      cards.slice(d.from, d.to).forEach(function (c) { grid.appendChild(c.root); });
+      groupsEl.appendChild(grid);
+    });
+    updateProgress();
+  }
+
+  document.getElementById("btn-new").addEventListener("click", render);
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Trouve le pas !</title>
+<style>
+  :root{
+    --orange:#E8843C;
+    --green:#4C9A5B;
+    --blue:#2E6F9E;
+    --dark:#2B2B2B;
+    --grey:#8A8A8A;
+    --bg:#F7F5F0;
+    --blue-bg:#EAF1F7;
+    --green-bg:#EAF6EC;
+    --red:#C9503F;
+    --red-bg:#FBEDEA;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin:0; padding:0;
+    font-family: 'Trebuchet MS', 'Segoe UI', Verdana, sans-serif;
+    background: var(--bg);
+    color: var(--dark);
+    height:100%;
+  }
+  .app {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 18px 20px 40px;
+  }
+  h1 {
+    color: var(--blue);
+    text-align:center;
+    font-size: 30px;
+    margin-bottom: 2px;
+  }
+  .subtitle {
+    text-align:center;
+    color: var(--grey);
+    font-size: 15px;
+    margin-bottom: 18px;
+  }
+  .progress-row {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom: 10px;
+    font-weight:bold;
+    color: var(--blue);
+    font-size: 15px;
+  }
+  .progress-bar-bg {
+    flex:1;
+    height: 10px;
+    background: #E3E0D8;
+    border-radius: 6px;
+    margin: 0 14px;
+    overflow:hidden;
+  }
+  .progress-bar-fill {
+    height:100%;
+    background: var(--orange);
+    border-radius: 6px;
+    transition: width .3s ease;
+  }
+  .score { color: var(--green); white-space:nowrap; }
+  .card {
+    background: white;
+    border-radius: 14px;
+    padding: 26px 28px 22px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  .badge {
+    display:inline-block;
+    background: var(--blue);
+    color:white;
+    font-size: 12px;
+    font-weight:bold;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+    letter-spacing:.3px;
+  }
+  svg { display:block; margin: 10px auto 4px; max-width:100%; }
+  .tick-label { font-weight:bold; font-size: 22px; }
+  .find-label { font-weight:bold; font-size: 20px; }
+  .click-hint-label { font-size: 12px; font-weight:bold; }
+
+  .step-instruction {
+    text-align:center;
+    color: var(--dark);
+    font-size: 15.5px;
+    margin: 10px 0 6px;
+    min-height: 22px;
+  }
+  .warning-msg {
+    text-align:center;
+    color: var(--orange);
+    font-size: 14px;
+    font-weight:bold;
+    min-height: 20px;
+    margin-bottom: 6px;
+  }
+  .ecart-result {
+    text-align:center;
+    font-size: 19px;
+    font-weight:bold;
+    color: var(--green);
+    background: var(--green-bg);
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px 0 4px;
+    display:none;
+  }
+
+  .stage-section { display:none; margin-top: 10px; }
+  .stage-section.visible { display:block; }
+
+  .fields {
+    display:flex;
+    justify-content:center;
+    gap: 26px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .field { text-align:center; }
+  .field label {
+    display:block;
+    font-weight:bold;
+    color: var(--blue);
+    margin-bottom: 6px;
+    font-size: 15px;
+  }
+  .field input {
+    width: 110px;
+    font-size: 22px;
+    text-align:center;
+    padding: 8px 6px;
+    border-radius: 8px;
+    border: 2px solid #C9C4B8;
+    font-weight:bold;
+    color: var(--dark);
+    background: var(--bg);
+  }
+  .field input:focus { outline:none; border-color: var(--blue); background: white; }
+  .field input.correct { border-color: var(--green); background: var(--green-bg); }
+  .field input.incorrect { border-color: var(--red); background: var(--red-bg); }
+
+  .buttons-row {
+    display:flex;
+    justify-content:center;
+    gap: 14px;
+    flex-wrap:wrap;
+    margin-top: 6px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 15.5px;
+    font-weight:bold;
+    padding: 11px 22px;
+    border-radius: 24px;
+    border:none;
+    cursor:pointer;
+    transition: transform .1s ease, opacity .2s;
+  }
+  button:active { transform: scale(0.96); }
+  .btn-primary { background: var(--blue); color:white; }
+  .btn-primary:hover { opacity:.9; }
+  .btn-secondary { background: white; color: var(--blue); border: 2px solid var(--blue); }
+  .btn-secondary:hover { background: var(--blue-bg); }
+  .btn-success { background: var(--green); color:white; }
+  .btn-success:hover { opacity:.9; }
+  button:disabled { opacity:.4; cursor:not-allowed; }
+
+  .feedback {
+    text-align:center;
+    font-size: 16px;
+    font-weight:bold;
+    min-height: 26px;
+    margin: 12px 0 4px;
+    border-radius: 10px;
+    padding: 10px;
+    display:none;
+  }
+  .feedback.show { display:block; }
+  .feedback.correct { color: var(--green); background: var(--green-bg); }
+  .feedback.incorrect { color: var(--red); background: var(--red-bg); }
+
+  .hint-box {
+    text-align:center;
+    font-size: 14px;
+    color: var(--grey);
+    font-style: italic;
+    margin-top: 6px;
+    min-height: 18px;
+  }
+
+  .clickable-tick { cursor: pointer; }
+  .clickable-tick:hover circle.hit { fill: rgba(46,111,158,0.12); }
+
+  .final-screen { text-align:center; }
+  .final-screen .big-score {
+    font-size: 52px;
+    font-weight:bold;
+    color: var(--orange);
+    margin: 10px 0;
+  }
+  .final-screen p { font-size: 16px; }
+
+  .name-tag {
+    text-align:center;
+    color: var(--grey);
+    font-size: 13px;
+    margin-top: 26px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>Trouve le pas !</h1>
+  <div class="subtitle">Clique sur les graduations, trouve l'écart, déduis le pas, puis retrouve les nombres cachés.</div>
+
+  <div class="progress-row">
+    <span id="progressLabel">Exercice 1 / 8</span>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:6%"></div></div>
+    <span class="score" id="scoreLabel">Score : 0</span>
+  </div>
+
+  <div class="card" id="exerciseCard">
+    <span class="badge" id="badge">Graduations voisines</span>
+    <svg id="lineSvg" width="800" height="140" viewBox="0 0 800 140"></svg>
+
+    <div class="step-instruction" id="stepInstruction"></div>
+    <div class="warning-msg" id="warningMsg"></div>
+    <div class="ecart-result" id="ecartResult"></div>
+
+    <!-- Etape 2 : le pas -->
+    <div class="stage-section" id="stagePas">
+      <div class="fields">
+        <div class="field">
+          <label for="pasInput">Le pas de cette ligne</label>
+          <input type="number" id="pasInput" inputmode="numeric" autocomplete="off">
+        </div>
+      </div>
+      <div class="feedback" id="feedbackPas"></div>
+      <div class="hint-box" id="hintBoxPas"></div>
+      <div class="buttons-row">
+        <button class="btn-secondary" id="hintBtnPas">💡 Indice</button>
+        <button class="btn-primary" id="checkBtnPas">Vérifier le pas</button>
+      </div>
+    </div>
+
+    <!-- Etape 3 : trouver les nombres -->
+    <div class="stage-section" id="stageFind">
+      <div class="step-instruction" id="findInstruction">Trouve maintenant la valeur des graduations manquantes.</div>
+      <div class="fields" id="findFields"></div>
+      <div class="feedback" id="feedbackFind"></div>
+      <div class="hint-box" id="hintBoxFind"></div>
+      <div class="buttons-row">
+        <button class="btn-secondary" id="hintBtnFind">💡 Indice</button>
+        <button class="btn-primary" id="checkBtnFind">Vérifier</button>
+        <button class="btn-success" id="nextBtn" style="display:none;">Exercice suivant →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card final-screen" id="finalCard" style="display:none;">
+    <h2 style="color:var(--blue);">Bravo, tu as terminé !</h2>
+    <div class="big-score" id="finalScore">0 / 8</div>
+    <p id="finalMessage"></p>
+    <div class="buttons-row">
+      <button class="btn-primary" id="restartBtn">Recommencer</button>
+    </div>
+  </div>
+
+  <div class="name-tag">Prénom : ________________________</div>
+</div>
+
+<script>
+// structure : "adjacent" (0 graduation cachée), "gap2" (2 cachées), "wide" (4 cachées)
+const exercises = [
+  { pas: 1,   structure: "adjacent", left: 63,  right: 64,  leftIdx: 2, rightIdx: 3,
+    finds: [ {idx:4, value:65, letter:"A"} ] },
+  { pas: 2,   structure: "adjacent", left: 58,  right: 60,  leftIdx: 2, rightIdx: 3,
+    finds: [ {idx:4, value:62, letter:"A"} ] },
+  { pas: 5,   structure: "gap2",     left: 205, right: 220, leftIdx: 1, rightIdx: 4,
+    finds: [ {idx:2, value:210, letter:"A"}, {idx:3, value:215, letter:"B"} ] },
+  { pas: 10,  structure: "gap2",     left: 340, right: 370, leftIdx: 1, rightIdx: 4,
+    finds: [ {idx:2, value:350, letter:"A"}, {idx:3, value:360, letter:"B"} ] },
+  { pas: 20,  structure: "wide",     left: 100, right: 200, leftIdx: 0, rightIdx: 5,
+    finds: [ {idx:1, value:120, letter:"A"}, {idx:3, value:160, letter:"B"} ] },
+  { pas: 25,  structure: "wide",     left: 375, right: 500, leftIdx: 0, rightIdx: 5,
+    finds: [ {idx:2, value:425, letter:"A"} ] },
+  { pas: 50,  structure: "wide",     left: 450, right: 700, leftIdx: 0, rightIdx: 5,
+    finds: [ {idx:1, value:500, letter:"A"}, {idx:4, value:650, letter:"B"} ] },
+  { pas: 100, structure: "wide",     left: 300, right: 800, leftIdx: 0, rightIdx: 5,
+    finds: [ {idx:2, value:600, letter:"A"} ] }
+];
+
+const NB_TICKS = 6;
+
+const badgeLabels = {
+  adjacent: "Graduations voisines",
+  gap2: "2 graduations cachées",
+  wide: "Graduations plus espacées"
+};
+
+const pasHints = {
+  adjacent: "Ces deux graduations se touchent : le pas est directement égal à l'écart.",
+  gap2: "Il y a 3 intervalles entre les deux graduations connues. Partage l'écart en 3 pour trouver le pas.",
+  wide: "Compte le nombre d'intervalles entre les deux graduations connues, puis partage l'écart par ce nombre."
+};
+
+let current = 0;
+let score = 0;
+let clicks = [];          // ex: ["big"] puis ["big","small"]
+let ecartValue = null;
+let pasValidated = false;
+
+const svg = document.getElementById('lineSvg');
+const badge = document.getElementById('badge');
+const stepInstruction = document.getElementById('stepInstruction');
+const warningMsg = document.getElementById('warningMsg');
+const ecartResult = document.getElementById('ecartResult');
+
+const stagePas = document.getElementById('stagePas');
+const pasInput = document.getElementById('pasInput');
+const feedbackPas = document.getElementById('feedbackPas');
+const hintBoxPas = document.getElementById('hintBoxPas');
+const checkBtnPas = document.getElementById('checkBtnPas');
+const hintBtnPas = document.getElementById('hintBtnPas');
+
+const stageFind = document.getElementById('stageFind');
+const findInstruction = document.getElementById('findInstruction');
+const findFields = document.getElementById('findFields');
+const feedbackFind = document.getElementById('feedbackFind');
+const hintBoxFind = document.getElementById('hintBoxFind');
+const checkBtnFind = document.getElementById('checkBtnFind');
+const hintBtnFind = document.getElementById('hintBtnFind');
+const nextBtn = document.getElementById('nextBtn');
+
+const progressLabel = document.getElementById('progressLabel');
+const progressFill = document.getElementById('progressFill');
+const scoreLabel = document.getElementById('scoreLabel');
+const exerciseCard = document.getElementById('exerciseCard');
+const finalCard = document.getElementById('finalCard');
+
+function tickX(i, marginX, stepPx) { return marginX + i * stepPx; }
+
+function drawLine(exo) {
+  svg.innerHTML = "";
+  const W = 800, H = 140;
+  const marginX = 40;
+  const y = 66;
+  const usableW = W - 2 * marginX;
+  const stepPx = usableW / (NB_TICKS - 1);
+  const ns = "http://www.w3.org/2000/svg";
+
+  const line = document.createElementNS(ns, "line");
+  line.setAttribute("x1", marginX); line.setAttribute("y1", y);
+  line.setAttribute("x2", W - marginX + 10); line.setAttribute("y2", y);
+  line.setAttribute("stroke", "#2B2B2B"); line.setAttribute("stroke-width", "2.5");
+  svg.appendChild(line);
+
+  const arrow = document.createElementNS(ns, "polyline");
+  arrow.setAttribute("points", `${W-marginX-2},${y-8} ${W-marginX+10},${y} ${W-marginX-2},${y+8}`);
+  arrow.setAttribute("fill", "none"); arrow.setAttribute("stroke", "#2B2B2B"); arrow.setAttribute("stroke-width", "2.5");
+  svg.appendChild(arrow);
+
+  const findByIdx = {};
+  exo.finds.forEach(f => findByIdx[f.idx] = f);
+
+  for (let i = 0; i < NB_TICKS; i++) {
+    const xi = tickX(i, marginX, stepPx);
+    const isBig = (i === exo.rightIdx);
+    const isSmall = (i === exo.leftIdx);
+    const findInfo = findByIdx[i];
+    const isKnown = isBig || isSmall;
+    const tickH = isKnown ? 15 : (findInfo ? 13 : 9);
+
+    const tick = document.createElementNS(ns, "line");
+    tick.setAttribute("x1", xi); tick.setAttribute("y1", y - tickH);
+    tick.setAttribute("x2", xi); tick.setAttribute("y2", y + tickH);
+    tick.setAttribute("stroke", isKnown ? "#2E6F9E" : (findInfo ? "#E8843C" : "#8A8A8A"));
+    tick.setAttribute("stroke-width", isKnown ? "3" : "2");
+    if (findInfo) tick.setAttribute("stroke-dasharray", "3,2");
+    svg.appendChild(tick);
+
+    if (isKnown) {
+      const g = document.createElementNS(ns, "g");
+      g.setAttribute("class", "clickable-tick");
+      g.dataset.role = isBig ? "big" : "small";
+
+      const hit = document.createElementNS(ns, "circle");
+      hit.setAttribute("class", "hit");
+      hit.setAttribute("cx", xi); hit.setAttribute("cy", y);
+      hit.setAttribute("r", 20);
+      hit.setAttribute("fill", "rgba(46,111,158,0.02)");
+      g.appendChild(hit);
+
+      const text = document.createElementNS(ns, "text");
+      text.setAttribute("x", xi); text.setAttribute("y", y - 26);
+      text.setAttribute("text-anchor", "middle");
+      text.setAttribute("class", "tick-label");
+      text.setAttribute("fill", "#2E6F9E");
+      text.textContent = isBig ? exo.right : exo.left;
+      g.appendChild(text);
+
+      const orderBadge = document.createElementNS(ns, "text");
+      orderBadge.setAttribute("x", xi); orderBadge.setAttribute("y", y + 34);
+      orderBadge.setAttribute("text-anchor", "middle");
+      orderBadge.setAttribute("class", "click-hint-label");
+      orderBadge.setAttribute("fill", "#4C9A5B");
+      orderBadge.setAttribute("id", "orderbadge-" + (isBig ? "big" : "small"));
+      g.appendChild(orderBadge);
+
+      g.addEventListener("click", () => onTickClick(isBig ? "big" : "small", g));
+      svg.appendChild(g);
+    } else if (findInfo) {
+      const text = document.createElementNS(ns, "text");
+      text.setAttribute("x", xi); text.setAttribute("y", y - 24);
+      text.setAttribute("text-anchor", "middle");
+      text.setAttribute("class", "find-label");
+      text.setAttribute("fill", "#E8843C");
+      text.textContent = findInfo.letter;
+      svg.appendChild(text);
+    }
+  }
+}
+
+function onTickClick(role, gEl) {
+  const exo = exercises[current];
+  if (ecartValue !== null) return; // etape deja terminee
+
+  if (clicks.length === 0) {
+    if (role === "big") {
+      clicks.push("big");
+      markTickClicked(gEl, "①");
+      warningMsg.textContent = "";
+      stepInstruction.textContent = "Clique maintenant sur la graduation qui porte le plus petit nombre.";
+    } else {
+      warningMsg.textContent = "Clique d'abord sur la graduation qui porte le plus GRAND nombre.";
+    }
+  } else if (clicks.length === 1) {
+    if (role === "small") {
+      clicks.push("small");
+      markTickClicked(gEl, "②");
+      warningMsg.textContent = "";
+      ecartValue = exo.right - exo.left;
+      ecartResult.style.display = "block";
+      ecartResult.textContent = `Écart trouvé : ${exo.right} − ${exo.left} = ${ecartValue}`;
+      stepInstruction.textContent = "";
+      stagePas.classList.add("visible");
+    } else {
+      warningMsg.textContent = "Tu as déjà cliqué sur celle-ci. Clique maintenant sur la plus PETITE.";
+    }
+  }
+}
+
+function markTickClicked(gEl, orderSymbol) {
+  const hit = gEl.querySelector("circle.hit");
+  hit.setAttribute("fill", "rgba(76,154,91,0.18)");
+  const role = gEl.dataset.role;
+  const badgeEl = gEl.querySelector("#orderbadge-" + role);
+  if (badgeEl) badgeEl.textContent = orderSymbol;
+}
+
+function buildFindFields(exo) {
+  findFields.innerHTML = "";
+  exo.finds.forEach(f => {
+    const div = document.createElement("div");
+    div.className = "field";
+    const label = document.createElement("label");
+    label.textContent = "Graduation " + f.letter;
+    const input = document.createElement("input");
+    input.type = "number";
+    input.inputMode = "numeric";
+    input.autocomplete = "off";
+    input.id = "find-" + f.letter;
+    div.appendChild(label);
+    div.appendChild(input);
+    findFields.appendChild(div);
+  });
+}
+
+function loadExercise(i) {
+  const exo = exercises[i];
+  clicks = [];
+  ecartValue = null;
+  pasValidated = false;
+
+  badge.textContent = badgeLabels[exo.structure];
+  stepInstruction.textContent = "Clique sur la graduation qui porte le plus GRAND nombre.";
+  warningMsg.textContent = "";
+  ecartResult.style.display = "none";
+  ecartResult.textContent = "";
+
+  drawLine(exo);
+
+  pasInput.value = "";
+  pasInput.classList.remove("correct", "incorrect");
+  feedbackPas.className = "feedback";
+  feedbackPas.textContent = "";
+  hintBoxPas.textContent = "";
+  stagePas.classList.remove("visible");
+  checkBtnPas.disabled = false;
+
+  buildFindFields(exo);
+  stageFind.classList.remove("visible");
+  feedbackFind.className = "feedback";
+  feedbackFind.textContent = "";
+  hintBoxFind.textContent = "";
+  nextBtn.style.display = "none";
+  checkBtnFind.style.display = "inline-block";
+
+  progressLabel.textContent = `Exercice ${i + 1} / ${exercises.length}`;
+  progressFill.style.width = `${(i / exercises.length) * 100 + 4}%`;
+  scoreLabel.textContent = `Score : ${score}`;
+}
+
+function checkPas() {
+  const exo = exercises[current];
+  const nbIntervalles = exo.rightIdx - exo.leftIdx;
+  const correctPas = ecartValue / nbIntervalles;
+  const userPas = parseFloat(pasInput.value);
+
+  pasInput.classList.remove("correct", "incorrect");
+  feedbackPas.classList.remove("show");
+
+  if (userPas === correctPas) {
+    pasInput.classList.add("correct");
+    feedbackPas.className = "feedback correct show";
+    feedbackPas.textContent = "✓ Bravo, le pas est bien " + correctPas + " !";
+    pasValidated = true;
+    checkBtnPas.disabled = true;
+    stageFind.classList.add("visible");
+  } else {
+    pasInput.classList.add("incorrect");
+    feedbackPas.className = "feedback incorrect show";
+    feedbackPas.textContent = "Pas encore ! Repense au partage de l'écart.";
+  }
+}
+
+function checkFind() {
+  const exo = exercises[current];
+  let allOk = true;
+  exo.finds.forEach(f => {
+    const input = document.getElementById("find-" + f.letter);
+    const userVal = parseFloat(input.value);
+    const ok = userVal === f.value;
+    input.classList.remove("correct", "incorrect");
+    input.classList.add(ok ? "correct" : "incorrect");
+    if (!ok) allOk = false;
+  });
+
+  feedbackFind.classList.add("show");
+  if (allOk) {
+    feedbackFind.className = "feedback correct show";
+    feedbackFind.textContent = "✓ Exact ! Tu as trouvé toutes les graduations.";
+    checkBtnFind.style.display = "none";
+    nextBtn.style.display = "inline-block";
+    score++;
+    scoreLabel.textContent = `Score : ${score}`;
+  } else {
+    feedbackFind.className = "feedback incorrect show";
+    feedbackFind.textContent = "Pas tout à fait. Utilise le pas trouvé pour recalculer.";
+  }
+}
+
+function showHintPas() {
+  const exo = exercises[current];
+  hintBoxPas.textContent = "💡 " + pasHints[exo.structure];
+}
+
+function showHintFind() {
+  hintBoxFind.textContent = "💡 Pars d'une graduation connue et ajoute (ou retire) le pas autant de fois que nécessaire pour atteindre la graduation cherchée.";
+}
+
+function goNext() {
+  if (current < exercises.length - 1) {
+    current++;
+    loadExercise(current);
+  } else {
+    exerciseCard.style.display = "none";
+    finalCard.style.display = "block";
+    document.getElementById('finalScore').textContent = `${score} / ${exercises.length}`;
+    progressFill.style.width = "100%";
+    progressLabel.textContent = `Terminé !`;
+    let msg = "";
+    if (score === exercises.length) msg = "Un sans-faute, tu maîtrises parfaitement le pas d'une ligne graduée !";
+    else if (score >= exercises.length * 0.6) msg = "Très bon travail, continue à t'entraîner sur les pas plus difficiles.";
+    else msg = "Bon début ! Relis la méthode et réessaie pour progresser encore.";
+    document.getElementById('finalMessage').textContent = msg;
+  }
+}
+
+function restart() {
+  current = 0; score = 0;
+  exerciseCard.style.display = "block";
+  finalCard.style.display = "none";
+  loadExercise(current);
+}
+
+checkBtnPas.addEventListener('click', checkPas);
+checkBtnFind.addEventListener('click', checkFind);
+nextBtn.addEventListener('click', goNext);
+hintBtnPas.addEventListener('click', showHintPas);
+hintBtnFind.addEventListener('click', showHintFind);
+document.getElementById('restartBtn').addEventListener('click', restart);
+
+pasInput.addEventListener('keydown', (e) => { if (e.key === "Enter") checkPas(); });
+
+loadExercise(current);
+</script>
+</body>
+</html>

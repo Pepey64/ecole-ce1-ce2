@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mots à retenir – flashcards de vocabulaire</title>
+<style>
+:root{
+  --bg:#f6f3ec;--ink:#1f2937;--muted:#6b7280;--line:#d8d2c4;--card:#fff;
+  --orange:#e8760a;--orange-l:#fff1e0;
+  --blue:#1f6fb2;--blue-l:#e3f0fb;
+  --green:#2e8b57;--green-l:#e2f5ea;
+  --red:#c0392b;--red-l:#fde8e6;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Trebuchet MS","Segoe UI",Verdana,Arial,sans-serif;font-size:18px;min-height:100vh}
+header{background:var(--orange);color:#fff;padding:10px 18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+header h1{margin:0;font-size:26px;letter-spacing:.3px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.tab{border:0;background:rgba(255,255,255,.22);color:#fff;font:inherit;font-weight:700;padding:10px 16px;border-radius:12px;cursor:pointer}
+.tab:hover{background:rgba(255,255,255,.35)}
+.tab.on{background:#fff;color:var(--orange)}
+main{max-width:980px;margin:0 auto;padding:16px}
+.warn{background:var(--red-l);border:2px solid var(--red);border-radius:12px;padding:8px 12px;margin:10px 16px;font-size:15px}
+.bar{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:10px;font-size:17px}
+select,input[type=text],textarea{font:inherit;padding:8px 10px;border:2px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);max-width:100%}
+select:focus,input:focus,textarea:focus{outline:3px solid var(--blue-l);border-color:var(--blue)}
+.chk{display:flex;align-items:center;gap:6px;cursor:pointer}
+.chk input{width:20px;height:20px}
+button.btn{font:inherit;font-weight:700;border:0;border-radius:12px;padding:10px 18px;cursor:pointer;background:var(--blue);color:#fff}
+button.btn:hover{filter:brightness(1.08)}
+button.btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+button.btn.orange{background:var(--orange)}
+button.btn.green{background:var(--green)}
+button.btn.red{background:var(--red)}
+button.btn.ghost{background:#fff;color:var(--ink);border:2px solid var(--line)}
+button.btn.big{font-size:22px;padding:14px 26px}
+.center{text-align:center}
+.empty{background:#fff;border:2px dashed var(--line);border-radius:16px;padding:30px;text-align:center}
+
+/* progression */
+.prog{height:14px;background:#e5e0d3;border-radius:8px;overflow:hidden;max-width:640px;margin:6px auto}
+.prog>div{height:100%;background:var(--green);transition:width .3s}
+.count{text-align:center;color:var(--muted);font-size:16px}
+
+/* carte */
+.scene{perspective:1400px;max-width:640px;margin:14px auto}
+.card{position:relative;height:350px;transition:transform .5s;transform-style:preserve-3d;cursor:pointer}
+.card.flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:24px;border:4px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 26px;text-align:center;box-shadow:0 6px 18px rgba(0,0,0,.12)}
+.front{background:var(--orange-l);border-color:var(--orange)}
+.back{background:var(--blue-l);border-color:var(--blue);transform:rotateY(180deg)}
+.front.alt{background:var(--blue-l);border-color:var(--blue)}
+.back.alt{background:var(--orange-l);border-color:var(--orange)}
+.back.alt .word.small{font-size:clamp(34px,7vw,58px);margin-bottom:6px}
+.back.alt .def.small{font-size:20px;font-weight:600;margin-top:8px}
+.emoji{font-size:64px;line-height:1.1;margin-bottom:6px}
+.word{font-size:clamp(34px,7vw,58px);font-weight:800;color:var(--orange);line-height:1.15;word-break:break-word}
+.word.small{font-size:24px;margin-bottom:10px}
+.def{font-size:clamp(22px,4.4vw,32px);font-weight:700;color:var(--blue);line-height:1.3}
+.ex{margin-top:14px;font-size:20px;font-style:italic;color:#374151}
+.hint{position:absolute;bottom:14px;left:0;right:0;font-size:15px;color:var(--muted)}
+.spk{position:absolute;top:10px;right:12px;border:0;background:rgba(255,255,255,.8);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer}
+.spk:hover{background:#fff}
+.answers{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+
+/* quiz */
+.qbox{max-width:700px;margin:14px auto;background:#fff;border:3px solid var(--blue);border-radius:20px;padding:20px 24px}
+.qdef{font-size:clamp(22px,4vw,30px);font-weight:700;color:var(--blue);text-align:center;margin:6px 0 14px}
+.qex{text-align:center;font-style:italic;color:var(--muted);margin-bottom:12px}
+.choices{display:grid;gap:12px}
+.choice{font:inherit;font-size:26px;font-weight:800;padding:14px;border-radius:14px;border:3px solid var(--orange);background:var(--orange-l);color:var(--orange);cursor:pointer}
+.choice:hover:not(:disabled){filter:brightness(.97);transform:translateY(-1px)}
+.choice.ok{background:var(--green-l);border-color:var(--green);color:var(--green)}
+.choice.ko{background:var(--red-l);border-color:var(--red);color:var(--red)}
+.choice:disabled{cursor:default}
+.fb{text-align:center;font-size:22px;font-weight:700;margin-top:12px;min-height:30px}
+
+/* liste de mots */
+.panel{background:#fff;border:2px solid var(--line);border-radius:16px;padding:16px;margin-bottom:16px}
+.panel h2{margin:0 0 10px;font-size:21px;color:var(--orange)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid2 .full{grid-column:1/-1}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:15px;font-weight:700;color:var(--muted)}
+label.f input,label.f textarea{font-weight:400;color:var(--ink);font-size:18px;width:100%}
+.help{font-size:15px;color:var(--muted);margin:6px 0 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+table{width:100%;border-collapse:collapse;font-size:17px}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+td.mot{font-weight:800;color:var(--orange);white-space:nowrap}
+td.act{white-space:nowrap}
+td.act button{border:0;background:none;font-size:20px;cursor:pointer}
+.lvl{display:inline-flex;gap:3px}
+.lvl i{width:12px;height:12px;border-radius:50%;background:#e5e0d3;display:inline-block}
+.lvl i.on{background:var(--orange)}
+.lvl.done i.on{background:var(--green)}
+.tag{display:inline-block;background:var(--blue-l);color:var(--blue);border-radius:8px;padding:2px 8px;font-size:14px;font-weight:700}
+
+/* impression : cartes à plier */
+.sheet{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+.pcard{display:flex;border:2px solid #000;border-radius:8px;min-height:150px;break-inside:avoid;background:#fff}
+.pcard>div{flex:1;padding:10px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.pcard>div:first-child{border-right:2px dashed #555}
+.pcard .pw{font-size:26px;font-weight:800;line-height:1.15}
+.pcard .pe{font-size:34px;margin-bottom:4px}
+.pcard .pd{font-size:16px;font-weight:700;line-height:1.3}
+.pcard .px{font-size:13px;font-style:italic;margin-top:6px;color:#333}
+.fold{font-size:12px;color:#666;text-align:center;margin:4px 0}
+
+@media (max-width:640px){
+  .grid2{grid-template-columns:1fr}
+  .sheet{grid-template-columns:1fr}
+  .card{height:390px}
+  header h1{font-size:22px}
+}
+@media print{
+  @page{size:A4;margin:10mm}
+  body{background:#fff;font-size:12pt}
+  header,.warn,.noprint{display:none!important}
+  main{max-width:none;padding:0}
+  .pcard{min-height:58mm}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>🧠 Mots à retenir</h1>
+  <nav class="tabs" id="tabs"></nav>
+</header>
+<div id="storageWarn" class="warn" style="display:none">⚠️ La sauvegarde automatique n'est pas disponible sur cet ordinateur : pense à utiliser « Exporter » (onglet Mes mots) pour garder tes mots.</div>
+<main id="app"></main>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- Outils ---------- */
+var KEY='mots-a-retenir-v1';
+var storageOk=true;
+function $(s){return document.querySelector(s)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function speak(t){
+  try{
+    if(!window.speechSynthesis)return;
+    window.speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(t);u.lang='fr-FR';u.rate=0.85;
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+var canSpeak=!!window.speechSynthesis;
+var NOTEXT='Sans texte';
+var NODOSS='Sans dossier';
+function fold(w){return w.dossier||NODOSS}
+function txt(w){return w.texte||NOTEXT}
+
+/* ---------- Données ---------- */
+var SAMPLE_TEXT='Exemple (à supprimer)';
+var SAMPLE_FOLDER='Exemple';
+var SAMPLE=[
+ ['s\'égarer','Se perdre, ne plus trouver son chemin.','Le petit garçon s\'est égaré dans la forêt.','🌲'],
+ ['un sentier','Un petit chemin étroit dans la nature.','Nous marchons sur un sentier.','🥾'],
+ ['surgir','Apparaître tout à coup.','Un lapin a surgi des buissons.','🐇'],
+ ['minuscule','Très, très petit.','La fourmi est minuscule.','🐜'],
+ ['hurler','Crier très fort.','Le loup hurle à la lune.','📢'],
+ ['un terrier','Le trou où vit un animal, comme un lapin.','Le renard rentre dans son terrier.','🕳️'],
+ ['escalader','Monter en s\'aidant des mains et des pieds.','Il escalade le mur du jardin.','🧗'],
+ ['une lueur','Une lumière faible.','On voit une lueur au fond de la grotte.','🕯️']
+];
+var state={words:[],folder:'*',deck:'*',tab:'review'};
+
+function load(){
+  try{
+    var r=localStorage.getItem(KEY);
+    if(r){var d=JSON.parse(r);if(d&&Array.isArray(d.words)){state.words=d.words;return}}
+  }catch(e){storageOk=false}
+  state.words=SAMPLE.map(function(s){return {id:uid(),dossier:SAMPLE_FOLDER,texte:SAMPLE_TEXT,mot:s[0],def:s[1],ex:s[2],emoji:s[3],box:1}});
+}
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify({words:state.words}));}catch(e){storageOk=false;$('#storageWarn').style.display='block'}
+}
+function folderNames(){
+  var seen={},out=[];
+  state.words.forEach(function(w){var t=fold(w);if(!seen[t]){seen[t]=1;out.push(t)}});
+  return out.sort(function(a,b){return a.localeCompare(b,'fr')});
+}
+function deckNames(folder){
+  var seen={},out=[];
+  state.words.forEach(function(w){
+    if(folder&&folder!=='*'&&fold(w)!==folder)return;
+    var t=txt(w);if(!seen[t]){seen[t]=1;out.push(t)}
+  });
+  return out.sort(function(a,b){return a.localeCompare(b,'fr')});
+}
+function deckWords(){
+  return state.words.filter(function(w){
+    return (state.folder==='*'||fold(w)===state.folder)&&(state.deck==='*'||txt(w)===state.deck);
+  });
+}
+function byId(id){for(var i=0;i<state.words.length;i++)if(state.words[i].id===id)return state.words[i];return null}
+
+/* ---------- Onglets ---------- */
+var TABS=[['review','📚 Réviser'],['quiz','🎯 Quiz'],['words','✏️ Mes mots'],['print','🖨️ Imprimer']];
+function renderTabs(){
+  $('#tabs').innerHTML=TABS.map(function(t){
+    return '<button class="tab'+(state.tab===t[0]?' on':'')+'" data-action="tab" data-v="'+t[0]+'">'+t[1]+'</button>';
+  }).join('');
+}
+function deckBar(extra){
+  if(state.folder!=='*'&&folderNames().indexOf(state.folder)<0)state.folder='*';
+  if(state.deck!=='*'&&deckNames(state.folder).indexOf(state.deck)<0)state.deck='*';
+  var fo=['*'].concat(folderNames()).map(function(d){
+    return '<option value="'+esc(d)+'"'+(d===state.folder?' selected':'')+'>'+(d==='*'?'Tous les dossiers':'📁 '+esc(d))+'</option>';
+  }).join('');
+  var opts=['*'].concat(deckNames(state.folder)).map(function(d){
+    return '<option value="'+esc(d)+'"'+(d===state.deck?' selected':'')+'>'+(d==='*'?'Tous les textes':esc(d))+'</option>';
+  }).join('');
+  return '<div class="bar noprint"><label>Dossier : <select id="folderSel">'+fo+'</select></label>'+
+         '<label>Texte : <select id="deckSel">'+opts+'</select></label>'+(extra||'')+'</div>';
+}
+function render(){
+  renderTabs();
+  if(state.tab==='review')renderReview();
+  else if(state.tab==='quiz')renderQuiz();
+  else if(state.tab==='words')renderWords();
+  else renderPrint();
+}
+function noWordsMsg(){
+  return '<div class="empty"><p style="font-size:22px;margin:0 0 8px">Il n\'y a pas encore de mots ici.</p><p>Va dans <b>✏️ Mes mots</b> pour en ajouter.</p></div>';
+}
+
+/* ---------- Réviser (flashcards) ---------- */
+var R={queue:null,total:0,seen:false,known:0,again:0,all:false,dir:'word'};
+function startReview(){
+  var ws=deckWords().filter(function(w){return R.all||w.box<3});
+  R.queue=shuffle(ws.map(function(w){return w.id}));
+  R.total=R.queue.length;R.seen=false;R.known=0;R.again=0;
+}
+function renderReview(){
+  var ws=deckWords();
+  var h=deckBar('<label>Sens : <select id="dirSel"><option value="word"'+(R.dir==='word'?' selected':'')+'>Je vois le mot → je trouve la définition</option><option value="def"'+(R.dir==='def'?' selected':'')+'>Je vois la définition → je trouve le mot</option></select></label>'+
+    '<label class="chk"><input type="checkbox" id="inclAll"'+(R.all?' checked':'')+'> Revoir aussi les mots déjà sus</label>');
+  if(!ws.length){$('#app').innerHTML=h+noWordsMsg();return}
+  if(R.queue===null)startReview();
+  var mastered=ws.filter(function(w){return w.box>=3}).length;
+  if(R.total===0){
+    h+='<div class="empty"><div class="emoji">🎉</div><p style="font-size:24px;font-weight:700;margin:0 0 8px">Tous les mots de cette liste sont sus !</p>'+
+       '<p>Tu peux les revoir une dernière fois pour être sûr(e).</p>'+
+       '<button class="btn orange big" data-action="reviewAll">Revoir tous les mots</button></div>';
+    $('#app').innerHTML=h;return;
+  }
+  if(R.queue.length===0){
+    h+='<div class="empty"><div class="emoji">🏆</div><p style="font-size:26px;font-weight:800;margin:0 0 8px;color:var(--green)">Bravo, séance terminée !</p>'+
+       '<p style="font-size:20px">✅ '+R.known+' mot'+(R.known>1?'s':'')+' su'+(R.known>1?'s':'')+' &nbsp;·&nbsp; 🔁 '+R.again+' fois « pas encore »</p>'+
+       '<p>Mots sus au total : <b>'+mastered+' / '+ws.length+'</b></p>'+
+       '<button class="btn orange big" data-action="restart">Recommencer</button></div>';
+    $('#app').innerHTML=h;return;
+  }
+  var w=byId(R.queue[0]);
+  var pct=Math.round((R.total-R.queue.length)/R.total*100);
+  var spkF=canSpeak?'<button class="spk" data-action="speakFront" title="Écouter">🔊</button>':'';
+  var spkB=canSpeak?'<button class="spk" data-action="speakBack" title="Écouter">🔊</button>':'';
+  var front,back,alt=(R.dir==='def');
+  if(!alt){
+    front=spkF+(w.emoji?'<div class="emoji">'+esc(w.emoji)+'</div>':'')+'<div class="word">'+esc(w.mot)+'</div><div class="hint">Touche la carte pour voir la définition</div>';
+    back=spkB+'<div class="word small">'+esc(w.mot)+'</div><div class="def">'+esc(w.def)+'</div>'+(w.ex?'<div class="ex">« '+esc(w.ex)+' »</div>':'');
+  }else{
+    front=spkF+'<div class="def">'+esc(w.def)+'</div><div class="hint">Trouve le mot, puis touche la carte pour vérifier</div>';
+    back=spkB+(w.emoji?'<div class="emoji">'+esc(w.emoji)+'</div>':'')+'<div class="word small">'+esc(w.mot)+'</div>'+(w.ex?'<div class="ex">« '+esc(w.ex)+' »</div>':'');
+  }
+  h+='<div class="prog"><div style="width:'+pct+'%"></div></div>'+
+     '<div class="count">Il reste '+R.queue.length+' carte'+(R.queue.length>1?'s':'')+'</div>'+
+     '<div class="scene"><div class="card" id="card" data-action="flip">'+
+       '<div class="face front'+(alt?' alt':'')+'">'+front+'</div>'+
+       '<div class="face back'+(alt?' alt':'')+'">'+back+'</div>'+
+     '</div></div>'+
+     '<div class="answers">'+
+       '<button class="btn red big" id="btnNo" data-action="no"'+(R.seen?'':' disabled')+'>😕 Pas encore</button>'+
+       '<button class="btn green big" id="btnYes" data-action="yes"'+(R.seen?'':' disabled')+'>😀 Je sais</button>'+
+     '</div>'+
+     '<p class="help center noprint">'+(alt?'Astuce : cherche le mot dans ta tête avant de retourner la carte.':'Astuce : dis la définition dans ta tête avant de retourner la carte.')+'<br>Clavier : espace = retourner · ← pas encore · → je sais</p>';
+  $('#app').innerHTML=h;
+}
+function flipCard(){
+  var c=$('#card');if(!c)return;
+  c.classList.toggle('flip');
+  R.seen=true;
+  var y=$('#btnYes'),n=$('#btnNo');if(y)y.disabled=false;if(n)n.disabled=false;
+}
+function answer(ok){
+  if(!R.queue||!R.queue.length||!R.seen)return;
+  var id=R.queue.shift();var w=byId(id);if(!w)return;
+  if(ok){w.box=Math.min(3,(w.box||1)+1);R.known++}
+  else{w.box=1;R.again++;R.queue.splice(Math.min(3,R.queue.length),0,id)}
+  R.seen=false;
+  save();renderReview();
+}
+
+/* ---------- Quiz ---------- */
+var Q={list:null,i:0,score:0,answered:false,choices:[]};
+function startQuiz(){
+  var ws=deckWords();
+  var pool=ws.filter(function(w){return w.box<3});
+  if(pool.length<Math.min(5,ws.length))pool=ws;
+  Q.list=shuffle(pool).slice(0,10).map(function(w){return w.id});
+  Q.i=0;Q.score=0;Q.answered=false;Q.choices=[];
+  buildChoices();
+}
+function buildChoices(){
+  if(Q.i>=Q.list.length)return;
+  var cur=byId(Q.list[Q.i]);
+  var others=deckWords().filter(function(w){return w.id!==cur.id});
+  if(others.length<2)others=state.words.filter(function(w){return w.id!==cur.id});
+  var pick=shuffle(others).slice(0,2);
+  Q.choices=shuffle([cur].concat(pick)).map(function(w){return w.id});
+  Q.answered=false;
+}
+function renderQuiz(){
+  var ws=deckWords();
+  var h=deckBar();
+  if(state.words.length<3){$('#app').innerHTML=h+'<div class="empty"><p style="font-size:22px;margin:0">Il faut au moins 3 mots pour jouer au quiz.</p></div>';return}
+  if(!ws.length){$('#app').innerHTML=h+noWordsMsg();return}
+  if(Q.list===null)startQuiz();
+  if(Q.i>=Q.list.length){
+    var n=Q.list.length;
+    h+='<div class="empty"><div class="emoji">'+(Q.score>=n*0.8?'🏆':Q.score>=n*0.5?'👍':'💪')+'</div>'+
+       '<p style="font-size:26px;font-weight:800;margin:0 0 8px">Score : '+Q.score+' / '+n+'</p>'+
+       '<button class="btn orange big" data-action="quizRestart">Rejouer</button></div>';
+    $('#app').innerHTML=h;return;
+  }
+  var w=byId(Q.list[Q.i]);
+  h+='<div class="prog"><div style="width:'+Math.round(Q.i/Q.list.length*100)+'%"></div></div>'+
+     '<div class="count">Question '+(Q.i+1)+' sur '+Q.list.length+'</div>'+
+     '<div class="qbox"><div class="center" style="font-size:16px;color:var(--muted)">Quel est le mot qui correspond à cette définition ?</div>'+
+     '<div class="qdef">'+esc(w.def)+'</div>'+
+     '<div class="choices">'+Q.choices.map(function(id){var c=byId(id);return '<button class="choice" data-action="choose" data-id="'+id+'">'+(c.emoji?esc(c.emoji)+' ':'')+esc(c.mot)+'</button>'}).join('')+'</div>'+
+     '<div class="fb" id="fb"></div>'+
+     '<div class="center" style="margin-top:8px"><button class="btn orange" id="btnNext" data-action="next" style="display:none">Suivant ➜</button></div></div>';
+  $('#app').innerHTML=h;
+}
+function choose(id){
+  if(Q.answered)return;
+  Q.answered=true;
+  var w=byId(Q.list[Q.i]);var ok=(id===w.id);
+  var btns=document.querySelectorAll('.choice');
+  Array.prototype.forEach.call(btns,function(b){
+    b.disabled=true;
+    var bid=b.getAttribute('data-id');
+    if(bid===w.id)b.classList.add('ok');
+    else if(bid===id)b.classList.add('ko');
+  });
+  if(ok){Q.score++;w.box=Math.min(3,(w.box||1)+1);$('#fb').style.color='var(--green)';$('#fb').textContent='✅ Bravo !'}
+  else{w.box=1;$('#fb').style.color='var(--red)';$('#fb').textContent='❌ C\'était « '+w.mot+' ».'}
+  save();
+  $('#btnNext').style.display='inline-block';
+  $('#btnNext').textContent=(Q.i+1>=Q.list.length)?'Voir mon score ➜':'Suivant ➜';
+}
+
+/* ---------- Mes mots ---------- */
+var editingId=null;
+function levelHtml(b){
+  b=b||1;
+  return '<span class="lvl'+(b>=3?' done':'')+'" title="'+(b>=3?'Mot su':'Niveau '+b+' sur 3')+'"><i class="on"></i><i class="'+(b>=2?'on':'')+'"></i><i class="'+(b>=3?'on':'')+'"></i></span>';
+}
+function renderWords(){
+  editingId=null;
+  var dl=deckNames('*').map(function(d){return '<option value="'+esc(d)+'">'}).join('');
+  var dd=folderNames().map(function(d){return '<option value="'+esc(d)+'">'}).join('');
+  var h=
+  '<div class="panel"><h2 id="formTitle">Ajouter un mot</h2>'+
+    '<div class="grid2">'+
+      '<label class="f">Dossier (période, matière…)<input type="text" id="fDossier" list="dlDossiers" placeholder="ex : Période 1"></label>'+
+      '<label class="f">Texte lu (titre du texte, de la lecture…)<input type="text" id="fTexte" list="dlTextes" placeholder="ex : Le loup et le chevreau"></label>'+
+      '<label class="f full">Mot à retenir<input type="text" id="fMot" placeholder="ex : s\'égarer"></label>'+
+      '<label class="f full">Définition simple<input type="text" id="fDef" placeholder="ex : Se perdre, ne plus trouver son chemin."></label>'+
+      '<label class="f">Phrase d\'exemple (facultatif)<input type="text" id="fEx" placeholder="ex : Le petit garçon s\'est égaré."></label>'+
+      '<label class="f">Émoji / dessin (facultatif)<input type="text" id="fEmoji" maxlength="8" placeholder="ex : 🌲"></label>'+
+    '</div><datalist id="dlTextes">'+dl+'</datalist><datalist id="dlDossiers">'+dd+'</datalist>'+
+    '<p class="help">Une bonne définition est courte, avec des mots que les élèves connaissent déjà (pas le mot lui-même !).</p>'+
+    '<div class="row"><button class="btn orange" id="btnSave" data-action="saveWord">Ajouter le mot</button>'+
+    '<button class="btn ghost" id="btnCancel" data-action="cancelEdit" style="display:none">Annuler</button></div>'+
+  '</div>'+
+
+  '<div class="panel"><h2>Ajouter plusieurs mots d\'un coup</h2>'+
+    '<div class="grid2"><label class="f">Dossier<input type="text" id="bDossier" list="dlDossiers" placeholder="ex : Période 1"></label>'+
+    '<label class="f">Texte lu pour ces mots<input type="text" id="bTexte" list="dlTextes" placeholder="ex : Le loup et le chevreau"></label></div>'+
+    '<label class="f" style="margin-top:10px">Un mot par ligne, au format « mot : définition »<textarea id="bText" rows="5" placeholder="hurler : Crier très fort.&#10;un sentier : Un petit chemin dans la nature.&#10;surgir : Apparaître tout à coup."></textarea></label>'+
+    '<div class="row"><button class="btn" data-action="bulkAdd">Ajouter ces mots</button></div>'+
+  '</div>'+
+
+  '<div class="panel"><h2>Ma liste <span id="listCount" style="color:var(--muted);font-size:16px"></span></h2>'+
+    deckBar()+
+    '<div id="listBox"></div>'+
+    '<div class="row">'+
+      '<button class="btn ghost" data-action="moveSel">📁 Déplacer / renommer la sélection…</button>'+
+      '<button class="btn ghost" data-action="delSel">🗑️ Supprimer la sélection</button>'+
+      '<button class="btn ghost" data-action="exportSel">⬇️ Exporter la sélection</button>'+
+    '</div>'+
+    '<div class="row" style="margin-top:8px">'+
+      '<button class="btn ghost" data-action="export">⬇️ Tout exporter (sauvegarde)</button>'+
+      '<button class="btn ghost" data-action="importBtn">⬆️ Importer</button>'+
+      '<input type="file" id="fileIn" accept=".json,application/json" style="display:none">'+
+      '<button class="btn ghost" data-action="resetProg">🔄 Progrès à zéro</button>'+
+    '</div>'+
+    '<p class="help">Les mots sont enregistrés dans ce navigateur, sur cet ordinateur. Pour les utiliser ailleurs (maison, autre classe), exporte le fichier puis importe-le.</p>'+
+  '</div>';
+  $('#app').innerHTML=h;
+  updateList();
+}
+function updateList(){
+  var box=$('#listBox');if(!box)return;
+  var ws=deckWords();
+  $('#listCount').textContent='('+ws.length+' mot'+(ws.length>1?'s':'')+' affiché'+(ws.length>1?'s':'')+' sur '+state.words.length+')';
+  if(!ws.length){box.innerHTML='<p class="help">Aucun mot pour le moment.</p>';return}
+  var rows=ws.slice().sort(function(a,b){
+    var ta=(fold(a)+'|'+txt(a)).toLowerCase(),tb=(fold(b)+'|'+txt(b)).toLowerCase();
+    return ta<tb?-1:ta>tb?1:a.mot.toLowerCase().localeCompare(b.mot.toLowerCase(),'fr');
+  }).map(function(w){
+    return '<tr><td class="mot">'+(w.emoji?esc(w.emoji)+' ':'')+esc(w.mot)+'</td><td>'+esc(w.def)+(w.ex?'<br><i style="color:var(--muted)">'+esc(w.ex)+'</i>':'')+'</td>'+
+      '<td><span class="tag">📁 '+esc(fold(w))+'</span> <span class="tag" style="background:#eee;color:#444">'+esc(txt(w))+'</span></td><td>'+levelHtml(w.box)+'</td>'+
+      '<td class="act"><button data-action="edit" data-id="'+w.id+'" title="Modifier">✏️</button><button data-action="del" data-id="'+w.id+'" title="Supprimer">🗑️</button></td></tr>';
+  }).join('');
+  box.innerHTML='<div style="overflow-x:auto"><table><thead><tr><th>Mot</th><th>Définition</th><th>Dossier · texte</th><th>Niveau</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+function resetSessions(){R.queue=null;Q.list=null}
+function saveWord(){
+  var dossier=$('#fDossier').value.trim()||NODOSS,texte=$('#fTexte').value.trim()||NOTEXT,mot=$('#fMot').value.trim(),def=$('#fDef').value.trim(),
+      ex=$('#fEx').value.trim(),emoji=$('#fEmoji').value.trim();
+  if(!mot||!def){alert('Il faut au moins un mot et une définition.');return}
+  if(editingId){
+    var w=byId(editingId);
+    if(w){w.dossier=dossier;w.texte=texte;w.mot=mot;w.def=def;w.ex=ex;w.emoji=emoji}
+    cancelEdit(true);
+  }else{
+    state.words.push({id:uid(),dossier:dossier,texte:texte,mot:mot,def:def,ex:ex,emoji:emoji,box:1});
+    $('#fMot').value='';$('#fDef').value='';$('#fEx').value='';$('#fEmoji').value='';
+  }
+  save();resetSessions();renderWords();
+  $('#fDossier').value=dossier===NODOSS?'':dossier;$('#fTexte').value=texte===NOTEXT?'':texte;
+  $('#fMot').focus();
+}
+function editWord(id){
+  var w=byId(id);if(!w)return;
+  editingId=id;
+  $('#fDossier').value=(fold(w)===NODOSS?'':fold(w));$('#fTexte').value=(txt(w)===NOTEXT?'':txt(w));$('#fMot').value=w.mot;$('#fDef').value=w.def;$('#fEx').value=w.ex||'';$('#fEmoji').value=w.emoji||'';
+  $('#formTitle').textContent='Modifier le mot';$('#btnSave').textContent='Enregistrer';$('#btnCancel').style.display='inline-block';
+  window.scrollTo(0,0);$('#fMot').focus();
+}
+function cancelEdit(keepTexte){
+  editingId=null;
+  $('#fMot').value='';$('#fDef').value='';$('#fEx').value='';$('#fEmoji').value='';
+  $('#formTitle').textContent='Ajouter un mot';$('#btnSave').textContent='Ajouter le mot';$('#btnCancel').style.display='none';
+}
+function bulkAdd(){
+  var dossier=$('#bDossier').value.trim()||NODOSS,texte=$('#bTexte').value.trim()||NOTEXT;
+  var lines=$('#bText').value.split(/\r?\n/);
+  var re=/^(.+?)\s*(?::|;|\t| = | – | — | - )\s*(.+)$/;
+  var n=0,bad=0;
+  lines.forEach(function(l){
+    l=l.trim();if(!l)return;
+    var m=re.exec(l);
+    if(m){state.words.push({id:uid(),dossier:dossier,texte:texte,mot:m[1].trim(),def:m[2].trim(),ex:'',emoji:'',box:1});n++}
+    else bad++;
+  });
+  if(!n){alert('Aucun mot reconnu. Écris chaque ligne sous la forme « mot : définition ».');return}
+  $('#bText').value='';
+  save();resetSessions();renderWords();
+  $('#bDossier').value=dossier===NODOSS?'':dossier;$('#bTexte').value=texte===NOTEXT?'':texte;
+  if(bad)alert(n+' mot(s) ajouté(s). '+bad+' ligne(s) ignorée(s) (format « mot : définition » non reconnu).');
+}
+function delWord(id){
+  var w=byId(id);if(!w)return;
+  if(!confirm('Supprimer le mot « '+w.mot+' » ?'))return;
+  state.words=state.words.filter(function(x){return x.id!==id});
+  if(editingId===id)cancelEdit();
+  save();resetSessions();updateList();
+}
+function delSel(){
+  var ws=deckWords();if(!ws.length)return;
+  var label=(state.folder==='*'?'tous les dossiers':'le dossier « '+state.folder+' »')+(state.deck==='*'?'':', texte « '+state.deck+' »');
+  if(!confirm('Supprimer '+ws.length+' mot(s) ('+label+') ? Cette action est définitive.'))return;
+  var ids={};ws.forEach(function(w){ids[w.id]=1});
+  state.words=state.words.filter(function(w){return !ids[w.id]});
+  save();resetSessions();renderWords();
+}
+function moveSel(){
+  var ws=deckWords();if(!ws.length)return;
+  var nd=prompt('Nouveau nom de DOSSIER pour ces '+ws.length+' mot(s) :\n(laisse vide pour garder le dossier actuel)');
+  if(nd===null)return;
+  var nt=prompt('Nouveau nom de TEXTE pour ces '+ws.length+' mot(s) :\n(laisse vide pour garder le texte actuel)');
+  if(nt===null)return;
+  nd=nd.trim();nt=nt.trim();
+  ws.forEach(function(w){if(nd)w.dossier=nd;if(nt)w.texte=nt});
+  if(nd&&state.folder!=='*')state.folder=nd;
+  if(nt&&state.deck!=='*')state.deck=nt;
+  save();resetSessions();renderWords();
+}
+function exportJson(list,name){
+  list=list||state.words;
+  var blob=new Blob([JSON.stringify({version:1,words:list},null,1)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(name||'mots-a-retenir')+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(a.href)},1000);
+}
+function importJson(file){
+  var fr=new FileReader();
+  fr.onload=function(){
+    try{
+      var d=JSON.parse(fr.result);
+      if(!d||!Array.isArray(d.words))throw new Error('format');
+      var have={};state.words.forEach(function(w){have[fold(w)+'|'+txt(w)+'|'+w.mot.toLowerCase()]=1});
+      var n=0;
+      d.words.forEach(function(w){
+        if(!w||!w.mot||!w.def)return;
+        var t=w.texte||NOTEXT,dos=w.dossier||NODOSS,k=dos+'|'+t+'|'+String(w.mot).toLowerCase();
+        if(have[k])return;
+        have[k]=1;
+        state.words.push({id:uid(),dossier:dos,texte:t,mot:String(w.mot),def:String(w.def),ex:String(w.ex||''),emoji:String(w.emoji||''),box:Math.min(3,Math.max(1,w.box|0||1))});n++;
+      });
+      save();resetSessions();renderWords();
+      alert(n+' mot(s) importé(s).');
+    }catch(e){alert('Ce fichier n\'est pas un fichier de mots valide.')}
+  };
+  fr.readAsText(file);
+}
+function resetProg(){
+  if(!confirm('Remettre tous les mots au niveau 1 ?'))return;
+  state.words.forEach(function(w){w.box=1});
+  save();resetSessions();updateList();
+}
+
+/* ---------- Imprimer ---------- */
+function renderPrint(){
+  var ws=deckWords();
+  var h=deckBar('<button class="btn orange" data-action="print"'+(ws.length?'':' disabled')+'>🖨️ Imprimer</button>');
+  if(!ws.length){$('#app').innerHTML=h+noWordsMsg();return}
+  h+='<p class="help noprint">Cartes à plier en deux : le mot d\'un côté, la définition de l\'autre. Impression noir et blanc, prévue pour la photocopie.</p>'+
+     '<div class="sheet">'+ws.map(function(w){
+       return '<div class="pcard"><div>'+(w.emoji?'<div class="pe">'+esc(w.emoji)+'</div>':'')+'<div class="pw">'+esc(w.mot)+'</div></div>'+
+              '<div><div class="pd">'+esc(w.def)+'</div>'+(w.ex?'<div class="px">« '+esc(w.ex)+' »</div>':'')+'</div></div>';
+     }).join('')+'</div>';
+  $('#app').innerHTML=h;
+}
+
+/* ---------- Événements ---------- */
+document.addEventListener('click',function(e){
+  var el=e.target.closest('[data-action]');if(!el)return;
+  var a=el.getAttribute('data-action');
+  switch(a){
+    case 'tab':state.tab=el.getAttribute('data-v');render();break;
+    case 'flip':flipCard();break;
+    case 'yes':answer(true);break;
+    case 'no':answer(false);break;
+    case 'restart':startReview();renderReview();break;
+    case 'reviewAll':R.all=true;startReview();renderReview();break;
+    case 'speakFront':case 'speakBack':{
+      var sw=byId(R.queue[0]);if(!sw)break;
+      var isWord=(R.dir==='word')?(a==='speakFront'):(a==='speakBack');
+      speak(isWord?sw.mot:sw.def+(sw.ex&&R.dir==='word'?'. '+sw.ex:''));break}
+    case 'choose':choose(el.getAttribute('data-id'));break;
+    case 'next':Q.i++;buildChoices();renderQuiz();break;
+    case 'quizRestart':startQuiz();renderQuiz();break;
+    case 'saveWord':saveWord();break;
+    case 'cancelEdit':cancelEdit();break;
+    case 'bulkAdd':bulkAdd();break;
+    case 'edit':editWord(el.getAttribute('data-id'));break;
+    case 'del':delWord(el.getAttribute('data-id'));break;
+    case 'delSel':delSel();break;
+    case 'moveSel':moveSel();break;
+    case 'exportSel':{var sel=deckWords();var nm=(state.folder==='*'?'mots':state.folder)+(state.deck==='*'?'':'-'+state.deck);exportJson(sel,nm.replace(/[^\w\-àâçéèêëîïôûùüÿ ]/gi,'').replace(/\s+/g,'-'));break}
+    case 'export':exportJson();break;
+    case 'importBtn':$('#fileIn').click();break;
+    case 'resetProg':resetProg();break;
+    case 'print':window.print();break;
+  }
+});
+document.addEventListener('change',function(e){
+  var t=e.target;
+  if(t.id==='folderSel'){state.folder=t.value;state.deck='*';resetSessions();render()}
+  else if(t.id==='deckSel'){state.deck=t.value;resetSessions();render()}
+  else if(t.id==='dirSel'){R.dir=t.value;R.queue=null;renderReview()}
+  else if(t.id==='inclAll'){R.all=t.checked;R.queue=null;renderReview()}
+  else if(t.id==='fileIn'&&t.files&&t.files[0]){importJson(t.files[0]);t.value=''}
+});
+document.addEventListener('keydown',function(e){
+  if(state.tab!=='review')return;
+  var tg=e.target.tagName;if(tg==='INPUT'||tg==='TEXTAREA'||tg==='SELECT')return;
+  if(!R.queue||!R.queue.length)return;
+  if(e.key===' '||e.key==='Enter'){e.preventDefault();flipCard()}
+  else if(e.key==='ArrowRight'){answer(true)}
+  else if(e.key==='ArrowLeft'){answer(false)}
+});
+
+/* ---------- Démarrage ---------- */
+load();
+if(!storageOk)$('#storageWarn').style.display='block';
+render();
+})();
+</script>
+</body>
+</html>

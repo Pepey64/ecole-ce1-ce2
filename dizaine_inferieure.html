@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Passer par la dizaine inférieure</title>
+<style>
+:root {
+  --paper: #FAF6EA;
+  --line: rgba(46,111,149,0.16);
+  --ink: #243B2C;
+  --red: #D6483D;
+  --blue: #2E6F95;
+  --yellow: #F2B33D;
+  --green: #4C9A5B;
+  --purple: #7C5CA6;
+  --card-border: #B9C4CC;
+  /* diagramme en barre : mêmes couleurs que les leçons */
+  --bar-orange-fill: #FBE0A8;
+  --bar-orange-edge: #F0A040;
+  --bar-green-fill: #B8F0B8;
+  --bar-green-edge: #2FC02F;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  background-color: var(--paper);
+  background-image: repeating-linear-gradient(var(--line) 0px, var(--line) 1px, transparent 1px, transparent 28px);
+  font-family: 'Nunito', 'Segoe UI', Verdana, sans-serif;
+}
+.hand { font-family: 'Patrick Hand', 'Segoe Print', 'Comic Sans MS', 'Bradley Hand', cursive; }
+.wrap { max-width: 56rem; margin: 0 auto; padding: 2rem 1rem 4rem; }
+
+/* en-tête */
+.top { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; flex-wrap: wrap; margin-bottom: .5rem; }
+h1 { margin: 0; font-size: 3rem; line-height: 1; font-weight: 400; }
+.sub { margin: .25rem 0 0; font-weight: 600; color: var(--blue); }
+button { font-family: inherit; cursor: pointer; border: 0; color: white; font-weight: 700; border-radius: 9999px; transition: transform .15s; }
+button:active { transform: scale(.95); }
+.btn-new { background: var(--red); padding: .5rem 1rem; font-size: .875rem; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+.btn-all { background: var(--purple); padding: .25rem .75rem; font-size: .75rem; margin-left: .5rem; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.btn-check { background: var(--blue); padding: .25rem .75rem; font-size: .75rem; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+/* légende */
+.legend { display: flex; align-items: center; gap: .75rem 1rem; flex-wrap: wrap; margin: .5rem 0; font-size: .875rem; font-weight: 600; }
+.legend span.item { display: inline-flex; align-items: center; gap: .35rem; }
+.swatch { display: inline-block; width: 16px; height: 16px; border-radius: 4px; border: 3px solid; }
+.sw-orange { background: var(--bar-orange-fill); border-color: var(--bar-orange-edge); }
+.sw-green  { background: var(--bar-green-fill);  border-color: var(--bar-green-edge); }
+.sw-red    { background: white; border-color: var(--red); }
+
+/* progression */
+.progress { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.dot { width: 1.75rem; height: 1.75rem; border-radius: 9999px; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 800; background: white; color: #B7AF92; border: 2px solid #E4DCC4; }
+.dot.done { background: var(--green); color: white; border-color: var(--green); }
+.count { font-size: .875rem; font-weight: 700; margin-left: .25rem; }
+.bravo { background: var(--yellow); border-radius: 1rem; padding: 1rem; margin-bottom: 1.5rem; text-align: center; font-weight: 800; font-size: 1.125rem; }
+.bravo[hidden] { display: none; }
+
+/* groupes */
+.group { margin: 2rem 0 .75rem; }
+.group:first-of-type { margin-top: 0; }
+.group h2 { margin: 0; font-size: 1.5rem; font-weight: 400; }
+.group p { margin: 0; font-size: .875rem; color: #7A7458; }
+.grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+@media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* carte d'exercice */
+.card { background: white; border: 2px solid #E4DCC4; border-left: 8px solid var(--red); border-radius: 1rem; padding: 1rem; }
+.card.success { border-left-color: var(--green); }
+.card-body { display: flex; align-items: stretch; gap: .75rem; }
+.arrow { flex: 0 0 30px; position: relative; }
+.arrow svg.curve { position: absolute; left: 0; top: 0; width: 30px; height: 100%; }
+.arrow svg.head { position: absolute; left: 14px; bottom: calc(4% - 8px); width: 16px; height: 16px; }
+.content { flex: 1; min-width: 0; }
+.big { font-size: 1.6rem; color: var(--ink); }
+.line1 { display: flex; align-items: center; gap: 1rem; margin-bottom: .6rem; }
+.row { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; font-weight: 700; font-size: 1.125rem; margin-top: .6rem; }
+.purple { color: var(--purple); }
+
+/* champs de saisie */
+input.cell {
+  width: 3rem; height: 2.5rem; text-align: center; font: inherit; font-size: 1rem; font-weight: 700; color: var(--ink);
+  background: white; border: 3px solid var(--card-border); border-radius: .5rem; outline: none; padding: 0;
+}
+input.cell.wide { width: 3.5rem; }
+input.cell:focus { box-shadow: 0 0 0 3px rgba(46,111,149,.25); }
+input.cell.ok { background: #E7F5E8; }
+input.cell.ko { background: #FBEAE8; }
+.role-orange { border-color: var(--bar-orange-edge) !important; }
+.role-green  { border-color: var(--bar-green-edge) !important; }
+.role-red    { border-color: var(--red) !important; }
+.mirror {
+  display: inline-flex; align-items: center; justify-content: center; width: 3rem; height: 2.5rem;
+  border: 3px solid; border-radius: .5rem; font-weight: 700; background: #FDFCF8;
+}
+
+/* diagramme en barre */
+.bar { width: 100%; max-width: 15rem; margin: 0 0 .1rem; }
+.bar-top { display: flex; }
+.bar-cell { flex: 1; display: flex; align-items: center; justify-content: center; height: 3rem; border: 2px solid; }
+.bar-cell.orange { background: var(--bar-orange-fill); border-color: var(--bar-orange-edge); }
+.bar-cell.green  { background: var(--bar-green-fill);  border-color: var(--bar-green-edge); border-left-width: 2px; }
+.bar-cell input.cell { width: 2.6rem; height: 2.1rem; border-width: 2px; border-color: rgba(0,0,0,.28); background: white; }
+.bar-cell input.cell:focus { border-color: var(--blue); }
+.bar-cell input.cell.ok { background: #E7F5E8; }
+.bar-cell input.cell.ko { background: #FBEAE8; }
+.bar-bottom { display: flex; align-items: center; justify-content: center; height: 2.4rem; background: white; border: 2px solid #8a8a8a; border-top-width: 0; font-size: 1.4rem; font-weight: 700; }
+
+/* pied de carte */
+.foot { margin-top: .75rem; display: flex; align-items: center; gap: .5rem; }
+.msg { font-size: .75rem; font-weight: 800; }
+.msg.good { color: var(--green); }
+.msg.bad { color: var(--red); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1 class="hand">🔟 Passer par la dizaine inférieure</h1>
+      <p class="sub">Décompose le nombre à soustraire pour atteindre la dizaine inférieure, puis termine le calcul.</p>
+    </div>
+    <button class="btn-new" id="btn-new">🔄 Nouveaux calculs</button>
+  </div>
+
+  <div class="legend">
+    <span class="item"><span class="swatch sw-orange"></span>ce que j'enlève pour atteindre la dizaine</span>
+    <span class="item"><span class="swatch sw-green"></span>la quantité qui reste à enlever</span>
+    <span class="item"><span class="swatch sw-red"></span>la dizaine à trouver</span>
+  </div>
+
+  <div class="progress" id="progress"></div>
+  <div class="bravo hand" id="bravo" hidden>🎉 Bravo, tous les calculs sont justes ! 🎉</div>
+
+  <div id="groups"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- outils ---------- */
+  function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+  function parseSafe(s) {
+    if (s === undefined || s === null || String(s).trim() === "") return NaN;
+    return parseInt(s, 10);
+  }
+  function el(tag, props, children) {
+    var node = document.createElement(tag);
+    if (props) {
+      Object.keys(props).forEach(function (k) {
+        if (k === "class") node.className = props[k];
+        else if (k === "text") node.textContent = props[k];
+        else node.setAttribute(k, props[k]);
+      });
+    }
+    (children || []).forEach(function (c) { node.appendChild(c); });
+    return node;
+  }
+  var MINUS = "\u2212";
+
+  /* ---------- génération des calculs ---------- */
+  /* passer par 10 : a = 10 + u (u de 2 à 8), b à un chiffre plus grand que u */
+  function genPasserDix() {
+    var u = randInt(2, 8);
+    return { type: "dix", a: 10 + u, b: randInt(u + 1, 9), dizaine: 10 };
+  }
+  /* dizaine inférieure : a = t*10 + u, t de 2 à 9, u de 2 à 8, b à un chiffre plus grand que u */
+  function genDizaineInf(type) {
+    var t = randInt(2, 9), u = randInt(2, 8);
+    return { type: type, a: t * 10 + u, b: randInt(u + 1, 9), dizaine: t * 10 };
+  }
+  function genSet() {
+    var tries = 0, set;
+    do {
+      set = [genPasserDix(), genPasserDix(),
+             genDizaineInf("dizaineGiven"), genDizaineInf("dizaineGiven"),
+             genDizaineInf("dizaineToFind"), genDizaineInf("dizaineToFind")];
+      var keys = set.map(function (p) { return p.a + "-" + p.b; });
+      var unique = keys.every(function (k, i) { return keys.indexOf(k) === i; });
+      tries++;
+    } while (!unique && tries < 50);
+    return set;
+  }
+
+  /* ---------- état ---------- */
+  var pairs = [];
+  var cards = [];   // références DOM + valeurs de chaque exercice
+  var groupsEl = document.getElementById("groups");
+  var progressEl = document.getElementById("progress");
+  var bravoEl = document.getElementById("bravo");
+
+  /* ---------- flèche rouge courbe (trait étiré, pointe fixe) ---------- */
+  function curlyArrow() {
+    var ns = "http://www.w3.org/2000/svg";
+    var wrap = document.createDocumentFragment();
+    var svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("class", "curve");
+    svg.setAttribute("viewBox", "0 0 34 100");
+    svg.setAttribute("preserveAspectRatio", "none");
+    var path = document.createElementNS(ns, "path");
+    path.setAttribute("d", "M27 4 C5 4 5 32 5 50 C5 68 5 92 20 96");
+    path.setAttribute("fill", "none"); path.setAttribute("stroke", "#D6483D");
+    path.setAttribute("stroke-width", "4"); path.setAttribute("stroke-linecap", "round");
+    path.setAttribute("vector-effect", "non-scaling-stroke");
+    svg.appendChild(path);
+    var head = document.createElementNS(ns, "svg");
+    head.setAttribute("class", "head");
+    head.setAttribute("viewBox", "0 0 16 16");
+    var tri = document.createElementNS(ns, "path");
+    tri.setAttribute("d", "M1 1 L15 8 L1 15 z"); tri.setAttribute("fill", "#D6483D");
+    head.appendChild(tri);
+    wrap.appendChild(svg); wrap.appendChild(head);
+    return wrap;
+  }
+
+  /* ---------- une case de saisie ---------- */
+  function makeCell(card, key, roleClass, wide) {
+    var input = el("input", {
+      type: "text", inputmode: "numeric", maxlength: "2", autocomplete: "off",
+      "class": "cell " + (roleClass || "") + (wide ? " wide" : ""),
+      "aria-label": key
+    });
+    input.addEventListener("input", function () {
+      input.value = input.value.replace(/[^0-9]/g, "");
+      card.values[key] = input.value;
+      input.classList.remove("ok", "ko");
+      if (key === "c1" && card.mirror1) card.mirror1.textContent = input.value;
+      if (key === "c2" && card.mirror2) card.mirror2.textContent = input.value;
+    });
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { checkCard(card); }
+    });
+    card.inputs[key] = input;
+    return input;
+  }
+
+  function mirrorCell(color) {
+    var s = el("span", { "class": "mirror" });
+    s.style.borderColor = color;
+    return s;
+  }
+
+  /* ---------- une carte d'exercice ---------- */
+  function buildCard(pair, index) {
+    var card = { pair: pair, index: index, values: { c1: "", c2: "", c2b: "", total: "", dizaine: "" }, inputs: {} };
+
+    /* ligne 1 : a − b = */
+    var line1 = el("div", { "class": "line1 hand big" }, [
+      el("b", { text: String(pair.a) }), el("span", { text: MINUS }),
+      el("b", { text: String(pair.b) }), el("span", { text: "=" })
+    ]);
+
+    /* diagramme en barre : orange = pour atteindre la dizaine, vert = ce qui reste, dessous = b */
+    var orange = el("div", { "class": "bar-cell orange" }, [makeCell(card, "c1", "")]);
+    var green = el("div", { "class": "bar-cell green" }, [makeCell(card, "c2", "")]);
+    var bar = el("div", { "class": "bar", role: "group", "aria-label": "diagramme en barre de " + pair.b }, [
+      el("div", { "class": "bar-top" }, [orange, green]),
+      el("div", { "class": "bar-bottom hand", text: String(pair.b) })
+    ]);
+
+    /* ligne 2 : a − [c1] − [c2]  (reprend les cases de la barre) */
+    card.mirror1 = mirrorCell("#F0A040");
+    card.mirror2 = mirrorCell("#2FC02F");
+    var row2 = el("div", { "class": "row" }, [
+      el("span", { text: pair.a + " " + MINUS }), card.mirror1,
+      el("span", { text: MINUS }), card.mirror2
+    ]);
+
+    /* ligne 3 : dizaine − [c2b] = [total] */
+    var row3 = el("div", { "class": "row" });
+    if (pair.type === "dizaineToFind") {
+      row3.appendChild(makeCell(card, "dizaine", "role-red", true));
+    } else {
+      row3.appendChild(el("span", { "class": "purple", text: String(pair.dizaine) }));
+    }
+    row3.appendChild(el("span", { text: MINUS }));
+    row3.appendChild(makeCell(card, "c2b", "role-green"));
+    row3.appendChild(el("span", { text: "=" }));
+    row3.appendChild(makeCell(card, "total", "", true));
+
+    var content = el("div", { "class": "content" }, [line1, bar, row2, row3]);
+    var arrow = el("div", { "class": "arrow" }, [curlyArrow()]);
+
+    var msg = el("span", { "class": "msg" });
+    var btn = el("button", { "class": "btn-check", text: "Vérifier" });
+    btn.addEventListener("click", function () { checkCard(card); });
+    var foot = el("div", { "class": "foot" }, [btn, msg]);
+
+    var root = el("div", { "class": "card" }, [el("div", { "class": "card-body" }, [arrow, content]), foot]);
+    card.root = root; card.msg = msg; card.ok = null;
+    return card;
+  }
+
+  /* ---------- vérification ---------- */
+  function checkCard(card) {
+    var p = card.pair, v = card.values;
+    var complement = p.a - p.dizaine;      // ce qu'on enlève pour atteindre la dizaine
+    var reste = p.b - complement;          // ce qu'il reste à enlever
+    var total = p.a - p.b;
+    var res = {
+      c1: parseSafe(v.c1) === complement,
+      c2: parseSafe(v.c2) === reste,
+      c2b: parseSafe(v.c2b) === reste,
+      total: parseSafe(v.total) === total
+    };
+    if (p.type === "dizaineToFind") res.dizaine = parseSafe(v.dizaine) === p.dizaine;
+    var all = Object.keys(res).every(function (k) { return res[k]; });
+    card.ok = all;
+
+    Object.keys(res).forEach(function (k) {
+      var inp = card.inputs[k];
+      inp.classList.remove("ok", "ko");
+      inp.classList.add(res[k] ? "ok" : "ko");
+    });
+    card.root.classList.toggle("success", all);
+    card.msg.textContent = all ? "✓ Bravo !" : "✗ Essaie encore";
+    card.msg.className = "msg " + (all ? "good" : "bad");
+    updateProgress();
+  }
+
+  /* ---------- progression ---------- */
+  function updateProgress() {
+    var done = cards.filter(function (c) { return c.ok; }).length;
+    progressEl.innerHTML = "";
+    cards.forEach(function (c, i) {
+      progressEl.appendChild(el("div", { "class": "dot" + (c.ok ? " done" : ""), text: String(i + 1) }));
+    });
+    progressEl.appendChild(el("span", { "class": "count", text: done + " / " + cards.length + " réussis" }));
+    var all = el("button", { "class": "btn-all", text: "Tout vérifier" });
+    all.addEventListener("click", function () { cards.forEach(checkCard); });
+    progressEl.appendChild(all);
+    bravoEl.hidden = done !== cards.length;
+  }
+
+  /* ---------- page ---------- */
+  function groupHeader(title, subtitle) {
+    var g = el("div", { "class": "group" }, [el("h2", { "class": "hand", text: title })]);
+    if (subtitle) g.appendChild(el("p", { text: subtitle }));
+    return g;
+  }
+
+  function render() {
+    pairs = genSet();
+    cards = pairs.map(buildCard);
+    groupsEl.innerHTML = "";
+
+    var defs = [
+      { from: 0, to: 2, title: "1. Passer par 10", sub: "Avec la dizaine 10 à atteindre." },
+      { from: 2, to: 4, title: "2. Passer par la dizaine inférieure", sub: "La dizaine à atteindre est déjà écrite." },
+      { from: 4, to: 6, title: "3. Passer par la dizaine inférieure", sub: "À toi de trouver la dizaine à atteindre (case rouge)." }
+    ];
+    defs.forEach(function (d) {
+      groupsEl.appendChild(groupHeader(d.title, d.sub));
+      var grid = el("div", { "class": "grid" });
+      cards.slice(d.from, d.to).forEach(function (c) { grid.appendChild(c.root); });
+      groupsEl.appendChild(grid);
+    });
+    updateProgress();
+  }
+
+  document.getElementById("btn-new").addEventListener("click", render);
+  render();
+})();
+</script>
+</body>
+</html>

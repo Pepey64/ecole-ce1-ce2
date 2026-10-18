@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Problèmes de comparaison</title>
+<style>
+:root{
+  --ink:#1d1d1f; --paper:#fbf8f1; --red:#e3262b; --blue:#1e66d0; --blue-soft:#d9e8ff; --red2:#d62828; --red-soft:#ffe0e0;
+  --ok:#1b7a2e;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:"Trebuchet MS",Verdana,Arial,sans-serif;font-size:20px;line-height:1.4}
+button{font:inherit;color:inherit;cursor:pointer}
+.app{max-width:1300px;margin:0 auto;padding:14px 18px 40px}
+
+/* ---------- en-tête ---------- */
+.top{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;justify-content:space-between;border-bottom:3px solid #9a9a9a;padding-bottom:10px;margin-bottom:14px}
+h1{margin:0;font-family:"Segoe Print","Comic Sans MS","Chalkboard SE",cursive;font-size:34px;color:var(--red);font-weight:700}
+.ctrl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:17px}
+.seg{display:inline-flex;border:3px solid var(--ink);border-radius:14px;overflow:hidden;background:#fff}
+.seg button{border:0;background:#fff;padding:8px 18px;font-weight:700}
+.seg button+button{border-left:3px solid var(--ink)}
+.seg button.on{background:var(--ink);color:#fff}
+select{font:inherit;padding:8px 10px;border:3px solid var(--ink);border-radius:14px;background:#fff;max-width:250px}
+.btn{border:3px solid var(--ink);background:#fff;border-radius:14px;padding:8px 16px;font-weight:700}
+.btn:hover{background:#f1ecdf}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff;font-size:22px;padding:12px 26px}
+.btn.primary:hover{background:#174fa6}
+.prog{display:flex;align-items:center;gap:8px;margin:0 0 12px;font-size:17px;color:#444}
+.dot{width:20px;height:20px;border-radius:50%;border:3px solid var(--ink);background:#fff}
+.dot.cur{background:#ffe27a}.dot.ok{background:#93f293}.dot.help{background:#ffd28a}
+
+/* ---------- disposition ---------- */
+.grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);grid-template-areas:"enonce model" "panel model";gap:16px 26px;align-items:start}
+.enonce{grid-area:enonce}.panel{grid-area:panel}.modelwrap{grid-area:model;position:sticky;top:10px}
+@media (max-width:920px){.grid{grid-template-columns:1fr;grid-template-areas:"enonce" "model" "panel"}.modelwrap{position:static}}
+
+.card{background:#fff;border:3px solid var(--ink);border-radius:20px;padding:14px 20px}
+.cardhead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 14px;align-items:center;margin-bottom:10px;font-size:17px;color:#444}
+.badge{border:3px solid var(--ink);border-radius:999px;padding:2px 14px;background:#fff7d6;font-weight:700;color:var(--ink)}
+.badge.empty{background:#fff;font-weight:400;color:#777;border-style:dashed}
+
+/* ---------- phrases de l'énoncé ---------- */
+.stack{display:flex;flex-direction:column;gap:12px;position:relative}
+.stack.sorted{padding-left:44px}
+.stack.sorted::before{content:"";position:absolute;left:12px;top:4px;bottom:26px;width:7px;border-radius:4px;background:linear-gradient(#1e66d0,#222,#d62828)}
+.stack.sorted::after{content:"";position:absolute;left:3px;bottom:6px;border-left:13px solid transparent;border-right:13px solid transparent;border-top:22px solid #d62828}
+.scard{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 16px;border-radius:16px;border:5px solid;font-size:24px;line-height:1.45;background:#fff}
+.scard.c-none{border-style:dashed;border-color:#9a9a9a;background:#f4f2ec}
+.scard.c-blue{border-color:var(--blue);background:var(--blue-soft)}
+.scard.c-white{border-color:#222;background:#fff}
+.scard.c-red{border-color:var(--red2);background:var(--red-soft)}
+.scard.hl{box-shadow:0 0 0 6px rgba(255,200,0,.75)}
+.scard.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.stext{flex:1 1 280px}
+.num{font-weight:800}
+mark.nn{background:#fff0a3;border-radius:6px;padding:0 3px;color:inherit}
+.tag{margin-left:auto;font-size:15px;font-weight:700;padding:1px 12px;border-radius:999px;border:3px solid;background:#fff;white-space:nowrap}
+.tag.t-before{border-color:var(--blue);color:var(--blue)}
+.tag.t-trans{border-color:#222;color:#222}
+.tag.t-after{border-color:var(--red2);color:var(--red2)}
+.pick{flex:1 0 100%;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:16px}
+.pk{display:inline-flex;align-items:center;gap:8px;border:3px solid var(--ink);border-radius:12px;background:#fff;padding:6px 12px;font-weight:700;font-size:16px}
+.pk i{width:20px;height:20px;border:3px solid var(--ink);border-radius:5px;display:inline-block}
+.pk-before i{background:var(--blue-soft);border-color:var(--blue)}
+.pk-trans i{background:#fff}
+.pk-after i{background:var(--red-soft);border-color:var(--red2)}
+.pk:hover{background:#fff7d6}
+
+/* ---------- étapes ---------- */
+.steps{display:flex;flex-wrap:wrap;gap:6px 8px;margin:0 0 12px;padding:0;list-style:none;font-size:15px}
+.steps li{display:flex;align-items:center;gap:6px;padding:4px 10px 4px 5px;border-radius:999px;border:2px solid #b9b3a4;background:#fff;color:#777}
+.steps li b{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#d9d3c3;color:#fff;font-size:14px}
+.steps li.cur{border-color:var(--blue);color:var(--ink);font-weight:700;background:var(--blue-soft)}
+.steps li.cur b{background:var(--blue)}
+.steps li.done{border-color:#27b927;color:#256b25}.steps li.done b{background:#27b927}
+.stephead{border-radius:16px;padding:10px 16px;margin-bottom:12px;background:var(--ink);color:#fff;font-size:23px;font-weight:700}
+.stephead small{display:block;font-weight:400;font-size:17px;opacity:.93}
+.stephead.lang{background:var(--blue)}
+.chips{display:flex;flex-wrap:wrap;gap:14px;margin:6px 0 4px}
+.chip{border:3px solid var(--ink);background:#fff;border-radius:16px;padding:12px 22px;font-size:27px;font-weight:700;min-width:84px;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.chip:hover{background:#fff7d6}
+.chip.sel{background:#ffe27a;transform:translateY(-3px);box-shadow:0 7px 0 rgba(0,0,0,.25)}
+.chip.q{font-size:40px;padding:6px 30px;line-height:1.2}
+.chip.used{opacity:.25;pointer-events:none;box-shadow:none}
+.bigbtns{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:8px 0}
+.bigbtn{border:5px solid;border-radius:22px;padding:18px 10px;font-size:34px;font-weight:800;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.bigbtn.b{border-color:var(--blue);background:var(--blue-soft);color:#0f3f8a}
+.bigbtn.r{border-color:var(--red2);background:var(--red-soft);color:#8f1515}
+.bigbtn:hover{filter:brightness(.96)}
+.trio{display:grid;grid-template-columns:1fr;gap:10px;margin:6px 0}
+.opt{border:4px solid var(--ink);border-radius:18px;background:#fff;padding:12px 16px;font-size:22px;font-weight:700;text-align:left;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.opt:hover{background:#fff7d6}
+.opt.tri{text-align:center;font-size:26px}
+.opt.good{background:#d9f7d9;border-color:#27b927}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.rule{border:3px dashed var(--ink);border-radius:16px;padding:10px 14px;background:#fffdf5;margin:6px 0 12px;font-size:19px}
+.rule div+div{margin-top:4px}
+.gap{display:inline-block;min-width:130px;border-bottom:4px dotted var(--ink);text-align:center;font-weight:800;padding:0 6px}
+.gap.f{border-bottom-color:#27b927;color:var(--ok)}
+.rule .cur-line{background:#fff3b0;border-radius:8px}
+.calcline{font-size:46px;font-weight:800;text-align:center;margin:8px 0 10px;letter-spacing:1px}
+.calcline .ans{display:inline-block;min-width:130px;border-bottom:5px solid var(--ink);padding:0 10px;color:var(--blue)}
+.keypad{display:grid;grid-template-columns:repeat(3,76px);gap:10px;justify-content:center;margin:6px auto 4px}
+.key{height:60px;border:3px solid var(--ink);border-radius:14px;background:#fff;font-size:28px;font-weight:700;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.key:hover{background:#fff7d6}
+.key.wide{background:var(--blue);border-color:var(--blue);color:#fff}
+.key.back{font-size:18px}
+.qrepeat{font-size:20px;color:#444;text-align:center;margin-bottom:6px}
+.final{font-size:28px;text-align:center;border:4px solid #27b927;background:#e9f9ec;border-radius:18px;padding:12px;margin-top:8px;font-weight:700}
+.msg{margin-top:12px;border-radius:16px;padding:12px 16px;font-size:21px;border:3px solid}
+.msg.ok{background:#e9f9ec;border-color:#27b927;color:#17491f}
+.msg.ko{background:#fdecea;border-color:#e57368;color:#6e1a14}
+.msg.info{background:var(--blue-soft);border-color:var(--blue);color:#12306f}
+.next{margin-top:14px;text-align:center}
+.wait{font-size:20px;color:#444;text-align:center;padding:6px}
+
+/* ---------- phrases de l'énoncé (comparaison) ---------- */
+.scard.plain{border-color:#222;background:#fff}
+mark.rel{background:#ffd54a;font-weight:800;border-radius:6px;padding:0 5px;color:inherit}
+.legend2{margin-top:10px;font-size:16px;color:#555}
+.who{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:8px 0}
+.whobtn{border:5px solid var(--ink);border-radius:22px;padding:18px 10px;font-size:32px;font-weight:800;background:#fff;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.whobtn:hover{background:#fff7d6}
+.eqline{margin-top:6px;font-size:19px}
+
+/* ---------- le modèle : deux colonnes ---------- */
+:root{--or:#f0a33c;--or-soft:#fbd9a6;--gr:#2fcf2f;--gr-soft:#b9f5b9}
+.modelcard{padding:14px 16px 16px}
+.modelcard h2{margin:0 0 8px;font-size:20px;text-align:center}
+.plot{display:grid;grid-template-columns:1fr 1fr;height:330px;align-items:stretch;max-width:340px;margin:0 auto}
+.cwrap{display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;position:relative}
+.col{position:relative;border:5px solid;border-bottom:0;display:flex;align-items:flex-start;justify-content:center;padding-top:10px;text-align:center}
+.col.small{background:var(--or-soft);border-color:var(--or)}
+.col.big{background:var(--gr-soft);border-color:var(--gr)}
+.col.neutral{background:#f4f2ec;border:4px dashed #9a9a9a;border-bottom:0}
+.dline{position:absolute;left:0;right:0;border-top:4px dotted #333}
+.ebox{border:5px solid var(--blue);border-right:0;border-radius:20px 0 0 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;margin-bottom:0}
+.ecirc{width:74px;height:74px;border-radius:50%;border:4px solid #222;background:#fff;display:grid;place-items:center;font-size:32px;font-weight:800}
+.ecirc.q,.cnum.q{font-size:48px}
+.elab{font-size:16px;font-weight:800;color:var(--blue)}
+.cnum{font-size:40px;font-weight:800;line-height:1.1}
+.cnum.dots,.ecirc.dots{font-size:26px;font-weight:400;color:#555;letter-spacing:2px}
+.res{color:#0b3a8f}
+.names{display:grid;grid-template-columns:1fr 1fr;max-width:340px;margin:8px auto 0;text-align:center;font-size:21px;font-weight:800}
+.names span{padding:4px 6px;border-radius:10px}
+.names .ns{color:#8a4a00}.names .ng{color:#14701d}
+.names .nd{color:#777;font-weight:400}
+.target{cursor:pointer;animation:pulse 1.1s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(255,190,0,.8)}}
+.shakez{animation:shake .4s}
+@media (prefers-reduced-motion:reduce){.target{animation:none;outline:5px solid #e8a600}}
+.legend{margin-top:10px;text-align:center;font-size:15px;color:#555}
+
+.end{text-align:center;padding:26px 18px}
+.end h2{font-family:"Segoe Print","Comic Sans MS",cursive;color:var(--red);font-size:38px;margin:0 0 8px}
+.endlist{display:grid;gap:8px;max-width:680px;margin:16px auto;text-align:left;font-size:19px}
+.endlist div{display:flex;gap:12px;align-items:center;border:3px solid var(--ink);border-radius:14px;padding:8px 14px;background:#fff}
+.endlist .tg{margin-left:auto;font-weight:700;font-size:16px;white-space:nowrap}
+.endlist .tg.ok{color:var(--ok)}.endlist .tg.help{color:#a35a00}
+</style>
+</head>
+<body>
+<noscript>Cette application a besoin de JavaScript pour fonctionner.</noscript>
+<div class="app" id="app"></div>
+
+<script>
+(function(){
+"use strict";
+const CTX=[{"id": "billes", "fam": "P", "noun": "billes", "de": "de billes", "pair": [["Justin", "m"], ["Mathéo", "m"]]}, {"id": "cartes", "fam": "P", "noun": "cartes", "de": "de cartes", "pair": [["Ambre", "f"], ["Clara", "f"]]}, {"id": "autocollants", "fam": "P", "noun": "autocollants", "de": "d'autocollants", "pair": [["Ludo", "m"], ["Léo", "m"]]}, {"id": "timbres", "fam": "P", "noun": "timbres", "de": "de timbres", "pair": [["Tom", "m"], ["Nina", "f"]]}, {"id": "euros", "fam": "P", "noun": "euros", "de": "d'euros", "pair": [["Mia", "f"], ["Hugo", "m"]]}, {"id": "images", "fam": "P", "noun": "images", "de": "d'images", "pair": [["Samir", "m"], ["Léa", "f"]]}, {"id": "jetons", "fam": "P", "noun": "jetons", "de": "de jetons", "pair": [["Inès", "f"], ["Paul", "m"]]}, {"id": "stylos", "fam": "P", "noun": "stylos", "de": "de stylos", "pair": [["Manon", "f"], ["Lucas", "m"]]}, {"id": "ecole", "fam": "G", "loc": "dans l'école", "ents": [["filles", "de filles"], ["garçons", "de garçons"]]}, {"id": "parking", "fam": "G", "loc": "dans le parking", "ents": [["voitures", "de voitures"], ["motos", "de motos"]]}, {"id": "cinema", "fam": "G", "loc": "dans la salle de cinéma", "ents": [["adultes", "d'adultes"], ["enfants", "d'enfants"]]}, {"id": "verger", "fam": "G", "loc": "dans le verger", "ents": [["pommiers", "de pommiers"], ["cerisiers", "de cerisiers"]]}, {"id": "bassecour", "fam": "G", "loc": "dans la basse-cour", "ents": [["poules", "de poules"], ["canards", "de canards"]]}, {"id": "zoo", "fam": "G", "loc": "au zoo", "ents": [["girafes", "de girafes"], ["zèbres", "de zèbres"]]}, {"id": "port", "fam": "G", "loc": "dans le port", "ents": [["voiliers", "de voiliers"], ["chalutiers", "de chalutiers"]]}, {"id": "fete", "fam": "G", "loc": "à la fête de l'école", "ents": [["parents", "de parents"], ["enfants", "d'enfants"]]}, {"id": "bibli", "fam": "G", "loc": "à la bibliothèque", "ents": [["albums", "d'albums"], ["romans", "de romans"]]}, {"id": "marche", "fam": "G", "loc": "sur le marché", "ents": [["carottes", "de carottes"], ["poireaux", "de poireaux"]]}];
+const N=6;
+const SEEKLAB={ecart:"l'écart",big:"la grande quantité",small:"la petite quantité"};
+const ZLAB={small:"la petite quantité (colonne orange)",big:"la grande quantité (colonne verte)",ecart:"l'écart"};
+
+/* ---------- utilitaires ---------- */
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(0,i);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+
+/* ---------- textes (miroir exact du Python) ---------- */
+const que=n=>(/^[AEIOUHÉÈÊ]/.test(n)?"qu'":"que ")+n;
+const at=g=>g==="f"?"a-t-elle":"a-t-il";
+const ename=(c,i)=>c.fam==="P"?c.pair[i][0]:c.ents[i][0];
+const dn=(c,i)=>c.fam==="P"?c.pair[i][0]:"les "+c.ents[i][0];            // « Ambre » / « les filles »
+const ofn=(c,i)=>c.fam==="P"?(/^[AEIOUHÉÈÊ]/.test(c.pair[i][0])?"d'":"de ")+c.pair[i][0]:"des "+c.ents[i][0];
+function qtySent(c,i,n){return c.fam==="P"?`${c.pair[i][0]} a ${n} ${c.noun}.`:`Il y a ${n} ${c.ents[i][0]} ${c.loc}.`;}
+function relSent(c,i,r,E){const j=1-i;
+  return c.fam==="P"?`${c.pair[i][0]} a ${E} ${c.noun} de ${r} ${que(c.pair[j][0])}.`
+    :`Il y a ${E} ${c.ents[i][0]} de ${r} que ${c.ents[j][1]} ${c.loc}.`;}
+function qEcart(c,i,r){const j=1-i;
+  return c.fam==="P"?`Combien ${c.pair[i][0]} ${at(c.pair[i][1])} ${c.de} de ${r} ${que(c.pair[j][0])} ?`
+    :`Combien y a-t-il ${c.ents[i][1]} de ${r} que ${c.ents[j][1]} ${c.loc} ?`;}
+function qQty(c,i){return c.fam==="P"?`Combien ${c.pair[i][0]} ${at(c.pair[i][1])} ${c.de} ?`:`Combien y a-t-il ${c.ents[i][1]} ${c.loc} ?`;}
+
+/* ---------- logique ---------- */
+function build(sp){
+  const c=CTX.find(x=>x.id===sp.ctx);
+  const p={ctx:c,seek:sp.seek,rel:sp.rel,bi:sp.bi,si:1-sp.bi,s:sp.s,E:sp.E,G:sp.s+sp.E,bigFirst:!!sp.bigFirst,relFirst:!!sp.relFirst};
+  p.subj=p.rel==="plus"?p.bi:p.si;                       // sujet de la phrase « de plus / de moins »
+  p.sought=p.seek==="ecart"?null:(p.seek==="big"?p.bi:p.si);
+  p.res=p.seek==="ecart"?p.E:p.seek==="big"?p.G:p.s;
+  p.trap=(p.seek==="big"&&p.rel==="moins")||(p.seek==="small"&&p.rel==="plus");
+  const qv=i=>i===p.bi?p.G:p.s;
+  p.qv=qv;
+  if(p.seek==="ecart"){
+    let data=[qtySent(c,p.bi,p.G),qtySent(c,p.si,p.s)];
+    if(!p.bigFirst)data.reverse();
+    p.sents=data.concat([qEcart(c,p.subj,p.rel)]);
+    p.known=null;
+    p.nums=p.bigFirst?["big","small"]:["small","big"];       // ordre d'apparition des nombres
+  }else{
+    const k=1-p.sought;p.known=k;
+    let data=[qtySent(c,k,qv(k)),relSent(c,p.subj,p.rel,p.E)];
+    const kz=k===p.bi?"big":"small";
+    p.nums=[kz,"ecart"];
+    if(p.relFirst){data.reverse();p.nums.reverse();}
+    p.sents=data.concat([qQty(c,p.sought)]);
+  }
+  p.nums=p.nums.concat([]);
+  return p;
+}
+const valOf=(p,z)=>z==="big"?p.G:z==="small"?p.s:p.E;
+function calcOf(p){
+  if(p.seek==="ecart")return{x:p.G,sym:"−",y:p.s};
+  if(p.seek==="big")return{x:p.s,sym:"+",y:p.E};
+  return{x:p.G,sym:"−",y:p.E};
+}
+const opOf=p=>p.seek==="big"?"add":"sub";
+const answerText=p=>p.seek==="ecart"?relSent(p.ctx,p.subj,p.rel,p.E):qtySent(p.ctx,p.sought,p.qv(p.sought));
+const questionText=p=>p.sents[p.sents.length-1];
+function eqSent(p){return relSent(p.ctx,1-p.subj,p.rel==="plus"?"moins":"plus",p.E);}   // même relation, autre formulation
+function relSentText(p){return relSent(p.ctx,p.subj,p.rel,p.E);}
+function answerOptions(p){
+  const c=p.ctx;let right,d1,d2;
+  if(p.seek==="ecart"){
+    right={t:answerText(p),k:"ok",ok:true};
+    d1={t:qtySent(c,p.subj,p.E),k:"norel",ok:false};
+    const wn=[p.G,p.s][rnd(0,1)];
+    d2={t:relSent(c,p.subj,p.rel,wn),k:"num",ok:false};
+  }else{
+    right={t:answerText(p),k:"ok",ok:true};
+    const sv=p.qv(p.sought);
+    const trueRel=p.sought===p.bi?"plus":"moins";
+    d1={t:relSent(c,p.sought,trueRel,sv),k:"rel",ok:false};
+    const wn=[p.E,p.qv(p.known)][rnd(0,1)];
+    d2={t:qtySent(c,p.sought,wn),k:"num",ok:false};
+  }
+  return shuffle([right,d1,d2]);
+}
+function makeProblem(level,seek,rel,ctx){
+  let s,E;
+  if(level==="CE1"){do{s=rnd(12,70);E=rnd(6,Math.min(40,99-s));}while(E===s||s+E>99);}
+  else{do{s=rnd(120,780);E=rnd(25,Math.min(400,999-s));}while(s%100===0||E%100===0||E===s);}
+  return build({ctx:ctx.id,seek,rel,bi:rnd(0,1),s,E,bigFirst:Math.random()<.5,relFirst:Math.random()<.5});
+}
+function makeSeries(level,mode){
+  const P=shuffle(CTX.filter(c=>c.fam==="P")),G=shuffle(CTX.filter(c=>c.fam==="G"));
+  const ctxs=shuffle([P[0],P[1],P[2],G[0],G[1],G[2]]);
+  const prog=[["ecart","plus"],["ecart","moins"],["big","plus"],["small","moins"],["big","moins"],["small","plus"]];
+  let types;
+  if(mode==="progressif")types=prog;
+  else if(mode==="melange")types=shuffle(prog);
+  else if(mode==="ecart")types=[0,1,2,3,4,5].map(i=>["ecart",i%2?"moins":"plus"]);
+  else types=shuffle([["big","plus"],["big","moins"],["small","plus"],["small","moins"],["big",["plus","moins"][rnd(0,1)]],["small",["plus","moins"][rnd(0,1)]]]);
+  if(mode==="ecart")types=shuffle(types);
+  return ctxs.map((c,i)=>makeProblem(level,types[i][0],types[i][1],c));
+}
+
+/* ---------- état ---------- */
+let S={level:"CE1",mode:"progressif",screen:"play",fast:false,token:0};
+function newSeries(){
+  S.probs=makeSeries(S.level,S.mode);
+  S.i=0;S.results=[];S.screen="play";
+  startProblem();
+}
+function startProblem(){
+  const p=S.probs[S.i];
+  S.token++;
+  Object.assign(S,{p,step:1,msg:null,bigFound:false,wrongWho:0,placed:{small:false,big:false,ecart:false},sel:null,
+    sub:"seek",seekOk:false,opOk:false,input:"",tries:0,err:0,calcOk:false,phrase:null,shake:null,fx:null,
+    ruleFilled:{},revealed:false,numOrder:shuffle(["small","big","ecart"]),answers:answerOptions(p),
+    whoOrder:shuffle([0,1])});
+}
+const say=(t,h)=>{S.msg={t,h};};
+
+/* ---------- énoncé ---------- */
+function sentHTML(t){
+  let h=esc(t).replace(/ de (plus|moins)(?= )/g,m=>` <mark class="rel">${m.trim()}</mark>`);
+  return h.replace(/\b(\d+)\b/g,'<span class="num">$1</span>');
+}
+function enonceHTML(){
+  return `<div class="card"><div class="cardhead"><span>L'énoncé :</span>
+      <span class="badge empty">Les mots « de plus » et « de moins » sont surlignés</span></div>
+    <div class="stack">${S.p.sents.map(t=>`<div class="scard plain"><div class="stext">${sentHTML(t)}</div></div>`).join("")}</div></div>`;
+}
+
+/* ---------- modèle : deux colonnes ---------- */
+const GEO={eq:170,big:250};
+function geo(p){
+  const ratio=Math.max(.28,Math.min(.55,p.s/p.G));
+  const small=Math.round(GEO.big*ratio);
+  return{big:GEO.big,small,e:GEO.big-small};
+}
+function slot(z){
+  const p=S.p;
+  if(!S.placed[z])return{c:"dots",t:"....."};
+  if(z===p.seek)return S.calcOk?{c:"res",t:p.res}:{c:"q",t:"?"};
+  return{c:"",t:valOf(p,z)};
+}
+const colNum=z=>{const o=slot(z);return `<div class="cnum ${o.c}">${o.t}</div>`;};
+function modelHTML(){
+  const p=S.p,g=geo(p),done=S.bigFound;
+  const tg=z=>S.step===2&&S.sel&&!S.placed[z]?" target":"";
+  const sk=z=>S.shake===z?" shakez":"";
+  let left,right,names;
+  if(!done){
+    left=`<div class="cwrap"><div class="col neutral" style="height:${GEO.eq}px"><div class="cnum dots">.....</div></div></div>`;
+    right=`<div class="cwrap"><div class="col neutral" style="height:${GEO.eq}px"><div class="cnum dots">.....</div></div></div>`;
+    names=`<span class="nd">........</span><span class="nd">........</span>`;
+  }else{
+    const eo=slot("ecart");
+    left=`<div class="cwrap"><div class="ebox${tg("ecart")}${sk("ecart")}" data-act="zone" data-z="ecart" style="height:${g.e}px">
+        <div class="ecirc ${eo.c}">${eo.t}</div><div class="elab">Écart</div></div>
+      <div class="col small${tg("small")}${sk("small")}" data-act="zone" data-z="small" style="height:${g.small}px">${colNum("small")}</div></div>`;
+    right=`<div class="cwrap"><div class="col big${tg("big")}${sk("big")}" data-act="zone" data-z="big" style="height:${g.big}px">${colNum("big")}
+        <div class="dline" style="bottom:${g.small}px"></div></div></div>`;
+    names=`<span class="ns">${esc(ename(p.ctx,p.si))}</span><span class="ng">${esc(ename(p.ctx,p.bi))}</span>`;
+  }
+  return `<div class="card modelcard"><h2>Le modèle à compléter</h2>
+    <div class="plot">${left}${right}</div><div class="names">${names}</div>
+    <div class="legend">${done?"Colonne orange : la petite quantité · colonne verte : la grande quantité · rond : l'écart":"Le modèle se complète quand on sait qui a la grande quantité."}</div></div>`;
+}
+
+/* ---------- panneau des étapes ---------- */
+function chipsHTML(items,act,sel){
+  return `<div class="chips">`+items.map(it=>{
+    const cls=["chip"];if(it.q)cls.push("q");if(sel===it.id)cls.push("sel");if(it.used)cls.push("used");
+    return `<button class="${cls.join(" ")}" data-act="${act}" data-id="${it.id}">${it.label}</button>`;
+  }).join("")+`</div>`;
+}
+function ruleHTML(){
+  const L=[["big","la grande quantité","addition"],["small","la petite quantité","soustraction"],["ecart","l'écart","soustraction"]];
+  return `<div class="rule">`+L.map(([k,t,w])=>`<div class="${S.sub!=="seek"&&S.seekOk&&S.p.seek===k?"cur-line":""}">Si je cherche ${t}, je fais une <span class="gap${S.ruleFilled[k]?" f":""}">${S.ruleFilled[k]?w:"&nbsp;"}</span></div>`).join("")+`</div>`;
+}
+function panelHTML(){
+  const p=S.p,c=p.ctx;
+  if(S.step===1){
+    return `<div class="card"><div class="stephead lang">Étape 1 · Qui a la grande quantité ?
+      <small>Lis bien l'énoncé, surtout « de plus » et « de moins ». Touche celui qui en a le plus.</small></div>
+      <div class="who">${S.whoOrder.map(i=>`<button class="whobtn" data-act="who" data-i="${i}">${esc(ename(c,i))}</button>`).join("")}</div></div>`;
+  }
+  if(S.step===2){
+    const items=S.numOrder.map(z=>({id:z,label:z===p.seek?"?":valOf(p,z),q:z===p.seek,used:S.placed[z]}));
+    return `<div class="card"><div class="stephead">Étape 2 · Relis l'énoncé et complète le modèle
+      <small>Touche un nombre, puis touche sa place dans le modèle. Le ? : ce que la question demande.</small></div>
+      ${chipsHTML(items,"tok",S.sel)}</div>`;
+  }
+  if(S.step===3){
+    let inner=`<div class="stephead">Étape 3 · Je cherche… et je calcule
+      <small>${S.sub==="seek"?"Que cherche-t-on : où est le ? dans le modèle ?":S.sub==="op"?"Quelle opération faut-il faire ?":"Calcule le résultat."}</small></div>${ruleHTML()}`;
+    if(S.sub==="seek"){
+      inner+=`<div class="trio">${["ecart","big","small"].map(k=>`<button class="opt tri" data-act="seek" data-v="${k}">Je cherche ${SEEKLAB[k]}</button>`).join("")}</div>`;
+    }else if(S.sub==="op"){
+      inner+=`<div class="qrepeat">Je cherche <b>${SEEKLAB[p.seek]}</b>. Je dois faire :</div>
+      <div class="row2"><button class="opt tri" data-act="op" data-v="add">une addition (+)</button><button class="opt tri" data-act="op" data-v="sub">une soustraction (−)</button></div>`;
+    }else{
+      const k=calcOf(p);
+      inner+=`<div class="calcline">${k.x} ${k.sym} ${k.y} = <span class="ans">${esc(S.input)||"&nbsp;"}</span></div>
+      <div class="keypad">${[1,2,3,4,5,6,7,8,9].map(d=>`<button class="key" data-act="key" data-k="${d}">${d}</button>`).join("")}
+        <button class="key back" data-act="back">Effacer</button><button class="key" data-act="key" data-k="0">0</button><button class="key wide" data-act="ok">OK</button></div>`;
+    }
+    return `<div class="card">${inner}</div>`;
+  }
+  if(S.step===4){
+    const done=S.phrase!==null;
+    const hint=p.seek==="ecart"?"Je cherche l'écart : dans ma phrase il y a « de plus » ou « de moins », comme dans la question."
+      :"Je cherche une des deux quantités : dans ma phrase il n'y a ni « de plus » ni « de moins ».";
+    let inner=`<div class="stephead lang">Étape 4 · Écris la phrase réponse<small>${hint}</small></div>
+      <div class="qrepeat">${sentHTML(questionText(p))}</div>`;
+    if(done)inner+=`<div class="final">${sentHTML(S.answers[S.phrase].t)}</div>`;
+    else inner+=`<div class="trio">${S.answers.map((a,i)=>`<button class="opt" data-act="ans" data-i="${i}">${sentHTML(a.t)}</button>`).join("")}</div>`;
+    return `<div class="card">${inner}</div>`;
+  }
+  return "";
+}
+function stepsHTML(){
+  const names=["Qui a la grande quantité ?","Le modèle et le ?","Le calcul","La phrase réponse"];
+  const fin=S.step===4&&S.phrase!==null;
+  return `<ol class="steps">`+names.map((n,i)=>{
+    const k=i+1;
+    const cls=S.step>k||(fin&&k===4)?"done":(S.step===k?"cur":"");
+    return `<li class="${cls}"><b>${k}</b>${n}</li>`;
+  }).join("")+`</ol>`;
+}
+const msgHTML=()=>S.msg?`<div class="msg ${S.msg.t}">${S.msg.h}</div>`:"";
+function nextHTML(){
+  if(S.step===4&&S.phrase!==null)return `<div class="next"><button class="btn primary" data-act="next">${S.i===N-1?"Voir mon bilan":"Problème suivant →"}</button></div>`;
+  return "";
+}
+function headerHTML(){
+  const sel=(v,cur)=>v===cur?" selected":"";
+  return `<div class="top"><h1>Les problèmes de comparaison</h1><div class="ctrl">
+    <div class="seg"><button class="${S.level==="CE1"?"on":""}" data-act="level" data-v="CE1">CE1</button><button class="${S.level==="CE2"?"on":""}" data-act="level" data-v="CE2">CE2</button></div>
+    <select data-act="mode" aria-label="Type de série">
+      <option value="progressif"${sel("progressif",S.mode)}>Série : progressive</option>
+      <option value="melange"${sel("melange",S.mode)}>Série : mélangée</option>
+      <option value="ecart"${sel("ecart",S.mode)}>On cherche : l'écart</option>
+      <option value="quantite"${sel("quantite",S.mode)}>On cherche : une quantité</option></select>
+    <button class="btn" data-act="new">Nouvelle série</button></div></div>`;
+}
+function progHTML(){
+  let d="";
+  for(let i=0;i<N;i++){let c="dot";if(S.results[i]!==undefined)c+=S.results[i]?" ok":" help";else if(i===S.i&&S.screen==="play")c+=" cur";d+=`<span class="${c}"></span>`;}
+  return `<div class="prog">Problème ${Math.min(S.i+1,N)} sur ${N} ${d}</div>`;
+}
+function endHTML(){
+  const good=S.results.filter(Boolean).length;
+  const lab=p=>p.ctx.fam==="P"?p.ctx.noun:p.ctx.ents[0][0]+" et "+p.ctx.ents[1][0];
+  return `<div class="card end"><h2>Bravo !</h2><div>Tu as réussi ${good} problème${good>1?"s":""} sur ${N} du premier coup.</div>
+    <div class="endlist">${S.probs.map((p,i)=>`<div><span>${i+1}.</span><span>${esc(lab(p))} · je cherche ${SEEKLAB[p.seek]}</span>
+      <span class="tg ${S.results[i]?"ok":"help"}">${S.results[i]?"du premier coup":"avec de l'aide"}</span></div>`).join("")}</div>
+    <button class="btn primary" data-act="new">Nouvelle série</button></div>`;
+}
+function render(){
+  const root=document.getElementById("app");
+  if(S.screen==="end"){root.innerHTML=headerHTML()+progHTML()+endHTML();return;}
+  root.innerHTML=headerHTML()+progHTML()+`<div class="grid"><div class="enonce">${enonceHTML()}</div>
+    <div class="panel">${stepsHTML()}${panelHTML()}${msgHTML()}${nextHTML()}</div>
+    <div class="modelwrap">${modelHTML()}</div></div>`;
+  if(S.fx==="cols"){
+    S.fx=null;
+    const g=geo(S.p);
+    document.querySelectorAll(".col.small").forEach(e=>{if(e.animate)e.animate([{height:GEO.eq+"px"},{height:g.small+"px"}],{duration:900,easing:"ease-in-out"});});
+    document.querySelectorAll(".col.big").forEach(e=>{if(e.animate)e.animate([{height:GEO.eq+"px"},{height:g.big+"px"}],{duration:900,easing:"ease-in-out"});});
+    document.querySelectorAll(".ebox").forEach(e=>{if(e.animate)e.animate([{opacity:0},{opacity:1}],{duration:900,delay:600,fill:"backwards"});});
+  }
+}
+
+/* ---------- actions ---------- */
+function whoExplain(p){
+  const c=p.ctx,big=cap(dn(c,p.bi)),sm=dn(c,p.si);
+  if(p.seek==="ecart")return `${big} a ${p.G} et ${sm} a ${p.s} : ${p.G} est plus grand que ${p.s}.`;
+  const R=relSentText(p);
+  if(p.rel==="plus")return `« ${esc(R)} » : ${dn(c,p.subj)} en a <b>plus</b>, donc ${dn(c,p.bi)} a la grande quantité.<div class="eqline">On peut dire aussi : « ${esc(eqSent(p))} »</div>`;
+  return `« ${esc(R)} » : ${dn(c,p.subj)} en a <b>moins</b>, donc c'est ${dn(c,p.bi)} qui a la grande quantité.<div class="eqline">On peut dire aussi : « ${esc(eqSent(p))} »</div>`;
+}
+const A={
+  level(el){S.level=el.dataset.v;newSeries();},
+  mode(el){S.mode=el.value;newSeries();},
+  new(){newSeries();},
+
+  who(el){
+    const i=parseInt(el.dataset.i,10),p=S.p;
+    if(i===p.bi){
+      S.bigFound=true;S.step=2;S.fx="cols";
+      say("ok",`<b>Oui !</b> ${whoExplain(p)}`);
+    }else{
+      S.err++;S.wrongWho++;
+      if(S.wrongWho<2)say("ko",p.seek==="ecart"?"Compare les deux nombres de l'énoncé : celui qui a le plus grand nombre a la grande quantité."
+        :"Relis la phrase avec « de plus » ou « de moins ». Qui en a le plus ?");
+      else say("info",whoExplain(p));
+    }
+  },
+
+  tok(el){const t=el.dataset.id;S.sel=S.sel===t?null:t;},
+  zone(el){
+    const z=el.dataset.z,p=S.p,c=p.ctx;
+    if(S.step!==2||!S.sel||S.placed[z])return;
+    S.shake=null;
+    if(S.sel===z){
+      S.placed[z]=true;S.sel=null;
+      if(["small","big","ecart"].every(k=>S.placed[k])){
+        S.step=3;S.sub="seek";
+        say("ok","Très bien ! Le modèle est complété. Le point d'interrogation montre ce qu'on cherche.");
+      }else say("ok","Oui, c'est bien là.");
+    }else{
+      S.err++;S.shake=z;
+      const s=S.sel;let h;
+      if(s===p.seek)h=`Le ? remplace ce que la question demande : « ${esc(questionText(p))} » Où est-ce dans le modèle ?`;
+      else if(s==="ecart")h=`Le nombre <b>${p.E}</b> est donné avec « de ${p.rel} » : c'est <b>l'écart</b> entre les deux quantités. Il va dans le rond.`;
+      else{const i=s==="big"?p.bi:p.si;h=`Le nombre <b>${valOf(p,s)}</b> est la quantité ${esc(ofn(c,i))}. Regarde sous les colonnes : où est ${esc(dn(c,i))} ?`;}
+      say("ko",`Relis l'énoncé. ${h}`);
+      S.sel=null;
+    }
+  },
+
+  seek(el){
+    const v=el.dataset.v;
+    if(v===S.p.seek){
+      S.seekOk=true;S.sub="op";
+      say("ok",`Oui : on cherche <b>${SEEKLAB[v]}</b>.`);
+    }else{
+      S.err++;
+      say("ko","Regarde où est le ? dans le modèle : dans le rond = l'écart ; colonne verte = grande quantité ; colonne orange = petite quantité.");
+    }
+  },
+  op(el){
+    const v=el.dataset.v,k=S.p.seek;
+    if(v===opOf(S.p)){
+      S.opOk=true;S.sub="calc";S.ruleFilled[k]=true;
+      let h={big:"Pour trouver la grande quantité, je réunis la petite quantité et l'écart : je fais une <b>addition</b>.",
+        small:"Pour trouver la petite quantité, j'enlève l'écart à la grande quantité : je fais une <b>soustraction</b>.",
+        ecart:"Pour trouver l'écart, je cherche ce qui manque à la petite quantité pour avoir la grande : je fais une <b>soustraction</b>."}[k];
+      if(S.p.trap)h+=`<br><b>Attention :</b> l'énoncé dit « de ${S.p.rel} », mais on cherche ${SEEKLAB[k]}. Ce n'est pas le mot « de ${S.p.rel} » qui décide : c'est le modèle !`;
+      say(S.p.trap?"info":"ok",h);
+    }else{
+      S.err++;
+      say("ko",{big:"Non. Pour trouver la grande quantité, il faut <b>réunir</b> la petite quantité et l'écart.",
+        small:"Non. Pour trouver la petite quantité, il faut <b>enlever</b> l'écart à la grande quantité.",
+        ecart:"Non. Pour trouver l'écart entre la grande et la petite quantité, on cherche <b>ce qui manque</b> à la petite : soustraction."}[k]
+        +(S.p.trap?` Attention : le mot « de ${S.p.rel} » de l'énoncé ne dit pas l'opération. Regarde le modèle.`:""));
+    }
+  },
+  key(el){if(S.input.length<4)S.input+=el.dataset.k;},
+  back(){S.input=S.input.slice(0,-1);},
+  ok(){
+    if(S.input==="")return;
+    const c=calcOf(S.p);
+    if(parseInt(S.input,10)===S.p.res){
+      S.calcOk=true;S.step=4;
+      say("ok",`Oui : <b>${c.x} ${c.sym} ${c.y} = ${S.p.res}</b>`);
+    }else{
+      S.tries++;S.err++;
+      if(S.tries>=3){
+        S.input=String(S.p.res);S.calcOk=true;S.step=4;S.revealed=true;
+        say("info",`Le résultat est <b>${c.x} ${c.sym} ${c.y} = ${S.p.res}</b>. Refais le calcul posé pour comprendre.`);
+      }else{S.input="";say("ko","Ce n'est pas le bon résultat. Vérifie ton calcul et essaie encore.");}
+    }
+  },
+
+  ans(el){
+    const i=parseInt(el.dataset.i,10),a=S.answers[i],p=S.p;
+    if(a.ok){S.phrase=i;say("ok",p.seek==="ecart"?"Bravo ! Quand on cherche l'écart, la phrase réponse dit « de plus » ou « de moins »."
+      :"Bravo ! Quand on cherche une des deux quantités, la phrase réponse n'a ni « de plus » ni « de moins ».");}
+    else{
+      S.err++;
+      say("ko",{norel:"Il manque « de plus » ou « de moins » : on a cherché l'écart, la phrase doit comparer les deux quantités.",
+        rel:"On cherche une des deux quantités, pas l'écart : dans la phrase réponse il ne faut ni « de plus » ni « de moins ».",
+        num:`Ce n'est pas le bon nombre. Relis le calcul : ${calcOf(p).x} ${calcOf(p).sym} ${calcOf(p).y} = ${p.res}.`}[a.k]);
+    }
+  },
+  next(){
+    S.results[S.i]=(S.err===0);
+    if(S.i>=N-1)S.screen="end";else{S.i++;startProblem();}
+  }
+};
+
+/* ---------- événements ---------- */
+const root=document.getElementById("app");
+root.addEventListener("click",e=>{
+  const el=e.target.closest("[data-act]");
+  if(!el||el.tagName==="SELECT")return;
+  S.shake=null;
+  const act=el.dataset.act;
+  if(A[act]){A[act](el);render();}
+});
+root.addEventListener("change",e=>{
+  const el=e.target.closest("[data-act]");
+  if(el&&A[el.dataset.act]){A[el.dataset.act](el);render();}
+});
+document.addEventListener("keydown",e=>{
+  if(S.screen!=="play"||S.step!==3||S.sub!=="calc")return;
+  if(/^[0-9]$/.test(e.key)){A.key({dataset:{k:e.key}});render();}
+  else if(e.key==="Backspace"){A.back();render();}
+  else if(e.key==="Enter"){A.ok();render();}
+});
+
+newSeries();render();
+window.__app={S:()=>S,A,render,newSeries,CTX,calcOf,build,answerOptions,makeProblem,makeSeries,startProblem};
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Jeu des additions - Stratégies de calcul</title>
+<style>
+  :root {
+    --un: #FFEB3B;      /* jaune - +1 */
+    --dix: #29B6F6;     /* bleu - +10 */
+    --double: #F4A6B0;  /* rose - doubles */
+    --presque: #2E9E5B; /* vert - presque doubles */
+    --compl: #EF7B1A;   /* orange - compléments à 10 */
+    --violet: #B08FCE;  /* violet - sans stratégie < 10 */
+    --gris: #C9C9C9;    /* gris - sans stratégie >= 10 */
+    --ink: #26323A;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Calibri, Arial, sans-serif;
+    margin: 0;
+    padding: 10px;
+    background: #F4F6F7;
+    color: var(--ink);
+    font-size: 14px;
+  }
+  h1 {
+    text-align: center;
+    font-size: 19px;
+    margin: 2px 0 10px;
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 16px;
+    border: 2px solid transparent;
+    background: #fff;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    user-select: none;
+  }
+  .chip.active { border-color: var(--ink); transform: translateY(-1px); }
+  .swatch { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+
+  .mode-switch {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .mode-btn {
+    padding: 5px 14px;
+    border-radius: 18px;
+    border: none;
+    background: #37474F;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .mode-btn.inactive { background: #90A4AE; }
+
+  /* ---- Grid mode ---- */
+  #grid-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 6px; max-width: 760px; margin: 0 auto; }
+  .card {
+    perspective: 700px;
+    height: 58px;
+    cursor: pointer;
+  }
+  .card-inner {
+    position: relative;
+    width: 100%; height: 100%;
+    transition: transform 0.5s;
+    transform-style: preserve-3d;
+  }
+  .card.flipped .card-inner,
+  .big-card.flipped .card-inner { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    text-align: center;
+  }
+  .front { font-size: 13px; }
+  .back { transform: rotateY(180deg); background: var(--ink); color: #fff; font-size: 15px; }
+
+  /* ---- Game mode ---- */
+  #game-view { display: none; flex-direction: column; align-items: center; }
+  .big-card {
+    width: 160px; height: 120px;
+    perspective: 1000px;
+    cursor: pointer;
+    margin-bottom: 14px;
+  }
+  .big-card .card-inner { }
+  .big-card .front { font-size: 30px; }
+  .big-card .back { font-size: 34px; }
+  #score-box {
+    font-size: 13px; font-weight: 700; margin-bottom: 8px;
+    background: #fff; padding: 5px 14px; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  .game-buttons { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .game-buttons button {
+    padding: 7px 13px; border-radius: 8px; border: none;
+    font-size: 12px; font-weight: 700; cursor: pointer; color: #fff;
+  }
+  .btn-ok { background: #2E9E5B; }
+  .btn-ko { background: #D64545; }
+  .btn-next { background: #37474F; }
+  .btn-flip { background: #EF7B1A; }
+  #empty-msg { text-align: center; font-size: 12px; color: #666; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<h1>🧮 Le jeu des additions — stratégies de calcul</h1>
+
+<div class="legend" id="legend"></div>
+
+<div class="mode-switch">
+  <button class="mode-btn" id="btn-grid" onclick="setMode('grid')">📋 Fiches</button>
+  <button class="mode-btn inactive" id="btn-game" onclick="setMode('game')">🎲 Mode jeu</button>
+</div>
+
+<div id="grid-view"></div>
+
+<div id="game-view">
+  <div id="score-box">Score : <span id="score-ok">0</span> ✅ &nbsp;/&nbsp; <span id="score-total">0</span> cartes vues</div>
+  <div class="big-card" id="big-card" onclick="flipBig()">
+    <div class="card-inner" id="big-card-inner">
+      <div class="face front" id="big-front"></div>
+      <div class="face back" id="big-back"></div>
+    </div>
+  </div>
+  <div class="game-buttons" id="game-buttons"></div>
+</div>
+
+<div id="empty-msg" style="display:none">Aucune carte dans cette catégorie.</div>
+
+<script>
+const CATS = {
+  tous:    { label: "Toutes",              color: "#607D8B" },
+  un:      { label: "+ 1",                 color: "var(--un)" },
+  dix:     { label: "+ 10",                color: "var(--dix)" },
+  double:  { label: "Doubles",             color: "var(--double)" },
+  presque: { label: "Presque-doubles",     color: "var(--presque)" },
+  compl:   { label: "Compléments à 10",    color: "var(--compl)" },
+  violet:  { label: "Sans stratégie (< 10)", color: "var(--violet)" },
+  gris:    { label: "Sans stratégie (≥ 10)", color: "var(--gris)" },
+};
+
+function category(a, b) {
+  if (a === 1 || b === 1) return "un";
+  if (a === 10 || b === 10) return "dix";
+  if (a === b) return "double";
+  if (a + b === 10) return "compl";
+  if (Math.abs(a - b) === 1) return "presque";
+  return (a + b < 10) ? "violet" : "gris";
+}
+
+// Build all facts 1..10 x 1..10 (avoid exact duplicates like 3+5 vs 5+3? keep both, matches source table & useful for practice)
+let ALL = [];
+for (let a = 1; a <= 10; a++) {
+  for (let b = 1; b <= 10; b++) {
+    ALL.push({ a, b, sum: a + b, cat: category(a, b) });
+  }
+}
+
+let currentCat = "tous";
+let mode = "grid";
+
+// ---- Legend / filters ----
+const legendEl = document.getElementById("legend");
+Object.keys(CATS).forEach(key => {
+  const chip = document.createElement("div");
+  chip.className = "chip" + (key === currentCat ? " active" : "");
+  chip.id = "chip-" + key;
+  chip.innerHTML = `<span class="swatch" style="background:${CATS[key].color}"></span>${CATS[key].label}`;
+  chip.onclick = () => { currentCat = key; refreshChips(); renderGrid(); newGameCard(true); };
+  legendEl.appendChild(chip);
+});
+function refreshChips() {
+  Object.keys(CATS).forEach(key => {
+    document.getElementById("chip-" + key).classList.toggle("active", key === currentCat);
+  });
+}
+
+function filtered() {
+  return currentCat === "tous" ? ALL : ALL.filter(f => f.cat === currentCat);
+}
+
+// ---- Grid mode ----
+function renderGrid() {
+  const grid = document.getElementById("grid-view");
+  grid.innerHTML = "";
+  const facts = filtered();
+  document.getElementById("empty-msg").style.display = facts.length ? "none" : "block";
+  facts.forEach((f, i) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.onclick = () => card.classList.toggle("flipped");
+    const color = CATS[f.cat].color;
+    card.innerHTML = `
+      <div class="card-inner">
+        <div class="face front" style="background:${color}">${f.a} + ${f.b}</div>
+        <div class="face back">= ${f.sum}</div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ---- Game mode ----
+let gameDeck = [];
+let gameIndex = 0;
+let scoreOk = 0;
+let scoreTotal = 0;
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function newGameCard(resetScore) {
+  if (resetScore) { scoreOk = 0; scoreTotal = 0; }
+  gameDeck = shuffle(filtered());
+  gameIndex = 0;
+  updateScore();
+  showGameCard();
+}
+
+function showGameCard() {
+  const box = document.getElementById("big-card");
+  const inner = document.getElementById("big-card-inner");
+  const front = document.getElementById("big-front");
+  const back = document.getElementById("big-back");
+  const buttons = document.getElementById("game-buttons");
+  inner.parentElement.classList.remove("flipped");
+
+  if (!gameDeck.length) {
+    front.textContent = "";
+    back.textContent = "";
+    buttons.innerHTML = "";
+    return;
+  }
+  const f = gameDeck[gameIndex % gameDeck.length];
+  front.style.background = CATS[f.cat].color;
+  front.textContent = `${f.a} + ${f.b}`;
+  back.textContent = `= ${f.sum}`;
+  box.classList.remove("flipped");
+  buttons.innerHTML = `<button class="btn-flip" onclick="flipBig()">🔄 Retourner</button>`;
+}
+
+function flipBig() {
+  const box = document.getElementById("big-card");
+  const buttons = document.getElementById("game-buttons");
+  const flipped = box.classList.toggle("flipped");
+  if (flipped) {
+    buttons.innerHTML = `
+      <button class="btn-ok" onclick="answer(true)">✅ J'ai réussi</button>
+      <button class="btn-ko" onclick="answer(false)">❌ À revoir</button>`;
+  }
+}
+
+function answer(ok) {
+  scoreTotal++;
+  if (ok) scoreOk++;
+  updateScore();
+  gameIndex++;
+  if (gameIndex % gameDeck.length === 0) gameDeck = shuffle(filtered());
+  showGameCard();
+}
+
+function updateScore() {
+  document.getElementById("score-ok").textContent = scoreOk;
+  document.getElementById("score-total").textContent = scoreTotal;
+}
+
+// ---- Mode switch ----
+function setMode(m) {
+  mode = m;
+  document.getElementById("grid-view").style.display = m === "grid" ? "grid" : "none";
+  document.getElementById("game-view").style.display = m === "game" ? "flex" : "none";
+  document.getElementById("btn-grid").classList.toggle("inactive", m !== "grid");
+  document.getElementById("btn-game").classList.toggle("inactive", m !== "game");
+  if (m === "game") newGameCard(true);
+}
+
+renderGrid();
+</script>
+</body>
+</html>
