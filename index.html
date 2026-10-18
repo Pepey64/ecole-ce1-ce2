@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ludothèque de la classe</title>
+<meta name="theme-color" content="#1f3a5f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icone-192.png">
+<link rel="apple-touch-icon" href="icone-192.png">
+<script>
+/* ============================================================
+   LISTE DES APPLIS — c'est la seule partie à modifier.
+   Pour ajouter une appli : copier une ligne { ... }, changer
+   le titre, le fichier (nom exact du fichier .html déposé à côté
+   de cette page), la matière, le domaine, les niveaux, le symbole
+   (1 à 3 caractères affichés en grand) et la phrase de description.
+   Matières possibles : "maths" ou "francais".
+   ============================================================ */
+const APPLIS = [
+  // ---------- MATHS ----------
+  { titre: "Passer par 10",              fichier: "passer_par_10.html",              matiere: "maths",    domaine: "Calcul",     niveaux: ["CE1","CE2"], symbole: "+10", description: "Décomposer pour passer la dizaine." },
+  { titre: "Tables de multiplication",   fichier: "Tables_multiplication_CE2.html",  matiere: "maths",    domaine: "Calcul",     niveaux: ["CE2"],       symbole: "×",   description: "Apprendre et réviser ses tables." },
+  { titre: "Nombre du jour",             fichier: "nombre_du_jour.html",             matiere: "maths",    domaine: "Numération", niveaux: ["CE1","CE2"], symbole: "42",  description: "8 exercices autour d'un nombre." },
+  { titre: "Les nombres de 60 à 99",     fichier: "nombres_60_99.html",              matiere: "maths",    domaine: "Numération", niveaux: ["CE1","CE2"], symbole: "80",  description: "Lire, dire et écrire les nombres." },
+  { titre: "Décomposition en barres",    fichier: "decomposition_barres.html",       matiere: "maths",    domaine: "Numération", niveaux: ["CE1","CE2"], symbole: "▭▭",  description: "Les parties et le tout." },
+  { titre: "Fractions",                  fichier: "fractions_CE2.html",              matiere: "maths",    domaine: "Fractions",  niveaux: ["CE2"],       symbole: "½",   description: "Bandes et pizzas." },
+  { titre: "Problèmes de composition",   fichier: "problemes_composition.html",      matiere: "maths",    domaine: "Problèmes",  niveaux: ["CE1","CE2"], symbole: "?",   description: "Trouver le mot qui réunit." },
+  { titre: "Problèmes de transformation",fichier: "problemes_transformation.html",   matiere: "maths",    domaine: "Problèmes",  niveaux: ["CE1","CE2"], symbole: "→",   description: "Remettre les phrases dans l'ordre du temps." },
+  { titre: "Problèmes de transformation",fichier: "problemes_transformation_CP.html",matiere: "maths",    domaine: "Problèmes",  niveaux: ["CP"],        symbole: "→",   description: "Version CP." },
+  { titre: "Problèmes de comparaison",   fichier: "problemes_comparaison.html",      matiere: "maths",    domaine: "Problèmes",  niveaux: ["CE1","CE2"], symbole: "<>",  description: "De plus que, de moins que." },
+  // ---------- FRANÇAIS ----------
+  { titre: "Dictées",                    fichier: "dictees_CE2.html",                matiere: "francais", domaine: "Orthographe",niveaux: ["CE2"],       symbole: "Aa",  description: "Les mots de la semaine avec Ludo et Léo." },
+  { titre: "Mots à retenir",             fichier: "mots_a_retenir.html",             matiere: "francais", domaine: "Vocabulaire",niveaux: ["CE1","CE2"], symbole: "Mot", description: "Cartes pour mémoriser le sens des mots." },
+];
+</script>
+<style>
+  :root{
+    --fond:#f6f1e7; --papier:#fffdf8; --encre:#1d2733; --doux:#5b6675; --trait:#e3dccd;
+    --maths:#1f6f8b; --maths-clair:#e2f0f4;
+    --francais:#b8402f; --francais-clair:#f8e5e1;
+    --nuit:#1f3a5f; --focus:#f2a900;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --fond:#141a21; --papier:#1d252f; --encre:#eef1f4; --doux:#a3adba; --trait:#2e3946;
+      --maths:#5bb4d1; --maths-clair:#1b3440; --francais:#ec7b68; --francais-clair:#3d2320; --nuit:#0f1820;
+    }
+  }
+  :root[data-theme="dark"]{
+    --fond:#141a21; --papier:#1d252f; --encre:#eef1f4; --doux:#a3adba; --trait:#2e3946;
+    --maths:#5bb4d1; --maths-clair:#1b3440; --francais:#ec7b68; --francais-clair:#3d2320; --nuit:#0f1820;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--fond); color:var(--encre);
+    font-family:"Segoe UI", "Trebuchet MS", system-ui, -apple-system, Roboto, sans-serif;
+    min-height:100vh;
+  }
+  header{
+    background:var(--nuit); color:#fff;
+    padding:28px 16px 70px;
+    text-align:center;
+  }
+  header h1{
+    margin:0; font-size:clamp(28px,5vw,46px); letter-spacing:.5px; font-weight:800;
+  }
+  header p{margin:8px 0 0; opacity:.8; font-size:17px}
+  main{max-width:1180px; margin:-46px auto 40px; padding:0 16px}
+
+  .filtres{
+    background:var(--papier); border:1px solid var(--trait); border-radius:18px;
+    padding:14px; display:flex; flex-wrap:wrap; gap:14px 28px; justify-content:center;
+    box-shadow:0 6px 20px rgba(0,0,0,.06);
+  }
+  .groupe{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+  .groupe span{font-size:14px; color:var(--doux); margin-right:4px; font-weight:600}
+  .puce{
+    font:inherit; font-size:18px; font-weight:700; cursor:pointer;
+    border:2px solid var(--trait); background:transparent; color:var(--encre);
+    padding:8px 18px; border-radius:999px; min-height:44px;
+  }
+  .puce[aria-pressed="true"]{background:var(--encre); color:var(--papier); border-color:var(--encre)}
+  .puce:focus-visible,.carte:focus-visible{outline:4px solid var(--focus); outline-offset:3px}
+
+  .section-titre{
+    display:flex; align-items:center; gap:12px; margin:34px 4px 14px;
+    font-size:24px; font-weight:800;
+  }
+  .section-titre::after{content:""; flex:1; height:3px; border-radius:3px; background:var(--trait)}
+  .section-titre.maths{color:var(--maths)}
+  .section-titre.francais{color:var(--francais)}
+
+  .grille{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:18px}
+  .carte{
+    --c:var(--maths); --c-clair:var(--maths-clair);
+    display:flex; flex-direction:column; text-decoration:none; color:inherit;
+    background:var(--papier); border:2px solid var(--trait); border-radius:20px; overflow:hidden;
+    transition:transform .12s ease, box-shadow .12s ease, border-color .12s;
+    min-height:230px;
+  }
+  .carte.francais{--c:var(--francais); --c-clair:var(--francais-clair)}
+  .carte:hover{transform:translateY(-3px); box-shadow:0 10px 24px rgba(0,0,0,.10); border-color:var(--c)}
+  .vignette{
+    background:var(--c-clair); color:var(--c);
+    height:118px; display:flex; align-items:center; justify-content:center;
+    font-size:58px; font-weight:900; letter-spacing:-1px; position:relative;
+    border-bottom:2px solid var(--trait);
+  }
+  .domaine{
+    position:absolute; top:10px; left:12px; font-size:13px; font-weight:700; letter-spacing:.3px;
+    background:var(--papier); color:var(--c); padding:3px 10px; border-radius:999px;
+  }
+  .contenu{padding:14px 16px 16px; display:flex; flex-direction:column; gap:6px; flex:1}
+  .contenu h2{margin:0; font-size:21px; line-height:1.2}
+  .contenu p{margin:0; color:var(--doux); font-size:16px; line-height:1.35; flex:1}
+  .niveaux{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:6px}
+  .niveaux b{flex:none;
+    font-size:13px; border:2px solid var(--c); color:var(--c); padding:2px 9px; border-radius:8px;
+  }
+  .carte.absente{opacity:.45; pointer-events:none; filter:grayscale(1)}
+  .carte.absente .niveaux::after{content:"pas encore en ligne"; font-size:13px; color:var(--doux); white-space:nowrap}
+  .vide{text-align:center; color:var(--doux); padding:40px; font-size:18px}
+  footer{text-align:center; color:var(--doux); font-size:14px; padding:0 16px 30px}
+  footer button{font:inherit; color:inherit; background:none; border:none; text-decoration:underline; cursor:pointer; padding:4px}
+  @media (max-width:560px){
+    .grille{grid-template-columns:1fr 1fr; gap:12px}
+    .vignette{height:100px; font-size:38px; padding-top:22px}
+    .domaine{top:7px; left:8px; font-size:12px}
+    .contenu h2{font-size:17px}
+    .contenu p{font-size:14px}
+    .carte{min-height:0}
+    .puce{font-size:16px; padding:6px 14px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>La ludothèque de la classe</h1>
+  <p>Choisis un jeu pour t'entraîner</p>
+</header>
+
+<main>
+  <div class="filtres" role="group" aria-label="Filtres">
+    <div class="groupe" data-filtre="matiere">
+      <span>Matière</span>
+      <button class="puce" data-valeur="tout" aria-pressed="true">Tout</button>
+      <button class="puce" data-valeur="maths" aria-pressed="false">Maths</button>
+      <button class="puce" data-valeur="francais" aria-pressed="false">Français</button>
+    </div>
+    <div class="groupe" data-filtre="niveau">
+      <span>Niveau</span>
+      <button class="puce" data-valeur="tout" aria-pressed="true">Tous</button>
+      <button class="puce" data-valeur="CP" aria-pressed="false">CP</button>
+      <button class="puce" data-valeur="CE1" aria-pressed="false">CE1</button>
+      <button class="puce" data-valeur="CE2" aria-pressed="false">CE2</button>
+    </div>
+  </div>
+
+  <div id="liste"></div>
+</main>
+
+<footer>
+  <button id="theme" type="button">Mode clair / sombre</button>
+</footer>
+
+<script>
+(function(){
+  const MATIERES = { maths: "Mathématiques", francais: "Français" };
+  const etat = { matiere: "tout", niveau: "tout" };
+  const absentes = new Set();
+  const liste = document.getElementById("liste");
+
+  // Mémorise les filtres de l'appareil (pratique : la tablette des CE1 reste sur CE1)
+  try{
+    const m = localStorage.getItem("ludo-filtres");
+    if(m){ Object.assign(etat, JSON.parse(m)); }
+  }catch(e){}
+
+  function sauver(){ try{ localStorage.setItem("ludo-filtres", JSON.stringify(etat)); }catch(e){} }
+
+  function echapper(t){ return String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+  function afficher(){
+    document.querySelectorAll(".groupe").forEach(g => {
+      const cle = g.dataset.filtre;
+      g.querySelectorAll(".puce").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.valeur === etat[cle])));
+    });
+    let html = "";
+    for(const mat of Object.keys(MATIERES)){
+      if(etat.matiere !== "tout" && etat.matiere !== mat) continue;
+      const apps = APPLIS.filter(a => a.matiere === mat && (etat.niveau === "tout" || a.niveaux.includes(etat.niveau)));
+      if(!apps.length) continue;
+      html += `<h2 class="section-titre ${mat}">${MATIERES[mat]}</h2><div class="grille">`;
+      for(const a of apps){
+        html += `<a class="carte ${a.matiere}${absentes.has(a.fichier) ? " absente" : ""}" href="${encodeURI(a.fichier)}">
+          <div class="vignette" aria-hidden="true"><span class="domaine">${echapper(a.domaine)}</span>${echapper(a.symbole)}</div>
+          <div class="contenu">
+            <h2>${echapper(a.titre)}</h2>
+            <p>${echapper(a.description)}</p>
+            <div class="niveaux">${a.niveaux.map(n => `<b>${n}</b>`).join("")}</div>
+          </div></a>`;
+      }
+      html += `</div>`;
+    }
+    liste.innerHTML = html || `<p class="vide">Aucun jeu pour ce choix.</p>`;
+  }
+
+  document.querySelectorAll(".groupe").forEach(g => {
+    g.addEventListener("click", e => {
+      const b = e.target.closest(".puce"); if(!b) return;
+      etat[g.dataset.filtre] = b.dataset.valeur; sauver(); afficher();
+    });
+  });
+
+  // Grise les applis dont le fichier n'est pas (encore) déposé — seulement une fois en ligne
+  if(location.protocol.startsWith("http")){
+    Promise.all(APPLIS.map(a =>
+      fetch(encodeURI(a.fichier), { method: "HEAD", cache: "no-store" })
+        .then(r => { if(!r.ok) absentes.add(a.fichier); })
+        .catch(() => {})   // hors connexion : on laisse la carte active (le cache prendra le relais)
+    )).then(afficher);
+  }
+
+  // Thème clair / sombre
+  const racine = document.documentElement;
+  try{ const t = localStorage.getItem("ludo-theme"); if(t) racine.dataset.theme = t; }catch(e){}
+  document.getElementById("theme").addEventListener("click", () => {
+    const sombre = racine.dataset.theme ? racine.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    racine.dataset.theme = sombre ? "light" : "dark";
+    try{ localStorage.setItem("ludo-theme", racine.dataset.theme); }catch(e){}
+  });
+
+  afficher();
+
+  // Installation comme appli + fonctionnement hors connexion
+  if("serviceWorker" in navigator && location.protocol === "https:"){
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
+})();
+</script>
+</body>
+</html>
