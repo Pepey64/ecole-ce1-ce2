@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Problèmes multiplicatifs – CE2</title>
+<style>
+:root{
+  --ink:#1d1d1f; --paper:#fbf8f1; --red:#e3262b; --blue:#1e66d0; --blue-soft:#d9e8ff; --red2:#d62828; --red-soft:#ffe0e0;
+  --ok:#1b7a2e;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:"Trebuchet MS",Verdana,Arial,sans-serif;font-size:20px;line-height:1.4}
+button{font:inherit;color:inherit;cursor:pointer}
+.app{max-width:1300px;margin:0 auto;padding:14px 18px 40px}
+
+/* ---------- en-tête ---------- */
+.top{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;justify-content:space-between;border-bottom:3px solid #9a9a9a;padding-bottom:10px;margin-bottom:14px}
+h1{margin:0;font-family:"Segoe Print","Comic Sans MS","Chalkboard SE",cursive;font-size:34px;color:var(--red);font-weight:700}
+.ctrl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:17px}
+.seg{display:inline-flex;border:3px solid var(--ink);border-radius:14px;overflow:hidden;background:#fff}
+.seg button{border:0;background:#fff;padding:8px 18px;font-weight:700}
+.seg button+button{border-left:3px solid var(--ink)}
+.seg button.on{background:var(--ink);color:#fff}
+select{font:inherit;padding:8px 10px;border:3px solid var(--ink);border-radius:14px;background:#fff;max-width:250px}
+.btn{border:3px solid var(--ink);background:#fff;border-radius:14px;padding:8px 16px;font-weight:700}
+.btn:hover{background:#f1ecdf}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff;font-size:22px;padding:12px 26px}
+.btn.primary:hover{background:#174fa6}
+.prog{display:flex;align-items:center;gap:8px;margin:0 0 12px;font-size:17px;color:#444}
+.dot{width:20px;height:20px;border-radius:50%;border:3px solid var(--ink);background:#fff}
+.dot.cur{background:#ffe27a}.dot.ok{background:#93f293}.dot.help{background:#ffd28a}
+
+/* ---------- disposition ---------- */
+.grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);grid-template-areas:"enonce model" "panel model";gap:16px 26px;align-items:start}
+.enonce{grid-area:enonce}.panel{grid-area:panel}.modelwrap{grid-area:model;position:sticky;top:10px}
+@media (max-width:920px){.grid{grid-template-columns:1fr;grid-template-areas:"enonce" "model" "panel"}.modelwrap{position:static}}
+
+.card{background:#fff;border:3px solid var(--ink);border-radius:20px;padding:14px 20px}
+.cardhead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 14px;align-items:center;margin-bottom:10px;font-size:17px;color:#444}
+.badge{border:3px solid var(--ink);border-radius:999px;padding:2px 14px;background:#fff7d6;font-weight:700;color:var(--ink)}
+.badge.empty{background:#fff;font-weight:400;color:#777;border-style:dashed}
+
+/* ---------- phrases de l'énoncé ---------- */
+.stack{display:flex;flex-direction:column;gap:12px;position:relative}
+.stack.sorted{padding-left:44px}
+.stack.sorted::before{content:"";position:absolute;left:12px;top:4px;bottom:26px;width:7px;border-radius:4px;background:linear-gradient(#1e66d0,#222,#d62828)}
+.stack.sorted::after{content:"";position:absolute;left:3px;bottom:6px;border-left:13px solid transparent;border-right:13px solid transparent;border-top:22px solid #d62828}
+.scard{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 16px;border-radius:16px;border:5px solid;font-size:24px;line-height:1.45;background:#fff}
+.scard.c-none{border-style:dashed;border-color:#9a9a9a;background:#f4f2ec}
+.scard.c-blue{border-color:var(--blue);background:var(--blue-soft)}
+.scard.c-white{border-color:#222;background:#fff}
+.scard.c-red{border-color:var(--red2);background:var(--red-soft)}
+.scard.hl{box-shadow:0 0 0 6px rgba(255,200,0,.75)}
+.scard.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.stext{flex:1 1 280px}
+.num{font-weight:800}
+mark.nn{background:#fff0a3;border-radius:6px;padding:0 3px;color:inherit}
+.tag{margin-left:auto;font-size:15px;font-weight:700;padding:1px 12px;border-radius:999px;border:3px solid;background:#fff;white-space:nowrap}
+.tag.t-before{border-color:var(--blue);color:var(--blue)}
+.tag.t-trans{border-color:#222;color:#222}
+.tag.t-after{border-color:var(--red2);color:var(--red2)}
+.pick{flex:1 0 100%;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:16px}
+.pk{display:inline-flex;align-items:center;gap:8px;border:3px solid var(--ink);border-radius:12px;background:#fff;padding:6px 12px;font-weight:700;font-size:16px}
+.pk i{width:20px;height:20px;border:3px solid var(--ink);border-radius:5px;display:inline-block}
+.pk-before i{background:var(--blue-soft);border-color:var(--blue)}
+.pk-trans i{background:#fff}
+.pk-after i{background:var(--red-soft);border-color:var(--red2)}
+.pk:hover{background:#fff7d6}
+
+/* ---------- étapes ---------- */
+.steps{display:flex;flex-wrap:wrap;gap:6px 8px;margin:0 0 12px;padding:0;list-style:none;font-size:15px}
+.steps li{display:flex;align-items:center;gap:6px;padding:4px 10px 4px 5px;border-radius:999px;border:2px solid #b9b3a4;background:#fff;color:#777}
+.steps li b{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#d9d3c3;color:#fff;font-size:14px}
+.steps li.cur{border-color:var(--blue);color:var(--ink);font-weight:700;background:var(--blue-soft)}
+.steps li.cur b{background:var(--blue)}
+.steps li.done{border-color:#27b927;color:#256b25}.steps li.done b{background:#27b927}
+.stephead{border-radius:16px;padding:10px 16px;margin-bottom:12px;background:var(--ink);color:#fff;font-size:23px;font-weight:700}
+.stephead small{display:block;font-weight:400;font-size:17px;opacity:.93}
+.stephead.lang{background:var(--blue)}
+.chips{display:flex;flex-wrap:wrap;gap:14px;margin:6px 0 4px}
+.chip{border:3px solid var(--ink);background:#fff;border-radius:16px;padding:12px 22px;font-size:27px;font-weight:700;min-width:84px;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.chip:hover{background:#fff7d6}
+.chip.sel{background:#ffe27a;transform:translateY(-3px);box-shadow:0 7px 0 rgba(0,0,0,.25)}
+.chip.q{font-size:40px;padding:6px 30px;line-height:1.2}
+.chip.used{opacity:.25;pointer-events:none;box-shadow:none}
+.bigbtns{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:8px 0}
+.bigbtn{border:5px solid;border-radius:22px;padding:18px 10px;font-size:34px;font-weight:800;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.bigbtn.b{border-color:var(--blue);background:var(--blue-soft);color:#0f3f8a}
+.bigbtn.r{border-color:var(--red2);background:var(--red-soft);color:#8f1515}
+.bigbtn:hover{filter:brightness(.96)}
+.trio{display:grid;grid-template-columns:1fr;gap:10px;margin:6px 0}
+.opt{border:4px solid var(--ink);border-radius:18px;background:#fff;padding:12px 16px;font-size:22px;font-weight:700;text-align:left;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.opt:hover{background:#fff7d6}
+.opt.tri{text-align:center;font-size:26px}
+.opt.good{background:#d9f7d9;border-color:#27b927}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.rule{border:3px dashed var(--ink);border-radius:16px;padding:10px 14px;background:#fffdf5;margin:6px 0 12px;font-size:19px}
+.rule div+div{margin-top:4px}
+.gap{display:inline-block;min-width:130px;border-bottom:4px dotted var(--ink);text-align:center;font-weight:800;padding:0 6px}
+.gap.f{border-bottom-color:#27b927;color:var(--ok)}
+.rule .cur-line{background:#fff3b0;border-radius:8px}
+.calcline{font-size:46px;font-weight:800;text-align:center;margin:8px 0 10px;letter-spacing:1px}
+.calcline .ans{display:inline-block;min-width:130px;border-bottom:5px solid var(--ink);padding:0 10px;color:var(--blue)}
+.keypad{display:grid;grid-template-columns:repeat(3,76px);gap:10px;justify-content:center;margin:6px auto 4px}
+.key{height:60px;border:3px solid var(--ink);border-radius:14px;background:#fff;font-size:28px;font-weight:700;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.key:hover{background:#fff7d6}
+.key.wide{background:var(--blue);border-color:var(--blue);color:#fff}
+.key.back{font-size:18px}
+.qrepeat{font-size:20px;color:#444;text-align:center;margin-bottom:6px}
+.final{font-size:28px;text-align:center;border:4px solid #27b927;background:#e9f9ec;border-radius:18px;padding:12px;margin-top:8px;font-weight:700}
+.msg{margin-top:12px;border-radius:16px;padding:12px 16px;font-size:21px;border:3px solid}
+.msg.ok{background:#e9f9ec;border-color:#27b927;color:#17491f}
+.msg.ko{background:#fdecea;border-color:#e57368;color:#6e1a14}
+.msg.info{background:var(--blue-soft);border-color:var(--blue);color:#12306f}
+.next{margin-top:14px;text-align:center}
+.wait{font-size:20px;color:#444;text-align:center;padding:6px}
+
+/* ---------- problèmes multiplicatifs ---------- */
+:root{--or:#f0a33c;--or-soft:#ffd79a;--gr:#2dc62d;--gr-soft:#9cf59c}
+.scard.plain{border-color:#222;background:#fff}
+.scard.plain .stext{font-size:24px}
+mark.rep{background:#ffd79a;font-weight:800;border-radius:6px;padding:0 4px;color:inherit}
+mark.tot{background:#cfe3ff;font-weight:800;border-radius:6px;padding:0 4px;color:inherit}
+.legend2{margin-top:10px;font-size:16px;color:#555}
+.modelcard{padding:14px 16px 16px}
+.modelcard h2{margin:0 0 4px;font-size:20px;text-align:center}
+.xsvg{display:block;width:100%;max-width:440px;margin:0 auto;height:auto}
+.xsvg text{font-family:"Trebuchet MS",Verdana,Arial,sans-serif}
+.wnum{font-size:44px;font-weight:800;text-anchor:middle;fill:#1d1d1f}
+.wnum.dots{font-size:30px;font-weight:400;fill:#666;letter-spacing:2px}
+.wnum.q{font-size:58px;fill:#d62828}
+.wnum.res{fill:#0b3a8f}
+.wlab{font-size:15px;font-weight:700}
+.wedge.active{animation:glow 1.1s ease-in-out infinite}
+@keyframes glow{50%{stroke:#ffbe00;stroke-width:7}}
+.wedge.pop{animation:pop .7s ease-out}
+@keyframes pop{0%{opacity:.2}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.wedge.active{animation:none;stroke:#e8a600;stroke-width:6}}
+.legend{margin-top:6px;text-align:center;font-size:15px;color:#555}
+.chip small{display:block;font-size:15px;font-weight:600;color:#444}
+.chip.lab{font-size:24px;padding:10px 18px}
+.chip.q{font-size:40px;padding:6px 30px;line-height:1.2;color:#d62828}
+.recap{margin-top:10px;border:3px dashed var(--ink);border-radius:14px;padding:8px 12px;background:#fffdf5;font-size:22px;font-weight:700;text-align:center}
+.recap span{white-space:nowrap;margin:0 8px}
+.hintbox{border-radius:14px;padding:10px 14px;margin:6px 0 10px;background:var(--blue-soft);border:3px solid var(--blue);font-size:21px;font-weight:700;text-align:center}
+.end{text-align:center;padding:26px 18px}
+.end h2{font-family:"Segoe Print","Comic Sans MS",cursive;color:var(--red);font-size:38px;margin:0 0 8px}
+.endlist{display:grid;gap:8px;max-width:680px;margin:16px auto;text-align:left;font-size:19px}
+.endlist div{display:flex;gap:12px;align-items:center;border:3px solid var(--ink);border-radius:14px;padding:8px 14px;background:#fff}
+.endlist .tg{margin-left:auto;font-weight:700;font-size:16px;white-space:nowrap}
+.endlist .tg.ok{color:var(--ok)}.endlist .tg.help{color:#a35a00}
+</style>
+</head>
+<body>
+<noscript>Cette application a besoin de JavaScript pour fonctionner.</noscript>
+<div class="app" id="app"></div>
+
+<script>
+(function(){
+"use strict";
+const CTX=[{"id": "bonbons", "fam": "A", "obj": "bonbons", "grp": "paquets", "grp1": "paquet", "tout": {"s": ["Ludo achète {b} paquets de bonbons.", "Dans chaque paquet, il y a {a} bonbons."], "q": "Combien Ludo a-t-il de bonbons en tout ?", "a": "Ludo a {c} bonbons en tout."}, "rep": {"s": ["Ludo a {c} bonbons.", "Ludo range tous ses bonbons dans {b} paquets, avec autant de bonbons dans chaque paquet."], "q": "Combien y a-t-il de bonbons dans chaque paquet ?", "a": "Il y a {a} bonbons dans chaque paquet."}, "times": {"s": ["Ludo a {c} bonbons.", "Ludo met {a} bonbons dans chaque paquet."], "q": "Combien de paquets Ludo peut-il remplir ?", "a": "Ludo peut remplir {b} paquets."}}, {"id": "oeufs", "fam": "A", "obj": "œufs", "grp": "boîtes", "grp1": "boîte", "tout": {"s": ["Mia achète {b} boîtes d'œufs.", "Dans chaque boîte, il y a {a} œufs."], "q": "Combien Mia a-t-elle d'œufs en tout ?", "a": "Mia a {c} œufs en tout."}, "rep": {"s": ["Mia a {c} œufs.", "Mia range tous ses œufs dans {b} boîtes, avec autant d'œufs dans chaque boîte."], "q": "Combien y a-t-il d'œufs dans chaque boîte ?", "a": "Il y a {a} œufs dans chaque boîte."}, "times": {"s": ["Mia a {c} œufs.", "Mia met {a} œufs dans chaque boîte."], "q": "Combien de boîtes Mia peut-elle remplir ?", "a": "Mia peut remplir {b} boîtes."}}, {"id": "billes", "fam": "A", "obj": "billes", "grp": "sacs", "grp1": "sac", "tout": {"s": ["Léo achète {b} sacs de billes.", "Dans chaque sac, il y a {a} billes."], "q": "Combien Léo a-t-il de billes en tout ?", "a": "Léo a {c} billes en tout."}, "rep": {"s": ["Léo a {c} billes.", "Léo range toutes ses billes dans {b} sacs, avec autant de billes dans chaque sac."], "q": "Combien y a-t-il de billes dans chaque sac ?", "a": "Il y a {a} billes dans chaque sac."}, "times": {"s": ["Léo a {c} billes.", "Léo met {a} billes dans chaque sac."], "q": "Combien de sacs Léo peut-il remplir ?", "a": "Léo peut remplir {b} sacs."}}, {"id": "cartes", "fam": "A", "obj": "cartes", "grp": "paquets", "grp1": "paquet", "tout": {"s": ["Nina achète {b} paquets de cartes.", "Dans chaque paquet, il y a {a} cartes."], "q": "Combien Nina a-t-elle de cartes en tout ?", "a": "Nina a {c} cartes en tout."}, "rep": {"s": ["Nina a {c} cartes.", "Nina range toutes ses cartes dans {b} paquets, avec autant de cartes dans chaque paquet."], "q": "Combien y a-t-il de cartes dans chaque paquet ?", "a": "Il y a {a} cartes dans chaque paquet."}, "times": {"s": ["Nina a {c} cartes.", "Nina met {a} cartes dans chaque paquet."], "q": "Combien de paquets Nina peut-elle remplir ?", "a": "Nina peut remplir {b} paquets."}}, {"id": "fleurs", "fam": "A", "obj": "fleurs", "grp": "bouquets", "grp1": "bouquet", "tout": {"s": ["Tom achète {b} bouquets de fleurs.", "Dans chaque bouquet, il y a {a} fleurs."], "q": "Combien Tom a-t-il de fleurs en tout ?", "a": "Tom a {c} fleurs en tout."}, "rep": {"s": ["Tom a {c} fleurs.", "Tom range toutes ses fleurs dans {b} bouquets, avec autant de fleurs dans chaque bouquet."], "q": "Combien y a-t-il de fleurs dans chaque bouquet ?", "a": "Il y a {a} fleurs dans chaque bouquet."}, "times": {"s": ["Tom a {c} fleurs.", "Tom met {a} fleurs dans chaque bouquet."], "q": "Combien de bouquets Tom peut-il faire ?", "a": "Tom peut faire {b} bouquets."}}, {"id": "crayons", "fam": "A", "obj": "crayons", "grp": "boîtes", "grp1": "boîte", "tout": {"s": ["Lola achète {b} boîtes de crayons.", "Dans chaque boîte, il y a {a} crayons."], "q": "Combien Lola a-t-elle de crayons en tout ?", "a": "Lola a {c} crayons en tout."}, "rep": {"s": ["Lola a {c} crayons.", "Lola range tous ses crayons dans {b} boîtes, avec autant de crayons dans chaque boîte."], "q": "Combien y a-t-il de crayons dans chaque boîte ?", "a": "Il y a {a} crayons dans chaque boîte."}, "times": {"s": ["Lola a {c} crayons.", "Lola met {a} crayons dans chaque boîte."], "q": "Combien de boîtes Lola peut-elle remplir ?", "a": "Lola peut remplir {b} boîtes."}}, {"id": "autocollants", "fam": "A", "obj": "autocollants", "grp": "planches", "grp1": "planche", "tout": {"s": ["Hugo achète {b} planches d'autocollants.", "Dans chaque planche, il y a {a} autocollants."], "q": "Combien Hugo a-t-il d'autocollants en tout ?", "a": "Hugo a {c} autocollants en tout."}, "rep": {"s": ["Hugo a {c} autocollants.", "Hugo range tous ses autocollants dans {b} planches, avec autant d'autocollants dans chaque planche."], "q": "Combien y a-t-il d'autocollants dans chaque planche ?", "a": "Il y a {a} autocollants dans chaque planche."}, "times": {"s": ["Hugo a {c} autocollants.", "Hugo met {a} autocollants dans chaque planche."], "q": "Combien de planches Hugo peut-il remplir ?", "a": "Hugo peut remplir {b} planches."}}, {"id": "images", "fam": "A", "obj": "images", "grp": "pochettes", "grp1": "pochette", "tout": {"s": ["Inès achète {b} pochettes d'images.", "Dans chaque pochette, il y a {a} images."], "q": "Combien Inès a-t-elle d'images en tout ?", "a": "Inès a {c} images en tout."}, "rep": {"s": ["Inès a {c} images.", "Inès range toutes ses images dans {b} pochettes, avec autant d'images dans chaque pochette."], "q": "Combien y a-t-il d'images dans chaque pochette ?", "a": "Il y a {a} images dans chaque pochette."}, "times": {"s": ["Inès a {c} images.", "Inès met {a} images dans chaque pochette."], "q": "Combien de pochettes Inès peut-elle remplir ?", "a": "Inès peut remplir {b} pochettes."}}, {"id": "chaises", "fam": "B", "obj": "chaises", "grp": "rangées", "grp1": "rangée", "tout": {"s": ["Dans la salle de spectacle, il y a {b} rangées de chaises.", "Dans chaque rangée, il y a {a} chaises."], "q": "Combien y a-t-il de chaises en tout dans la salle de spectacle ?", "a": "Il y a {c} chaises en tout dans la salle de spectacle."}, "rep": {"s": ["Dans la salle de spectacle, il y a {c} chaises.", "Les chaises sont réparties en {b} rangées, avec autant de chaises dans chaque rangée."], "q": "Combien y a-t-il de chaises dans chaque rangée ?", "a": "Il y a {a} chaises dans chaque rangée."}, "times": {"s": ["Dans la salle de spectacle, il y a {c} chaises.", "Dans chaque rangée, il y a {a} chaises."], "q": "Combien y a-t-il de rangées dans la salle de spectacle ?", "a": "Il y a {b} rangées dans la salle de spectacle."}}, {"id": "arbres", "fam": "B", "obj": "arbres", "grp": "rangs", "grp1": "rang", "tout": {"s": ["Dans le verger, il y a {b} rangs d'arbres.", "Dans chaque rang, il y a {a} arbres."], "q": "Combien y a-t-il d'arbres en tout dans le verger ?", "a": "Il y a {c} arbres en tout dans le verger."}, "rep": {"s": ["Dans le verger, il y a {c} arbres.", "Les arbres sont répartis en {b} rangs, avec autant d'arbres dans chaque rang."], "q": "Combien y a-t-il d'arbres dans chaque rang ?", "a": "Il y a {a} arbres dans chaque rang."}, "times": {"s": ["Dans le verger, il y a {c} arbres.", "Dans chaque rang, il y a {a} arbres."], "q": "Combien y a-t-il de rangs dans le verger ?", "a": "Il y a {b} rangs dans le verger."}}, {"id": "livres", "fam": "B", "obj": "livres", "grp": "étagères", "grp1": "étagère", "tout": {"s": ["Dans la bibliothèque, il y a {b} étagères de livres.", "Dans chaque étagère, il y a {a} livres."], "q": "Combien y a-t-il de livres en tout dans la bibliothèque ?", "a": "Il y a {c} livres en tout dans la bibliothèque."}, "rep": {"s": ["Dans la bibliothèque, il y a {c} livres.", "Les livres sont répartis en {b} étagères, avec autant de livres dans chaque étagère."], "q": "Combien y a-t-il de livres dans chaque étagère ?", "a": "Il y a {a} livres dans chaque étagère."}, "times": {"s": ["Dans la bibliothèque, il y a {c} livres.", "Dans chaque étagère, il y a {a} livres."], "q": "Combien y a-t-il d'étagères dans la bibliothèque ?", "a": "Il y a {b} étagères dans la bibliothèque."}}, {"id": "eleves", "fam": "B", "obj": "élèves", "grp": "équipes", "grp1": "équipe", "tout": {"s": ["Dans la cour, il y a {b} équipes d'élèves.", "Dans chaque équipe, il y a {a} élèves."], "q": "Combien y a-t-il d'élèves en tout dans la cour ?", "a": "Il y a {c} élèves en tout dans la cour."}, "rep": {"s": ["Dans la cour, il y a {c} élèves.", "Les élèves sont répartis en {b} équipes, avec autant d'élèves dans chaque équipe."], "q": "Combien y a-t-il d'élèves dans chaque équipe ?", "a": "Il y a {a} élèves dans chaque équipe."}, "times": {"s": ["Dans la cour, il y a {c} élèves.", "Dans chaque équipe, il y a {a} élèves."], "q": "Combien y a-t-il d'équipes dans la cour ?", "a": "Il y a {b} équipes dans la cour."}}, {"id": "assiettes", "fam": "B", "obj": "assiettes", "grp": "piles", "grp1": "pile", "tout": {"s": ["Dans la cuisine, il y a {b} piles d'assiettes.", "Dans chaque pile, il y a {a} assiettes."], "q": "Combien y a-t-il d'assiettes en tout dans la cuisine ?", "a": "Il y a {c} assiettes en tout dans la cuisine."}, "rep": {"s": ["Dans la cuisine, il y a {c} assiettes.", "Les assiettes sont réparties en {b} piles, avec autant d'assiettes dans chaque pile."], "q": "Combien y a-t-il d'assiettes dans chaque pile ?", "a": "Il y a {a} assiettes dans chaque pile."}, "times": {"s": ["Dans la cuisine, il y a {c} assiettes.", "Dans chaque pile, il y a {a} assiettes."], "q": "Combien y a-t-il de piles dans la cuisine ?", "a": "Il y a {b} piles dans la cuisine."}}, {"id": "fleursjardin", "fam": "B", "obj": "fleurs", "grp": "parterres", "grp1": "parterre", "tout": {"s": ["Dans le jardin, il y a {b} parterres de fleurs.", "Dans chaque parterre, il y a {a} fleurs."], "q": "Combien y a-t-il de fleurs en tout dans le jardin ?", "a": "Il y a {c} fleurs en tout dans le jardin."}, "rep": {"s": ["Dans le jardin, il y a {c} fleurs.", "Les fleurs sont réparties en {b} parterres, avec autant de fleurs dans chaque parterre."], "q": "Combien y a-t-il de fleurs dans chaque parterre ?", "a": "Il y a {a} fleurs dans chaque parterre."}, "times": {"s": ["Dans le jardin, il y a {c} fleurs.", "Dans chaque parterre, il y a {a} fleurs."], "q": "Combien y a-t-il de parterres dans le jardin ?", "a": "Il y a {b} parterres dans le jardin."}}, {"id": "voitures", "fam": "B", "obj": "voitures", "grp": "rangées", "grp1": "rangée", "tout": {"s": ["Dans le parking, il y a {b} rangées de voitures.", "Dans chaque rangée, il y a {a} voitures."], "q": "Combien y a-t-il de voitures en tout dans le parking ?", "a": "Il y a {c} voitures en tout dans le parking."}, "rep": {"s": ["Dans le parking, il y a {c} voitures.", "Les voitures sont réparties en {b} rangées, avec autant de voitures dans chaque rangée."], "q": "Combien y a-t-il de voitures dans chaque rangée ?", "a": "Il y a {a} voitures dans chaque rangée."}, "times": {"s": ["Dans le parking, il y a {c} voitures.", "Dans chaque rangée, il y a {a} voitures."], "q": "Combien y a-t-il de rangées dans le parking ?", "a": "Il y a {b} rangées dans le parking."}}];
+const N=6;
+const ROLE={rep:"la quantité répétée",times:"le nombre de fois",total:"la quantité en tout"};
+const SEEKLAB={total:"la quantité en tout",rep:"la quantité répétée",times:"le nombre de fois"};
+const TYPES={tout:"total",rep:"rep",times:"times"};
+
+/* ---------- utilitaires ---------- */
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(0,i);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const fillT=(t,v)=>t.replace("{a}",v.a).replace("{b}",v.b).replace("{c}",v.c);
+
+/* ---------- logique ---------- */
+function build(sp){
+  const c=CTX.find(x=>x.id===sp.ctx),tpl=c[sp.type];
+  const a=sp.a,b=sp.b,v={a,b,c:a*b};
+  const p={ctx:c,type:sp.type,a,b,c:a*b,inv:!!sp.inv,seek:TYPES[sp.type]};
+  p.items={rep:{role:"rep",n:a,unit:c.obj},times:{role:"times",n:b,unit:c.grp},total:{role:"total",n:a*b,unit:c.obj}};
+  p.res=p.items[p.seek].n;
+  let s=tpl.s.map(t=>fillT(t,v));
+  if(p.inv)s.reverse();
+  p.sents=s.concat([tpl.q]);
+  p.answer=fillT(tpl.a,v);
+  if(p.seek==="total")p.calc={x:b,sym:"×",y:a};
+  else if(p.seek==="rep")p.calc={x:a*b,sym:":",y:b};
+  else p.calc={x:a*b,sym:":",y:a};
+  p.op=p.seek==="total"?"mul":"div";
+  return p;
+}
+const chipLabel=(p,r,withUnit)=>r===p.seek?"?":(withUnit?`${p.items[r].n} ${esc(p.items[r].unit)}`:String(p.items[r].n));
+function answerOptions(p){
+  const key={total:"c",rep:"a",times:"b"}[p.seek];
+  const v={a:p.a,b:p.b,c:p.c};
+  const others=["rep","times","total"].filter(r=>r!==p.seek).map(r=>p.items[r].n);
+  const w=others[rnd(0,1)];
+  const v1=Object.assign({},v);v1[key]=w;
+  const d1={t:fillT(p.ctx[p.type].a,v1),k:"num",ok:false};
+  const from=p.seek==="times"?p.ctx.grp:p.ctx.obj,to=p.seek==="times"?p.ctx.obj:p.ctx.grp;
+  const d2={t:p.answer.replace(new RegExp("(\\d+ )"+from),"$1"+to),k:"mot",ok:false};
+  return shuffle([{t:p.answer,k:"ok",ok:true},d1,d2]);
+}
+function makeProblem(max,type,ctx,inv){
+  let a,b;do{a=rnd(2,max);b=rnd(2,max);}while(a===b);
+  return build({ctx:ctx.id,type,a,b,inv});
+}
+function makeSeries(max,mode){
+  const ctxs=shuffle(CTX).slice(0,N);
+  let types;
+  if(mode==="melange")types=shuffle(["tout","tout","rep","rep","times","times"]);
+  else types=Array(N).fill(mode);
+  return ctxs.map((c,i)=>makeProblem(max,types[i],c,i>=2&&Math.random()<.4));
+}
+
+/* ---------- état ---------- */
+let S={max:9,mode:"tout",screen:"play",fast:false};
+function newSeries(){
+  S.probs=makeSeries(S.max,S.mode);
+  S.i=0;S.results=[];S.screen="play";
+  startProblem();
+}
+function startProblem(){
+  const p=S.probs[S.i];
+  Object.assign(S,{p,step:1,msg:null,placed:{rep:false,times:false,total:false},pop:null,order:shuffle(["rep","times","total"]),
+    sub:"seek",seekOk:false,input:"",tries:0,err:0,calcOk:false,phrase:null,ruleFilled:{},revealed:false,
+    wrong:0,answers:answerOptions(p)});
+}
+const say=(t,h)=>{S.msg={t,h};};
+const STEPROLE={1:"rep",2:"times",3:"total"};
+
+/* ---------- énoncé ---------- */
+function sentHTML(t){
+  let h=esc(t);
+  h=h.replace(/(?:[Dd]ans chaque|[Ss]ur chaque) [^\s,.?]+/g,m=>`<mark class="rep">${m}</mark>`);
+  h=h.replace(/en tout/g,'<mark class="tot">en tout</mark>');
+  h=h.replace(/(^|[ >])(\d+)(?=[ .,])/g,'$1<span class="num">$2</span>');
+  return h;
+}
+function enonceHTML(){
+  return `<div class="card"><div class="cardhead"><span>L'énoncé :</span>
+      <span class="badge empty">« dans chaque… » est surligné</span></div>
+    <div class="stack">${S.p.sents.map(t=>`<div class="scard plain"><div class="stext">${sentHTML(t)}</div></div>`).join("")}</div></div>`;
+}
+
+/* ---------- modèle en croix ---------- */
+function wedgeText(role,x,y){
+  const p=S.p;let cls="wnum",t;
+  if(!S.placed[role]){cls+=" dots";t="....";}
+  else if(role===p.seek){if(S.calcOk){cls+=" res";t=p.res;}else{cls+=" q";t="?";}}
+  else t=p.items[role].n;
+  return `<text class="${cls}" x="${x}" y="${y}">${t}</text>`;
+}
+function modelHTML(){
+  const cx=190,cy=142,r=92,d=Math.round(r*0.7071);
+  const act=STEPROLE[S.step]||null;
+  const cl=(role)=>"wedge"+(act===role?" active":"")+(S.pop===role?" pop":"");
+  const L=`M ${cx} ${cy} L ${cx-d} ${cy-d} A ${r} ${r} 0 0 0 ${cx-d} ${cy+d} Z`;
+  const Rr=`M ${cx} ${cy} L ${cx+d} ${cy-d} A ${r} ${r} 0 0 1 ${cx+d} ${cy+d} Z`;
+  const Bt=`M ${cx} ${cy} L ${cx-d} ${cy+d} A ${r} ${r} 0 0 0 ${cx+d} ${cy+d} Z`;
+  const k=1.32*d;
+  return `<div class="card modelcard"><h2>Le modèle à compléter</h2>
+  <svg class="xsvg" viewBox="0 0 380 312" role="img" aria-label="Modèle en croix">
+    <path class="${cl("times")}" d="${L}" fill="#9cf59c" stroke="#2dc62d" stroke-width="3"/>
+    <path class="${cl("rep")}" d="${Rr}" fill="#ffd79a" stroke="#f0a33c" stroke-width="3"/>
+    <path class="${cl("total")}" d="${Bt}" fill="#fff" stroke="#222" stroke-width="3"/>
+    <line x1="${cx-k}" y1="${cy-k}" x2="${cx+k}" y2="${cy+k}" stroke="#111" stroke-width="7" stroke-linecap="round"/>
+    <line x1="${cx+k}" y1="${cy-k}" x2="${cx-k}" y2="${cy+k}" stroke="#111" stroke-width="7" stroke-linecap="round"/>
+    ${wedgeText("times",cx-62,cy+14)}${wedgeText("rep",cx+62,cy+14)}${wedgeText("total",cx,cy+64)}
+    <text class="wlab" x="6" y="18" fill="#14701d">nombre de fois où</text>
+    <text class="wlab" x="6" y="36" fill="#14701d">la quantité est répétée</text>
+    <text class="wlab" x="374" y="18" text-anchor="end" fill="#a35a00">quantité</text>
+    <text class="wlab" x="374" y="36" text-anchor="end" fill="#a35a00">répétée</text>
+    <text class="wlab" x="${cx}" y="${cy+r+34}" text-anchor="middle" fill="#222" style="font-size:18px">Quantité en tout</text>
+  </svg>
+  <div class="legend">Vert : nombre de fois · Orange : quantité répétée · Blanc : en tout</div></div>`;
+}
+
+/* ---------- panneau ---------- */
+function chipsHTML(withUnit){
+  const p=S.p;
+  return `<div class="chips">`+S.order.map(r=>{
+    const unk=r===p.seek;
+    return `<button class="chip${unk?" q":" lab"}${S.placed[r]?" used":""}" data-act="pick" data-r="${r}">${chipLabel(p,r,withUnit)}</button>`;
+  }).join("")+`</div>`;
+}
+function ruleHTML(){
+  const L=[["total","la quantité en tout","multiplication"],["rep","la quantité répétée","division"],["times","le nombre de fois","division"]];
+  return `<div class="rule">`+L.map(([k,t,w])=>`<div class="${S.sub!=="seek"&&S.seekOk&&S.p.seek===k?"cur-line":""}">Si je cherche ${t}, je fais une <span class="gap${S.ruleFilled[k]?" f":""}">${S.ruleFilled[k]?w:"&nbsp;"}</span></div>`).join("")+`</div>`;
+}
+function divHint(p){
+  if(p.seek==="rep")return `Dans la quantité ${p.c}, quelle quantité peut-on répéter ${p.b} fois ?`;
+  return `Dans la quantité ${p.c}, combien de fois peut-on répéter la quantité ${p.a} ?`;
+}
+function panelHTML(){
+  const p=S.p;
+  if(S.step===1)return `<div class="card"><div class="stephead lang">Étape 1 · Quelle est la quantité répétée ?
+      <small>C'est ce qu'on retrouve dans chaque ${esc(p.ctx.grp1)}. Touche ton choix.</small></div>${chipsHTML(true)}</div>`;
+  if(S.step===2)return `<div class="card"><div class="stephead lang">Étape 2 · Combien de fois répète-t-on cette quantité ?
+      <small>Touche ton choix.</small></div>${chipsHTML(false)}</div>`;
+  if(S.step===3)return `<div class="card"><div class="stephead lang">Étape 3 · Quelle quantité y a-t-il en tout ?
+      <small>Touche ton choix.</small></div>${chipsHTML(false)}</div>`;
+  if(S.step===4){
+    let inner=`<div class="stephead">Étape 4 · Je cherche… et je calcule
+      <small>${S.sub==="seek"?"Que cherche-t-on : où est le ? dans le modèle ?":S.sub==="op"?"Quelle opération faut-il faire ?":"Calcule le résultat (reste dans les tables de multiplication)."}</small></div>${ruleHTML()}`;
+    if(S.sub==="seek"){
+      inner+=`<div class="trio">${["total","rep","times"].map(k=>`<button class="opt tri" data-act="seek" data-v="${k}">Je cherche ${SEEKLAB[k]}</button>`).join("")}</div>`;
+    }else if(S.sub==="op"){
+      inner+=`<div class="qrepeat">Je cherche <b>${SEEKLAB[p.seek]}</b>. Je dois faire :</div>
+      <div class="row2"><button class="opt tri" data-act="op" data-v="mul">une multiplication (×)</button><button class="opt tri" data-act="op" data-v="div">une division (:)</button></div>`;
+    }else{
+      const c=p.calc;
+      inner+=`<div class="hintbox">${p.op==="mul"?`Je répète ${p.b} fois la quantité ${p.a}.`:esc(divHint(p))}</div>
+      <div class="calcline">${c.x} ${c.sym} ${c.y} = <span class="ans">${esc(S.input)||"&nbsp;"}</span></div>
+      <div class="keypad">${[1,2,3,4,5,6,7,8,9].map(d=>`<button class="key" data-act="key" data-k="${d}">${d}</button>`).join("")}
+        <button class="key back" data-act="back">Effacer</button><button class="key" data-act="key" data-k="0">0</button><button class="key wide" data-act="ok">OK</button></div>`;
+    }
+    return `<div class="card">${inner}</div>`;
+  }
+  if(S.step===5){
+    const done=S.phrase!==null;
+    const hint=p.seek==="total"?"Je réponds avec les mots de la question : « en tout ».":p.seek==="rep"?"Je réponds avec les mots de la question : « dans chaque ».":"Je réponds avec les mots de la question.";
+    let inner=`<div class="stephead lang">Étape 5 · Écris la phrase réponse<small>${hint}</small></div>
+      <div class="qrepeat">${sentHTML(p.sents[p.sents.length-1])}</div>`;
+    if(done)inner+=`<div class="final">${sentHTML(S.answers[S.phrase].t)}</div>`;
+    else inner+=`<div class="trio">${S.answers.map((a,i)=>`<button class="opt" data-act="ans" data-i="${i}">${sentHTML(a.t)}</button>`).join("")}</div>`;
+    if(done){
+      const a=p.a,b=p.b,c=p.c;
+      inner+=`<div class="recap">Dans le modèle, on peut lire :<br><span>${b} × ${a} = ${c}</span><span>${a} × ${b} = ${c}</span><span>${c} : ${b} = ${a}</span><span>${c} : ${a} = ${b}</span></div>`;
+    }
+    return `<div class="card">${inner}</div>`;
+  }
+  return "";
+}
+function stepsHTML(){
+  const names=["La quantité répétée","Le nombre de fois","La quantité en tout","Le calcul","La phrase réponse"];
+  const fin=S.step===5&&S.phrase!==null;
+  return `<ol class="steps">`+names.map((n,i)=>{
+    const k=i+1;
+    const cls=S.step>k||(fin&&k===5)?"done":(S.step===k?"cur":"");
+    return `<li class="${cls}"><b>${k}</b>${n}</li>`;
+  }).join("")+`</ol>`;
+}
+const msgHTML=()=>S.msg?`<div class="msg ${S.msg.t}">${S.msg.h}</div>`:"";
+function nextHTML(){
+  if(S.step===5&&S.phrase!==null)return `<div class="next"><button class="btn primary" data-act="next">${S.i===N-1?"Voir mon bilan":"Problème suivant →"}</button></div>`;
+  return "";
+}
+function headerHTML(){
+  const sel=(v,cur)=>v===cur?" selected":"";
+  const mx=[5,9].map(m=>`<button class="${S.max===m?"on":""}" data-act="max" data-v="${m}">${m}</button>`).join("");
+  return `<div class="top"><h1>Les problèmes multiplicatifs <small style="font-size:22px;color:#444">CE2</small></h1><div class="ctrl">
+    <span>Tables jusqu'à</span><div class="seg">${mx}</div>
+    <select data-act="mode" aria-label="Type de problème">
+      <option value="tout"${sel("tout",S.mode)}>Recherche du tout</option>
+      <option value="rep"${sel("rep",S.mode)}>Recherche de la quantité répétée</option>
+      <option value="times"${sel("times",S.mode)}>Recherche du nombre de fois</option>
+      <option value="melange"${sel("melange",S.mode)}>Problèmes mélangés</option></select>
+    <button class="btn" data-act="new">Nouvelle série</button></div></div>`;
+}
+function progHTML(){
+  let d="";
+  for(let i=0;i<N;i++){let c="dot";if(S.results[i]!==undefined)c+=S.results[i]?" ok":" help";else if(i===S.i&&S.screen==="play")c+=" cur";d+=`<span class="${c}"></span>`;}
+  return `<div class="prog">Problème ${Math.min(S.i+1,N)} sur ${N} ${d}</div>`;
+}
+function endHTML(){
+  const good=S.results.filter(Boolean).length;
+  return `<div class="card end"><h2>Bravo !</h2><div>Tu as réussi ${good} problème${good>1?"s":""} sur ${N} du premier coup.</div>
+    <div class="endlist">${S.probs.map((p,i)=>`<div><span>${i+1}.</span><span>${esc(p.ctx.obj)} · je cherche ${SEEKLAB[p.seek]}</span>
+      <span class="tg ${S.results[i]?"ok":"help"}">${S.results[i]?"du premier coup":"avec de l'aide"}</span></div>`).join("")}</div>
+    <button class="btn primary" data-act="new">Nouvelle série</button></div>`;
+}
+function render(){
+  const root=document.getElementById("app");
+  if(S.screen==="end"){root.innerHTML=headerHTML()+progHTML()+endHTML();return;}
+  root.innerHTML=headerHTML()+progHTML()+`<div class="grid"><div class="enonce">${enonceHTML()}</div>
+    <div class="panel">${stepsHTML()}${panelHTML()}${msgHTML()}${nextHTML()}</div>
+    <div class="modelwrap">${modelHTML()}</div></div>`;
+  S.pop=null;
+}
+
+/* ---------- actions ---------- */
+const val=(p,r)=>r===p.seek?"Le ?":`${p.items[r].n}`;
+const A={
+  max(el){S.max=parseInt(el.dataset.v,10);newSeries();},
+  mode(el){S.mode=el.value;newSeries();},
+  new(){newSeries();},
+
+  pick(el){
+    const r=el.dataset.r,p=S.p,t=STEPROLE[S.step],c=p.ctx;
+    if(!t)return;
+    if(S.placed[r]){S.err++;say("ko","Tu as déjà placé celui-là dans le modèle. Choisis un autre.");return;}
+    if(r===t){
+      S.placed[r]=true;S.pop=r;
+      const it=p.items[r],unk=r===p.seek;
+      if(r==="rep")say("ok",unk?`Oui ! Le ? est la quantité répétée : on cherche ce qu'il y a dans chaque ${esc(c.grp1)}.`
+        :`Oui ! <b>${it.n} ${esc(it.unit)}</b> : c'est la quantité répétée, il y en a ${it.n} dans chaque ${esc(c.grp1)}.`);
+      else if(r==="times")say("ok",unk?`Oui ! Le ? est le nombre de fois : on cherche combien de ${esc(c.grp)} il y a.`
+        :`Oui ! On répète la quantité <b>${it.n} fois</b> : il y a ${it.n} ${esc(c.grp)}.`);
+      else say("ok",unk?"Oui ! Le ? est la quantité en tout : on cherche combien il y en a en tout."
+        :`Oui ! En tout, il y a <b>${it.n} ${esc(it.unit)}</b>.`);
+      S.step++;
+      if(S.step===4)S.sub="seek";
+    }else{
+      S.err++;
+      const desc={rep:`la quantité répétée (ce qu'il y a dans chaque ${esc(c.grp1)})`,times:`le nombre de ${esc(c.grp)} (le nombre de fois)`,total:`la quantité en tout`};
+      const what=r===p.seek?"Le ?":`${p.items[r].n}${S.step===1?" "+esc(p.items[r].unit):""}`;
+      say("ko",`${what} : c'est ${desc[r]}. Ici, on cherche ${desc[t]}.`);
+    }
+  },
+
+  seek(el){
+    const v=el.dataset.v;
+    if(v===S.p.seek){S.seekOk=true;S.sub="op";say("ok",`Oui : on cherche <b>${SEEKLAB[v]}</b>.`);}
+    else{S.err++;say("ko","Regarde où est le ? dans le modèle : sur le blanc = la quantité en tout ; sur l'orange = la quantité répétée ; sur le vert = le nombre de fois.");}
+  },
+  op(el){
+    const v=el.dataset.v,p=S.p,k=p.seek;
+    if(v===p.op){
+      S.sub="calc";S.ruleFilled[k]=true;
+      say("ok",{total:`Je répète ${p.b} fois la quantité ${p.a} : je fais une <b>multiplication</b>.`,
+        rep:`Je cherche quelle quantité on peut répéter ${p.b} fois dans ${p.c} : je fais une <b>division</b>, avec la table de ${p.b}.`,
+        times:`Je cherche combien de fois on répète la quantité ${p.a} dans ${p.c} : je fais une <b>division</b>, avec la table de ${p.a}.`}[k]);
+    }else{
+      S.err++;
+      say("ko",k==="total"?"Non. Pour trouver la quantité en tout, je répète une quantité plusieurs fois : c'est une <b>multiplication</b>."
+        :"Non. Je connais la quantité en tout et je cherche ce qu'on répète ou combien de fois : c'est une <b>division</b>. Je pense à la table de multiplication.");
+    }
+  },
+  key(el){if(S.input.length<3)S.input+=el.dataset.k;},
+  back(){S.input=S.input.slice(0,-1);},
+  ok(){
+    if(S.input==="")return;
+    const p=S.p,c=p.calc;
+    if(parseInt(S.input,10)===p.res){
+      S.calcOk=true;S.step=5;S.pop=p.seek;
+      say("ok",`Oui : <b>${c.x} ${c.sym} ${c.y} = ${p.res}</b>`);
+    }else{
+      S.tries++;S.err++;
+      if(S.tries>=3){
+        S.input=String(p.res);S.calcOk=true;S.step=5;S.revealed=true;
+        say("info",`Le résultat est <b>${c.x} ${c.sym} ${c.y} = ${p.res}</b>. Revois la table de ${p.op==="mul"?Math.min(p.a,p.b):c.y}.`);
+      }else{S.input="";say("ko",p.op==="mul"?`Ce n'est pas le bon résultat. Récite la table de ${p.a}.`:`Ce n'est pas le bon résultat. Cherche dans la table de ${c.y} : ${c.y} × ? = ${c.x}.`);}
+    }
+  },
+
+  ans(el){
+    const i=parseInt(el.dataset.i,10),a=S.answers[i],p=S.p;
+    if(a.ok){S.phrase=i;say("ok","Bravo ! Ta phrase réponse reprend les mots de la question et donne le bon nombre.");}
+    else{
+      S.err++;
+      say("ko",a.k==="num"?`Ce n'est pas le bon nombre. Relis ton calcul : ${p.calc.x} ${p.calc.sym} ${p.calc.y} = ${p.res}.`
+        :`Ce ne sont pas les bons mots. Relis la question : « ${esc(p.sents[p.sents.length-1])} »`);
+    }
+  },
+  next(){
+    S.results[S.i]=(S.err===0);
+    if(S.i>=N-1)S.screen="end";else{S.i++;startProblem();}
+  }
+};
+
+/* ---------- événements ---------- */
+const root=document.getElementById("app");
+root.addEventListener("click",e=>{
+  const el=e.target.closest("[data-act]");
+  if(!el||el.tagName==="SELECT")return;
+  const act=el.dataset.act;
+  if(A[act]){A[act](el);render();}
+});
+root.addEventListener("change",e=>{
+  const el=e.target.closest("[data-act]");
+  if(el&&A[el.dataset.act]){A[el.dataset.act](el);render();}
+});
+document.addEventListener("keydown",e=>{
+  if(S.screen!=="play"||S.step!==4||S.sub!=="calc")return;
+  if(/^[0-9]$/.test(e.key)){A.key({dataset:{k:e.key}});render();}
+  else if(e.key==="Backspace"){A.back();render();}
+  else if(e.key==="Enter"){A.ok();render();}
+});
+
+newSeries();render();
+window.__app={S:()=>S,A,render,newSeries,CTX,build,answerOptions,makeProblem,makeSeries};
+})();
+</script>
+</body>
+</html>
