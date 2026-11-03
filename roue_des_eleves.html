@@ -9,6 +9,7 @@
     --paper:#f3f0e8; --surface:#fffdf8; --surface-2:#f1ece0; --ink:#2c3b3a; --muted:#6f6a5e;
     --board:#2f4a44; --chalk:#f6f1e6; --chalk-dim:#d7e2dd; --accent:#b85a26; --accent-ink:#fff;
     --line:#d8cfb8; --ok:#3f6e57; --ok-bg:#e3ede6;
+    --ce1:#2f6fb0; --ce1-bg:#e2ecf7; --ce2:#b0442f; --ce2-bg:#f7e4df;
     --font-display: Georgia, 'Times New Roman', serif;
     --font-body: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
   }
@@ -16,7 +17,7 @@
   [hidden]{display:none !important;}
   html,body{height:100%;}
   body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.45;}
-  .app{max-width:1200px;margin:0 auto;padding:18px;display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px;min-height:100%;}
+  .app{max-width:1200px;margin:0 auto;padding:18px;display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px;min-height:100%;}
   @media (max-width:860px){ .app{grid-template-columns:1fr;} }
 
   header{grid-column:1/-1;background:var(--board);color:var(--chalk);border-radius:14px;padding:16px 22px;display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;justify-content:space-between;}
@@ -25,7 +26,13 @@
   header .count b{color:var(--chalk);font-size:1.25rem;}
 
   .stage{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:14px;}
-  .wheel-box{position:relative;width:min(100%, 72vh, 640px);aspect-ratio:1;}
+  .levels{display:flex;gap:0;border:2px solid var(--board);border-radius:999px;overflow:hidden;}
+  .levels button{font:inherit;font-size:1.15rem;font-weight:800;border:none;background:var(--surface);color:var(--board);padding:9px 26px;cursor:pointer;}
+  .levels button + button{border-left:2px solid var(--board);}
+  .levels button[aria-pressed="true"]{background:var(--board);color:var(--chalk);}
+  .levels button[data-level="CE1"][aria-pressed="true"]{background:var(--ce1);}
+  .levels button[data-level="CE2"][aria-pressed="true"]{background:var(--ce2);}
+  .wheel-box{position:relative;width:min(100%, 66vh, 620px);aspect-ratio:1;}
   canvas{width:100%;height:100%;display:block;cursor:pointer;}
   .pointer{position:absolute;left:50%;top:-6px;transform:translateX(-50%);width:0;height:0;
     border-left:22px solid transparent;border-right:22px solid transparent;border-top:44px solid var(--accent);
@@ -39,11 +46,14 @@
   aside{display:flex;flex-direction:column;gap:14px;}
   .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;}
   .card h2{margin:0 0 8px;font-family:var(--font-display);font-size:1.1rem;font-weight:600;}
+  .card h3{margin:10px 0 6px;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;}
+  .card h3.ce1{color:var(--ce1);} .card h3.ce2{color:var(--ce2);}
   .muted{color:var(--muted);font-size:.85rem;}
   .chips{display:flex;flex-wrap:wrap;gap:6px;}
   .chip{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:999px;padding:4px 11px;cursor:pointer;}
   .chip:hover{border-color:var(--accent);}
-  .chip.passed{background:var(--ok-bg);color:var(--ok);border-color:transparent;font-weight:600;}
+  .chip.CE1{border-left:5px solid var(--ce1);} .chip.CE2{border-left:5px solid var(--ce2);}
+  .chip.passed{background:var(--ok-bg);color:var(--ok);font-weight:600;}
   .chip.absent{text-decoration:line-through;opacity:.55;}
   .btn{font:inherit;font-weight:700;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:.9rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);}
   .btn:hover{border-color:var(--accent);}
@@ -51,13 +61,16 @@
   summary{cursor:pointer;font-weight:700;font-size:.92rem;}
   .add-row{display:flex;gap:6px;margin-top:10px;}
   .add-row input{flex:1;min-width:0;font:inherit;padding:6px 10px;border:1px dashed var(--line);border-radius:7px;background:var(--surface);color:var(--ink);}
-  .edit-list{display:flex;flex-direction:column;gap:2px;margin-top:8px;max-height:260px;overflow:auto;}
-  .edit-list div{display:flex;justify-content:space-between;align-items:center;padding:2px 4px;border-radius:6px;}
+  .add-row select{font:inherit;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink);}
+  .edit-list{display:flex;flex-direction:column;gap:2px;margin-top:8px;max-height:300px;overflow:auto;}
+  .edit-list div{display:flex;gap:6px;align-items:center;padding:2px 4px;border-radius:6px;}
   .edit-list div:hover{background:var(--surface-2);}
+  .edit-list span{flex:1;}
+  .lvl{font:inherit;font-size:.75rem;font-weight:800;border:none;border-radius:6px;padding:2px 8px;cursor:pointer;color:#fff;}
+  .lvl.CE1{background:var(--ce1);} .lvl.CE2{background:var(--ce2);}
   .del{background:none;border:none;color:#a5453a;cursor:pointer;font-size:1rem;padding:2px 8px;}
   label.toggle{display:flex;gap:8px;align-items:center;font-size:.9rem;cursor:pointer;}
 
-  /* Fenêtre du gagnant */
   .overlay{position:fixed;inset:0;background:rgba(20,30,28,.55);display:none;align-items:center;justify-content:center;z-index:10;padding:20px;}
   .overlay.show{display:flex;}
   .winner{background:var(--board);color:var(--chalk);border-radius:20px;padding:34px 44px;text-align:center;max-width:720px;width:100%;
@@ -65,6 +78,8 @@
   @keyframes pop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
   .winner .lead{font-size:1.3rem;color:var(--chalk-dim);margin:0;}
   .winner .name{font-family:var(--font-display);font-size:clamp(3rem,10vw,6.5rem);line-height:1.1;margin:10px 0 6px;}
+  .winner .badge{display:inline-block;font-weight:800;font-size:1rem;padding:3px 12px;border-radius:999px;color:#fff;margin-bottom:8px;}
+  .winner .badge.CE1{background:var(--ce1);} .winner .badge.CE2{background:var(--ce2);}
   .winner .sub{font-size:1.2rem;margin:0 0 24px;color:var(--chalk-dim);}
   .winner .row{justify-content:center;}
   .winner .go{font:inherit;font-size:1.15rem;font-weight:800;background:var(--accent);color:#fff;border:none;border-radius:999px;padding:12px 30px;cursor:pointer;}
@@ -75,15 +90,20 @@
 <div class="app">
   <header>
     <h1>Qui vient corriger au tableau ?</h1>
-    <div class="count"><b id="left-count">0</b> élève(s) encore dans la roue</div>
+    <div class="count"><b id="left-count">0</b> <span id="left-label">élève(s) encore dans la roue</span></div>
   </header>
 
   <main class="stage">
+    <div class="levels" role="group" aria-label="Niveau">
+      <button data-level="CE1">CE1</button>
+      <button data-level="CE2">CE2</button>
+      <button data-level="TOUS">Toute la classe</button>
+    </div>
     <div class="wheel-box">
       <div class="pointer" aria-hidden="true"></div>
       <canvas id="wheel" width="1200" height="1200" aria-label="Roue des prénoms"></canvas>
       <div class="empty-msg" id="empty-msg" hidden>
-        <div>Tout le monde est passé !</div>
+        <div id="empty-text">Tout le monde est passé !</div>
         <button class="btn" id="refill-btn">Remettre tout le monde dans la roue</button>
       </div>
     </div>
@@ -94,15 +114,15 @@
   <aside>
     <section class="card">
       <h2>Déjà passés</h2>
-      <div class="chips" id="passed-list"></div>
+      <div id="passed-list"></div>
       <div class="muted" style="margin-top:8px">Cliquer sur un prénom pour le remettre dans la roue.</div>
       <div class="row" style="margin-top:10px"><button class="btn" id="reset-btn">Tout remettre dans la roue</button></div>
     </section>
 
     <section class="card">
       <h2>Absents aujourd'hui</h2>
-      <div class="muted" style="margin-bottom:8px">Cliquer sur un prénom pour le marquer absent (il sort de la roue).</div>
-      <div class="chips" id="absent-list"></div>
+      <div class="muted">Cliquer sur un prénom pour le marquer absent (il sort de la roue).</div>
+      <div id="absent-list"></div>
     </section>
 
     <section class="card">
@@ -112,9 +132,11 @@
     <section class="card">
       <details>
         <summary>Modifier la liste de la classe</summary>
+        <div class="muted" style="margin-top:6px">Cliquer sur l'étiquette CE1 / CE2 pour changer le niveau.</div>
         <div class="edit-list" id="edit-list"></div>
         <div class="add-row">
           <input type="text" id="new-name" placeholder="Ajouter un élève…">
+          <select id="new-level" aria-label="Niveau"><option>CE1</option><option>CE2</option></select>
           <button class="btn" id="add-btn">Ajouter</button>
         </div>
       </details>
@@ -126,6 +148,7 @@
   <div class="winner">
     <p class="lead">C'est à toi…</p>
     <div class="name" id="winner-name"></div>
+    <div class="badge" id="winner-badge"></div>
     <p class="sub">Viens corriger au tableau !</p>
     <div class="row">
       <button class="go" id="ok-btn">C'est parti !</button>
@@ -135,34 +158,42 @@
 </div>
 
 <script>
-const DEFAULT_STUDENTS = ["Tiago","Julen","Terry","Noah","Romane","Rose","Nolan","Tyméo","Anna","Zoé",
+const CE2_DEFAULT = ["Milo","Ambre","Noelia","Joy","Hanaé","Paul"];
+const DEFAULT_NAMES = ["Tiago","Julen","Terry","Noah","Romane","Rose","Nolan","Tyméo","Anna","Zoé",
   "Clémence","Adam L.","Léon","Gabin","Adam Lu.","Joana","Alicia","Lùa","Paul","Ambre","Noelia","Hanaé","Milo","Joy"];
+const DEFAULT_STUDENTS = DEFAULT_NAMES.map(n=>({name:n, level: CE2_DEFAULT.includes(n) ? "CE2" : "CE1"}));
 const COLORS = ["#e07a5f","#3d8b7a","#f2cc8f","#5b7fb5","#c96b9b","#81b29a","#e9a23b","#6d6aa8","#d65a4a","#4aa3b8","#9bbf5a","#b5835a"];
-const KEY = "roue-eleves-tableau-v1";
+const KEY = "roue-eleves-tableau-v2";
 
-let students = DEFAULT_STUDENTS.slice();
-let passed = [];   // dans l'ordre de passage
+let students = DEFAULT_STUDENTS.map(s=>({...s}));
+let passed = [];
 let absent = [];
-let rotation = 0;  // radians
+let mode = "CE1";   // CE1 | CE2 | TOUS
+let rotation = 0;
 let spinning = false;
 let pendingWinner = null;
 let audioCtx = null;
 
 /* ---------- Mémoire sur cet appareil ---------- */
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify({students, passed, absent, day:today()})); }catch(e){} }
+function today(){ return new Date().toISOString().slice(0,10); }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify({students, passed, absent, mode, day:today()})); }catch(e){} }
 function load(){
   try{
     const s = JSON.parse(localStorage.getItem(KEY) || "null");
     if(!s) return;
-    if(Array.isArray(s.students) && s.students.length) students = s.students;
-    if(Array.isArray(s.passed)) passed = s.passed.filter(n=>students.includes(n));
-    // les absents ne valent que pour la journée
-    if(Array.isArray(s.absent) && s.day === today()) absent = s.absent.filter(n=>students.includes(n));
+    if(Array.isArray(s.students) && s.students.length)
+      students = s.students.filter(x=>x && x.name).map(x=>({name:String(x.name), level: x.level==="CE2" ? "CE2" : "CE1"}));
+    const names = students.map(x=>x.name);
+    if(Array.isArray(s.passed)) passed = s.passed.filter(n=>names.includes(n));
+    if(Array.isArray(s.absent) && s.day === today()) absent = s.absent.filter(n=>names.includes(n));
+    if(["CE1","CE2","TOUS"].includes(s.mode)) mode = s.mode;
   }catch(e){}
 }
-function today(){ return new Date().toISOString().slice(0,10); }
 
-function remaining(){ return students.filter(n=>!passed.includes(n) && !absent.includes(n)); }
+function levelOf(name){ const s = students.find(x=>x.name===name); return s ? s.level : "CE1"; }
+function inMode(s){ return mode === "TOUS" || s.level === mode; }
+function remaining(){ return students.filter(s=>inMode(s) && !passed.includes(s.name) && !absent.includes(s.name)).map(s=>s.name); }
+function modeLabel(){ return mode === "TOUS" ? "toute la classe" : "les " + mode; }
 
 /* ---------- Dessin de la roue ---------- */
 const canvas = document.getElementById('wheel');
@@ -170,7 +201,7 @@ const ctx = canvas.getContext('2d');
 
 function colorFor(i, n){
   let c = i % COLORS.length;
-  if(n > 1 && i === n-1 && c === 0) c = 5; // éviter deux couleurs identiques côte à côte
+  if(n > 1 && i === n-1 && c === 0) c = 5;
   return COLORS[c];
 }
 
@@ -179,15 +210,22 @@ function draw(){
   const W = canvas.width, cx = W/2, cy = W/2, R = W/2 - 30;
   ctx.clearRect(0,0,W,W);
   document.getElementById('left-count').textContent = names.length;
+  document.getElementById('left-label').textContent =
+    (mode === "TOUS" ? "élève(s)" : mode) + " encore dans la roue";
   document.getElementById('empty-msg').hidden = names.length > 0;
+  document.getElementById('empty-text').textContent =
+    mode === "TOUS" ? "Tout le monde est passé !" : "Tous les " + mode + " sont passés !";
+  document.getElementById('refill-btn').textContent =
+    mode === "TOUS" ? "Remettre tout le monde dans la roue" : "Remettre les " + mode + " dans la roue";
+  document.getElementById('reset-btn').textContent = document.getElementById('refill-btn').textContent;
   document.getElementById('spin-btn').disabled = names.length === 0 || spinning;
   if(names.length === 0){
     ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fillStyle = "#f1ece0"; ctx.fill();
     return;
   }
   const n = names.length, seg = Math.PI*2/n;
-  // bord extérieur
-  ctx.beginPath(); ctx.arc(cx,cy,R+18,0,Math.PI*2); ctx.fillStyle = "#2f4a44"; ctx.fill();
+  const rim = mode === "CE1" ? "#2f6fb0" : mode === "CE2" ? "#b0442f" : "#2f4a44";
+  ctx.beginPath(); ctx.arc(cx,cy,R+18,0,Math.PI*2); ctx.fillStyle = rim; ctx.fill();
 
   for(let i=0;i<n;i++){
     const a0 = -Math.PI/2 + rotation + i*seg;
@@ -195,7 +233,6 @@ function draw(){
     ctx.fillStyle = colorFor(i,n); ctx.fill();
     if(n>1){ ctx.strokeStyle = "rgba(255,255,255,.85)"; ctx.lineWidth = 4; ctx.stroke(); }
 
-    // prénom
     ctx.save();
     ctx.translate(cx,cy);
     ctx.rotate(a0 + seg/2);
@@ -209,10 +246,12 @@ function draw(){
     ctx.fillText(names[i], R - 34, 0);
     ctx.restore();
   }
-  // moyeu
   ctx.beginPath(); ctx.arc(cx,cy,64,0,Math.PI*2); ctx.fillStyle = "#fffdf8"; ctx.fill();
-  ctx.lineWidth = 10; ctx.strokeStyle = "#2f4a44"; ctx.stroke();
-  // pointes des repères
+  ctx.lineWidth = 10; ctx.strokeStyle = rim; ctx.stroke();
+  if(mode !== "TOUS"){
+    ctx.fillStyle = rim; ctx.font = "800 40px 'Segoe UI', system-ui, Arial, sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(mode, cx, cy+2);
+  }
   for(let i=0;i<n;i++){
     const a = -Math.PI/2 + rotation + i*seg;
     ctx.beginPath(); ctx.arc(cx + Math.cos(a)*(R+9), cy + Math.sin(a)*(R+9), 6, 0, Math.PI*2);
@@ -250,11 +289,9 @@ function spin(){
   if(spinning || names.length === 0) return;
   try{ audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); audioCtx.resume && audioCtx.resume(); }catch(e){ audioCtx = null; }
 
-  const n = names.length, seg = Math.PI*2/n;
-  const w = Math.floor(Math.random()*n);                 // tirage équitable
-  const jitter = (Math.random()*0.7 - 0.35) * seg;      // ne pas tomber pile au milieu
-  const TAU = Math.PI*2;
-  // on veut : (-rotation_finale mod 2π) = (w + 0.5)*seg + jitter
+  const n = names.length, seg = Math.PI*2/n, TAU = Math.PI*2;
+  const w = Math.floor(Math.random()*n);
+  const jitter = (Math.random()*0.7 - 0.35) * seg;
   let target = -((w + 0.5)*seg + jitter);
   const turns = 6 + Math.floor(Math.random()*3);
   const base = rotation + turns*TAU;
@@ -268,7 +305,7 @@ function spin(){
 
   function frame(now){
     const t = Math.min(1, (now - t0)/duration);
-    const e = 1 - Math.pow(1 - t, 4);   // ralentissement progressif
+    const e = 1 - Math.pow(1 - t, 4);
     rotation = start + delta*e;
     const cur = Math.floor(((-rotation % TAU) + TAU) % TAU / seg);
     if(cur !== lastSeg){ tick(); lastSeg = cur; }
@@ -286,6 +323,8 @@ function spin(){
 
 function showWinner(name){
   document.getElementById('winner-name').textContent = name;
+  const lvl = levelOf(name), b = document.getElementById('winner-badge');
+  b.textContent = lvl; b.className = 'badge ' + lvl;
   document.getElementById('overlay').classList.add('show');
   fanfare();
   document.getElementById('ok-btn').focus();
@@ -298,51 +337,76 @@ function closeWinner(removeIt){
 }
 
 /* ---------- Panneaux ---------- */
+function chip(name, extra, onclick, title){
+  const b = document.createElement('button');
+  b.className = 'chip ' + levelOf(name) + (extra ? ' ' + extra : '');
+  b.textContent = name; if(title) b.title = title;
+  b.onclick = ()=>{ if(!spinning) onclick(); };
+  return b;
+}
+function groupBlock(container, level, items, makeChip){
+  if(items.length === 0) return;
+  const h = document.createElement('h3'); h.className = level.toLowerCase(); h.textContent = level;
+  const box = document.createElement('div'); box.className = 'chips';
+  items.forEach(n=>box.appendChild(makeChip(n)));
+  container.append(h, box);
+}
+
 function renderAll(){
+  document.querySelectorAll('.levels button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.level === mode));
   draw();
+
   const pl = document.getElementById('passed-list');
   pl.innerHTML = '';
   if(passed.length === 0) pl.innerHTML = '<span class="muted">Personne pour l\'instant.</span>';
-  passed.forEach(name=>{
-    const b = document.createElement('button');
-    b.className = 'chip passed'; b.textContent = name; b.title = 'Remettre dans la roue';
-    b.onclick = ()=>{ if(spinning) return; passed = passed.filter(n=>n!==name); save(); renderAll(); };
-    pl.appendChild(b);
+  ["CE1","CE2"].forEach(lvl=>{
+    groupBlock(pl, lvl, passed.filter(n=>levelOf(n)===lvl), n=>chip(n,'passed',()=>{
+      passed = passed.filter(x=>x!==n); save(); renderAll(); }, 'Remettre dans la roue'));
   });
 
   const al = document.getElementById('absent-list');
   al.innerHTML = '';
-  students.forEach(name=>{
-    const b = document.createElement('button');
-    const isAbs = absent.includes(name);
-    b.className = 'chip' + (isAbs ? ' absent' : '');
-    b.textContent = name;
-    b.setAttribute('aria-pressed', isAbs);
-    b.onclick = ()=>{ if(spinning) return; absent = isAbs ? absent.filter(n=>n!==name) : absent.concat(name); save(); renderAll(); };
-    al.appendChild(b);
+  ["CE1","CE2"].forEach(lvl=>{
+    groupBlock(al, lvl, students.filter(s=>s.level===lvl).map(s=>s.name), n=>{
+      const isAbs = absent.includes(n);
+      const c = chip(n, isAbs ? 'absent' : '', ()=>{
+        absent = isAbs ? absent.filter(x=>x!==n) : absent.concat(n); save(); renderAll(); });
+      c.setAttribute('aria-pressed', isAbs);
+      return c;
+    });
   });
 
   const el = document.getElementById('edit-list');
   el.innerHTML = '';
-  students.forEach(name=>{
+  students.slice().sort((a,b)=> a.level.localeCompare(b.level) || a.name.localeCompare(b.name,'fr')).forEach(st=>{
     const d = document.createElement('div');
-    const s = document.createElement('span'); s.textContent = name;
+    const lv = document.createElement('button'); lv.className = 'lvl ' + st.level; lv.textContent = st.level; lv.title = 'Changer de niveau';
+    lv.onclick = ()=>{ if(spinning) return; st.level = st.level === "CE1" ? "CE2" : "CE1"; save(); renderAll(); };
+    const s = document.createElement('span'); s.textContent = st.name;
     const x = document.createElement('button'); x.className = 'del'; x.textContent = '✕'; x.title = 'Retirer de la classe';
     x.onclick = ()=>{ if(spinning) return;
-      students = students.filter(n=>n!==name); passed = passed.filter(n=>n!==name); absent = absent.filter(n=>n!==name);
+      students = students.filter(o=>o.name!==st.name); passed = passed.filter(n=>n!==st.name); absent = absent.filter(n=>n!==st.name);
       save(); renderAll(); };
-    d.append(s, x); el.appendChild(d);
+    d.append(lv, s, x); el.appendChild(d);
   });
 }
 
 function addName(){
   const inp = document.getElementById('new-name');
   const v = inp.value.trim();
-  if(!v || students.includes(v)) return;
-  students.push(v); inp.value = ''; save(); renderAll();
+  if(!v || students.some(s=>s.name===v)) return;
+  students.push({name:v, level:document.getElementById('new-level').value});
+  inp.value = ''; save(); renderAll();
 }
-function refill(){ if(spinning) return; passed = []; save(); renderAll(); }
+function refill(){
+  if(spinning) return;
+  passed = passed.filter(n=>!(mode === "TOUS" || levelOf(n) === mode));
+  save(); renderAll();
+}
 
+document.querySelectorAll('.levels button').forEach(b=>b.onclick = ()=>{
+  if(spinning) return; mode = b.dataset.level; rotation = 0; save(); renderAll();
+});
 document.getElementById('spin-btn').onclick = spin;
 canvas.onclick = spin;
 document.getElementById('ok-btn').onclick = ()=>closeWinner(true);
