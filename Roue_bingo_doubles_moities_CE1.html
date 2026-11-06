@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bingo des doubles et des moitiés – CE1</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:"Andika","Comic Sans MS","Trebuchet MS",sans-serif;background:#2d1b4e;color:#222}
+#wrap{display:grid;grid-template-columns:auto 1fr;gap:24px;max-width:1300px;margin:0 auto;padding:16px;min-height:100vh;align-items:center}
+h1{color:#fff;text-align:center;font-size:40px;margin:0 0 6px}
+.left{display:flex;flex-direction:column;align-items:center}
+.wheelbox{position:relative;width:min(80vh,620px);height:min(80vh,620px)}
+canvas{width:100%;height:100%}
+.pointer{position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:22px solid transparent;border-right:22px solid transparent;border-top:44px solid #ffd93b;filter:drop-shadow(0 3px 2px rgba(0,0,0,.5));z-index:2}
+#spin{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:130px;height:130px;border-radius:50%;border:6px solid #fff;background:#f28c28;color:#fff;font-size:28px;font-weight:bold;font-family:inherit;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+#spin:disabled{background:#999}
+.panel{background:#fff;border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:12px;min-height:600px}
+.calc{font-size:56px;font-weight:bold;text-align:center;min-height:90px;line-height:1.2}
+.calc small{display:block;font-size:22px;color:#777;font-weight:normal}
+.row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+button.b{font-family:inherit;font-size:22px;padding:10px 18px;border-radius:12px;border:3px solid #333;background:#fff;cursor:pointer;box-shadow:0 3px 0 #333}
+button.b.main{background:#2b6cb0;color:#fff}
+.count{text-align:center;font-size:20px;color:#555}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:1}
+.col{border-radius:16px;padding:10px 12px}
+.col.d{background:#e6f0fb;border:3px solid #5b9bd5}.col.m{background:#fdeedd;border:3px solid #f28c28}
+.col h2{margin:0 0 8px;text-align:center;font-size:26px}
+.col.d h2{color:#2b6cb0}.col.m h2{color:#c0640f}
+.item{font-size:24px;padding:3px 10px;margin:4px 0;border-radius:10px;background:#fff;display:flex;justify-content:space-between}
+.item b{color:#d32f2f}
+.item.hl{outline:4px solid #2e9e44;background:#e3f7e6}
+.item.last{box-shadow:0 0 0 3px #ffd93b inset}
+.verif{border-top:2px dashed #ccc;padding-top:10px;text-align:center}
+.verif p{margin:4px 0 8px;font-size:18px;color:#555}
+.nums{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.nums button{font-family:inherit;font-size:22px;width:52px;height:46px;border-radius:10px;border:2px solid #333;background:#fff;cursor:pointer}
+.nums button.ok{background:#2e9e44;color:#fff;border-color:#2e9e44}
+.nums button.no{background:#d32f2f;color:#fff;border-color:#d32f2f}
+#vmsg{font-size:22px;font-weight:bold;min-height:30px;margin-top:6px}
+.legend{font-size:18px;text-align:center;color:#555}
+.legend i{display:inline-block;width:16px;height:16px;border-radius:4px;vertical-align:middle;margin:0 4px}
+@media (max-width:1000px){#wrap{grid-template-columns:1fr}}
+</style></head>
+<body>
+<div id="wrap">
+  <div class="left">
+    <h1>Bingo des doubles et des moitiés</h1>
+    <div class="wheelbox"><div class="pointer"></div><canvas id="cv" width="1240" height="1240"></canvas><button id="spin">Tourner</button></div>
+  </div>
+  <div class="panel">
+    <div class="calc" id="calc"><small>Appuie sur « Tourner »</small></div>
+    <div class="count" id="count"></div>
+    <div class="cols">
+      <div class="col d"><h2>Doubles</h2><div id="hd"></div></div>
+      <div class="col m"><h2>Moitiés</h2><div id="hm"></div></div>
+    </div>
+    <div class="verif">
+      <div class="row"><button class="b main" id="check">Vérifier un bingo</button><button class="b" id="reset">Nouvelle partie</button></div>
+      <div id="vbox" style="display:none">
+        <p>Touche les nombres de l'élève : vert = il est sorti, rouge = il n'est pas encore sorti.</p>
+        <div class="nums" id="vnums"></div>
+        <div id="vmsg"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const ALL = [];
+for (let n = 1; n <= 10; n++) ALL.push({ kind: "d", n, label: "double de " + n, short: "double " + n, res: 2 * n });
+for (let n = 2; n <= 20; n += 2) ALL.push({ kind: "m", n, label: "moitié de " + n, short: "moitié " + n, res: n / 2 });
+
+let left, drawn, angle = 0, spinning = false, current = null;
+const cv = document.getElementById("cv"), ctx = cv.getContext("2d");
+const R = cv.width / 2;
+
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+let verify = false, picked = new Set();
+const POSS = [1,2,3,4,5,6,7,8,9,10,12,14,16,18,20];
+
+function reset() {
+  left = shuffle(ALL.slice()); drawn = []; current = null; angle = 0;
+  verify = false; picked = new Set();
+  document.getElementById("calc").innerHTML = "<small>Appuie sur « Tourner »</small>";
+  document.getElementById("spin").disabled = false;
+  draw(); info();
+}
+
+function draw() {
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  ctx.save(); ctx.translate(R, R); ctx.rotate(angle);
+  const n = left.length;
+  if (n === 0) { ctx.restore(); ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(R, R, R - 10, 0, 7); ctx.fill(); return; }
+  const a = 2 * Math.PI / n;
+  for (let i = 0; i < n; i++) {
+    const s = left[i];
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, R - 10, i * a, (i + 1) * a); ctx.closePath();
+    ctx.fillStyle = s.kind === "d" ? (i % 2 ? "#5b9bd5" : "#7fb3e3") : (i % 2 ? "#f28c28" : "#f6a95c");
+    ctx.fill(); ctx.strokeStyle = "#fff"; ctx.lineWidth = 4; ctx.stroke();
+    ctx.save(); ctx.rotate((i + 0.5) * a);
+    ctx.fillStyle = "#fff"; ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    const fs = Math.min(46, Math.max(26, 900 / n));
+    ctx.font = `bold ${fs}px "Andika","Comic Sans MS",sans-serif`;
+    ctx.fillText(s.short, R - 40, 0);
+    ctx.restore();
+  }
+  ctx.restore();
+  ctx.beginPath(); ctx.arc(R, R, R - 8, 0, 7); ctx.lineWidth = 14; ctx.strokeStyle = "#ffd93b"; ctx.stroke();
+}
+
+function info() {
+  document.getElementById("count").textContent = `Calculs tirés : ${drawn.length} / ${ALL.length}`;
+  const last = drawn[drawn.length - 1];
+  const item = s => `<div class="item ${verify && picked.has(s.res) ? "hl" : ""} ${s === last && !verify ? "last" : ""}">
+      <span>${s.label}</span>${verify ? `<b>${s.res}</b>` : ""}</div>`;
+  // rangés dans l'ordre pour vérifier vite
+  const byN = (a, b) => a.n - b.n;
+  document.getElementById("hd").innerHTML = drawn.filter(s => s.kind === "d").sort(byN).map(item).join("");
+  document.getElementById("hm").innerHTML = drawn.filter(s => s.kind === "m").sort(byN).map(item).join("");
+  const vb = document.getElementById("vbox");
+  vb.style.display = verify ? "block" : "none";
+  document.getElementById("check").textContent = verify ? "Cacher les résultats" : "Vérifier un bingo";
+  if (verify) {
+    const out = new Set(drawn.map(s => s.res));
+    document.getElementById("vnums").innerHTML = POSS.map(n =>
+      `<button data-n="${n}" class="${picked.has(n) ? (out.has(n) ? "ok" : "no") : ""}">${n}</button>`).join("");
+    document.querySelectorAll("#vnums button").forEach(b => b.onclick = () => {
+      const n = +b.dataset.n; picked.has(n) ? picked.delete(n) : picked.add(n); info(); });
+    const good = [...picked].filter(n => out.has(n)).length;
+    document.getElementById("vmsg").innerHTML = picked.size === 0 ? "" :
+      (good === 6 && picked.size === 6 ? '<span style="color:#2e9e44">BINGO ! Les 6 nombres sont sortis 🎉</span>'
+       : `${good} nombre${good > 1 ? "s" : ""} sorti${good > 1 ? "s" : ""} sur ${picked.size}`);
+  }
+}
+
+function spin() {
+  if (spinning || left.length === 0) return;
+  spinning = true; verify = false; picked = new Set(); document.getElementById("spin").disabled = true;
+  document.getElementById("calc").innerHTML = "<small>…</small>"; info();
+  const n = left.length, a = 2 * Math.PI / n;
+  const idx = Math.floor(Math.random() * n);
+  // le pointeur est en haut (angle -π/2) : on vise le milieu du secteur idx
+  const target = -Math.PI / 2 - (idx + 0.5) * a + (Math.random() - 0.5) * a * 0.6;
+  let delta = target - (angle % (2 * Math.PI)); while (delta < 0) delta += 2 * Math.PI;
+  const total = delta + 2 * Math.PI * (4 + Math.floor(Math.random() * 3));
+  const start = angle, t0 = performance.now(), dur = 4200;
+  function step(t) {
+    const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+    angle = start + total * e; draw();
+    if (p < 1) return requestAnimationFrame(step);
+    current = left[idx];
+    document.getElementById("calc").innerHTML = current.label.replace(/(\d+)$/, "<span>$1</span>");
+    drawn.push(current); info();
+    setTimeout(() => {
+      left.splice(idx, 1); angle = 0; draw();
+      spinning = false;
+      document.getElementById("spin").disabled = left.length === 0;
+      if (left.length === 0) document.getElementById("spin").textContent = "Fini !";
+    }, 900);
+  }
+  requestAnimationFrame(step);
+}
+
+document.getElementById("spin").onclick = spin;
+document.getElementById("check").onclick = () => { verify = !verify; if (!verify) picked = new Set(); info(); };
+document.getElementById("reset").onclick = () => { document.getElementById("spin").textContent = "Tourner"; reset(); };
+document.addEventListener("keydown", e => { if (e.code === "Space") { e.preventDefault(); spin(); } });
+reset();
+</script>
+</body></html>
