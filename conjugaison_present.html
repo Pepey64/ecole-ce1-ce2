@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conjugaison : le présent</title>
+<style>
+  :root{
+    --fond:#f6f1e7; --papier:#fffdf8; --encre:#1d2733; --doux:#5b6675; --trait:#e3dccd;
+    --rouge:#c8281e; --rouge-clair:#fbe3e0; --bleu:#1f5fa8; --bleu-clair:#e3edf8;
+    --vert:#2f7a4f; --vert-clair:#e2f2e8; --nuit:#1f3a5f; --gris:#e6e6e6; --focus:#f2a900;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html,body{margin:0}
+  body{background:var(--fond);color:var(--encre);font-family:Verdana, Geneva, sans-serif;font-size:18px;min-height:100vh}
+  button{font-family:inherit}
+  button:focus-visible,input:focus-visible,select:focus-visible{outline:4px solid var(--focus);outline-offset:2px}
+
+  header{background:var(--nuit);color:#fff;padding:12px 18px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;justify-content:space-between}
+  header a{color:#cfe0f5;text-decoration:none;font-size:15px}
+  header h1{margin:0;font-family:"Porky's","Arial Black",Verdana,sans-serif;font-size:clamp(22px,3.4vw,32px);font-weight:900;letter-spacing:.5px}
+  header h1 span{color:#ffb4ab}
+  .niveaux{display:flex;border:2px solid #fff;border-radius:999px;overflow:hidden}
+  .niveaux button{font-size:18px;font-weight:800;border:none;background:transparent;color:#fff;padding:7px 22px;cursor:pointer}
+  .niveaux button[aria-pressed="true"]{background:#fff;color:var(--nuit)}
+
+  main{max-width:1050px;margin:0 auto;padding:16px}
+  .modes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .modes button{font-size:16px;font-weight:700;border:2px solid var(--trait);background:var(--papier);color:var(--encre);padding:9px 14px;border-radius:12px;cursor:pointer;min-height:46px}
+  .modes button[aria-pressed="true"]{background:var(--rouge);border-color:var(--rouge);color:#fff}
+  .outils{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;margin:12px 0}
+  .outils select{font:inherit;font-size:16px;padding:7px 10px;border-radius:10px;border:2px solid var(--trait);background:var(--papier);color:var(--encre)}
+  .btn{font-size:16px;font-weight:700;border:2px solid var(--trait);background:var(--papier);color:var(--encre);padding:8px 14px;border-radius:10px;cursor:pointer}
+  .btn:hover{border-color:var(--rouge)}
+  .btn.plein{background:var(--nuit);border-color:var(--nuit);color:#fff}
+  .note{font-size:14px;color:var(--doux)}
+
+  .scene{background:var(--papier);border:2px solid var(--trait);border-radius:22px;padding:22px 22px 26px;position:relative;min-height:380px}
+  .haut{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+  .consigne{font-size:20px;font-weight:700;flex:1}
+  .progres{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  .progres i{width:16px;height:16px;border-radius:50%;background:var(--gris);display:block}
+  .progres i.ok{background:var(--vert)} .progres i.ko{background:var(--rouge)} .progres i.en-cours{outline:3px solid var(--nuit);outline-offset:1px}
+  .mascotte{width:74px;height:74px;flex:none}
+
+  .question{font-size:clamp(28px,4.6vw,46px);text-align:center;margin:26px 0 22px;line-height:1.6}
+  .question .inf{color:var(--bleu);font-size:.62em;font-style:italic;white-space:nowrap}
+  .rad{color:var(--encre)} .term{color:var(--rouge);font-weight:700}
+  .trou{display:inline-block;min-width:2.4em;border-bottom:4px solid var(--rouge);color:var(--rouge);font-weight:700;text-align:center}
+  .question input{font:inherit;font-size:.9em;width:6.5em;max-width:60vw;padding:2px 8px;border:none;border-bottom:4px solid var(--bleu);background:var(--bleu-clair);border-radius:8px 8px 0 0;text-align:center;color:var(--encre)}
+  .question input.pron{width:3.6em}
+  .question input.juste{border-color:var(--vert);background:var(--vert-clair)}
+  .question input.faux{border-color:var(--rouge);background:var(--rouge-clair)}
+
+  .choix{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:10px 0}
+  .choix button{font-size:clamp(24px,3.6vw,34px);font-weight:800;min-width:110px;padding:12px 22px;border-radius:16px;border:3px solid var(--trait);background:#fff;color:var(--rouge);cursor:pointer}
+  .choix.formes button{color:var(--encre)}
+  .choix button:hover{border-color:var(--rouge)}
+  .choix button.juste{background:var(--vert-clair);border-color:var(--vert)}
+  .choix button.faux{background:var(--rouge-clair);border-color:var(--rouge)}
+
+  .original{font-size:clamp(22px,3.2vw,30px);text-align:center;background:#f4f1ea;border-radius:14px;padding:12px;margin:8px auto 6px;max-width:820px}
+  .remplace{text-align:center;font-size:20px;margin:12px 0}
+  .remplace b{color:var(--bleu)}
+  .gs{border:2px solid var(--bleu);border-radius:8px;padding:0 6px;color:var(--bleu)}
+
+  .assoc{display:grid;grid-template-columns:1fr 1fr;gap:14px 40px;max-width:640px;margin:16px auto}
+  .assoc .col{display:flex;flex-direction:column;gap:10px}
+  .assoc button{font-size:clamp(20px,3vw,28px);font-weight:700;padding:10px;border-radius:14px;border:3px solid var(--trait);background:#fff;color:var(--encre);cursor:pointer}
+  .assoc button.sel{border-color:var(--bleu);background:var(--bleu-clair)}
+  .assoc button.fait{border-color:var(--vert);background:var(--vert-clair);cursor:default}
+  .assoc button.faux{border-color:var(--rouge);background:var(--rouge-clair)}
+  .assoc .verbe-titre{grid-column:1/-1;text-align:center;font-size:26px;color:var(--bleu);font-style:italic}
+
+  .clavier{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:6px 0 4px}
+  .clavier button{font-size:22px;font-weight:700;width:52px;height:46px;border-radius:10px;border:2px solid var(--trait);background:#fff;cursor:pointer}
+  .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+  .valider{font-size:22px;font-weight:800;background:var(--rouge);color:#fff;border:none;border-radius:999px;padding:12px 38px;cursor:pointer;box-shadow:0 3px 0 #8d1a13}
+  .valider:active{transform:translateY(2px);box-shadow:0 1px 0 #8d1a13}
+
+  .retour{margin:16px auto 0;max-width:820px;border-radius:14px;padding:12px 16px;font-size:20px;text-align:center}
+  .retour.ok{background:var(--vert-clair);color:var(--vert);font-weight:700}
+  .retour.ko{background:var(--rouge-clair);color:#7c1a12}
+  .retour .corr{font-size:26px;color:var(--encre);margin-top:4px}
+  .indice{display:inline-block;margin-top:6px;border:2px dashed var(--bleu);border-radius:12px;padding:6px 12px;color:var(--bleu);font-size:18px}
+
+  .fin{text-align:center;padding:10px}
+  .fin .etoiles{font-size:64px;color:#e8a400;letter-spacing:8px}
+  .fin .score{font-size:30px;font-weight:800;margin:6px 0 14px}
+  .fin ul{list-style:none;padding:0;margin:10px auto;max-width:640px;text-align:left}
+  .fin li{padding:8px 12px;border-bottom:1px solid var(--trait);font-size:18px}
+
+  /* ---------- La leçon ---------- */
+  .voile{position:fixed;inset:0;background:rgba(15,25,35,.55);display:flex;align-items:center;justify-content:center;padding:18px;z-index:20}
+  .lecon{background:#fff;border-radius:18px;max-width:760px;width:100%;max-height:92vh;overflow:auto;padding:22px 26px;position:relative}
+  .lecon .code{position:absolute;top:16px;left:18px;border:2px solid #333;border-radius:6px;padding:2px 8px;font-weight:700;font-size:16px}
+  .lecon h2{text-align:center;margin:4px 0 14px;font-family:"Porky's","Arial Black",Verdana,sans-serif;color:var(--rouge);text-decoration:underline;font-size:28px}
+  .lecon .fermer{position:absolute;top:12px;right:14px;font-size:26px;background:none;border:none;cursor:pointer}
+  .lecon select{font:inherit;font-size:18px;padding:5px 10px;border-radius:8px;border:2px solid var(--trait)}
+  table.conj{border-collapse:collapse;width:100%;margin:14px 0;font-size:24px}
+  table.conj th{background:#d9d9d9;padding:8px;border:2px solid #555;font-size:20px}
+  table.conj td{border:2px solid #555;padding:8px 12px}
+  table.conj td.pers{font-size:15px;color:var(--doux);width:110px;text-align:center}
+  .coeur{display:flex;align-items:center;gap:10px;font-size:19px;margin:10px 0}
+  .coeur svg{flex:none}
+  .bulle{border:2px dashed #555;border-radius:18px;padding:10px 14px;margin:10px 0;font-size:18px}
+  .pour-trouver{border:2px dashed var(--bleu);border-radius:12px;padding:10px 14px;margin-top:10px;font-size:18px}
+
+  @media (max-width:640px){
+    body{font-size:16px}
+    .scene{padding:14px}
+    .mascotte{width:54px;height:54px}
+    .consigne{font-size:17px}
+    .assoc{gap:10px 14px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html">← Ludothèque</a>
+  <h1>Conjugaison : <span>le présent</span></h1>
+  <div class="niveaux" role="group" aria-label="Niveau">
+    <button data-niv="CE1">CE1</button>
+    <button data-niv="CE2">CE2</button>
+  </div>
+</header>
+
+<main>
+  <div class="modes" role="group" aria-label="Activité">
+    <button data-mode="terminaison">Choisir la terminaison</button>
+    <button data-mode="ecrire">Écrire le verbe</button>
+    <button data-mode="associer">Associer pronom – verbe</button>
+    <button data-mode="accord">Accord avec le sujet</button>
+    <button data-mode="transposer">Transposer</button>
+  </div>
+  <div class="outils">
+    <label for="filtre" class="note">Verbes :</label>
+    <select id="filtre">
+      <option value="tous">Tous les verbes</option>
+      <option value="er">Verbes en -er</option>
+      <option value="eaa">Être, avoir, aller</option>
+      <option value="irr">Faire, dire, venir…</option>
+    </select>
+    <span id="note-filtre" class="note" hidden>Cette activité utilise les verbes en -er.</span>
+    <button class="btn" id="btn-lecon">📖 La leçon</button>
+    <button class="btn" id="btn-nouveau">↻ Nouvelle série</button>
+  </div>
+
+  <section class="scene" aria-live="polite">
+    <div class="haut">
+      <div class="mascotte" id="mascotte"></div>
+      <div class="consigne" id="consigne"></div>
+      <div class="progres" id="progres"></div>
+    </div>
+    <div id="zone"></div>
+    <div id="retour"></div>
+  </section>
+</main>
+
+<div class="voile" id="voile" hidden>
+  <div class="lecon" role="dialog" aria-modal="true" aria-labelledby="lecon-titre">
+    <span class="code">C</span>
+    <button class="fermer" id="fermer-lecon" aria-label="Fermer">✕</button>
+    <h2 id="lecon-titre">Le présent</h2>
+    <div style="text-align:center"><label>Verbe : <select id="lecon-verbe"></select></label></div>
+    <div id="lecon-contenu"></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   DONNÉES
+   ========================================================= */
+const TERM_ER = ["e","es","e","ons","ez","ent"];
+const IRR = {
+  "être":   ["suis","es","est","sommes","êtes","sont"],
+  "avoir":  ["ai","as","a","avons","avez","ont"],
+  "aller":  ["vais","vas","va","allons","allez","vont"],
+  "faire":  ["fais","fais","fait","faisons","faites","font"],
+  "dire":   ["dis","dis","dit","disons","dites","disent"],
+  "venir":  ["viens","viens","vient","venons","venez","viennent"],
+  "pouvoir":["peux","peux","peut","pouvons","pouvez","peuvent"],
+  "voir":   ["vois","vois","voit","voyons","voyez","voient"],
+  "vouloir":["veux","veux","veut","voulons","voulez","veulent"],
+  "prendre":["prends","prends","prend","prenons","prenez","prennent"]
+};
+const PAR_COEUR = ["être","avoir","aller"];
+
+// niv : niveau à partir duquel le verbe est proposé ; c : compléments (valables pour tous les sujets)
+const VERBES = [
+  {inf:"chanter",   niv:"CE1", c:["une chanson","dans la chorale"]},
+  {inf:"jouer",     niv:"CE1", c:["au ballon","aux billes"]},
+  {inf:"danser",    niv:"CE1", c:["dans la cour"]},
+  {inf:"parler",    niv:"CE1", c:["très fort","doucement"]},
+  {inf:"marcher",   niv:"CE1", c:["dans la forêt"]},
+  {inf:"regarder",  niv:"CE1", c:["les nuages","un dessin animé"]},
+  {inf:"aimer",     niv:"CE1", c:["les gâteaux","la piscine"]},
+  {inf:"écouter",   niv:"CE1", c:["une histoire","la radio"]},
+  {inf:"arriver",   niv:"CE1", c:["à l'école","en retard"]},
+  {inf:"habiter",   niv:"CE1", c:["près de la plage"]},
+  {inf:"sauter",    niv:"CE1", c:["dans les flaques"]},
+  {inf:"dessiner",  niv:"CE1", c:["un bateau","une maison"]},
+  {inf:"porter",    niv:"CE1", c:["un gros sac"]},
+  {inf:"trouver",   niv:"CE1", c:["un trésor","la réponse"]},
+  {inf:"rentrer",   niv:"CE1", c:["à la maison"]},
+  {inf:"travailler",niv:"CE1", c:["en silence"]},
+  {inf:"être",      niv:"CE1", c:["dans la cour","à la piscine"]},
+  {inf:"avoir",     niv:"CE1", c:["un vélo rouge","une belle trousse"]},
+  {inf:"aller",     niv:"CE1", c:["à la plage","au marché"]},
+  {inf:"manger",    niv:"CE2", c:["une pomme","à la cantine"]},
+  {inf:"nager",     niv:"CE2", c:["dans la piscine"]},
+  {inf:"ranger",    niv:"CE2", c:["la classe"]},
+  {inf:"partager",  niv:"CE2", c:["le goûter"]},
+  {inf:"commencer", niv:"CE2", c:["un dessin"]},
+  {inf:"lancer",    niv:"CE2", c:["le ballon"]},
+  {inf:"faire",     niv:"CE2", c:["un gâteau","du vélo"]},
+  {inf:"dire",      niv:"CE2", c:["bonjour","la vérité"]},
+  {inf:"venir",     niv:"CE2", c:["à la fête"]},
+  {inf:"pouvoir",   niv:"CE2", c:["jouer dehors"]},
+  {inf:"voir",      niv:"CE2", c:["un arc-en-ciel"]},
+  {inf:"vouloir",   niv:"CE2", c:["un bonbon"]},
+  {inf:"prendre",   niv:"CE2", c:["le bus"]}
+];
+
+// Groupes sujets (k = personne 0..5, g = genre pour le pronom de reprise)
+const SUJETS = [
+  {t:"Ludo",k:2,g:"m"}, {t:"Léo",k:2,g:"m"}, {t:"Emma",k:2,g:"f"}, {t:"Rémi",k:2,g:"m"},
+  {t:"la maîtresse",k:2,g:"f"}, {t:"mon frère",k:2,g:"m"}, {t:"ma sœur",k:2,g:"f"}, {t:"le petit garçon",k:2,g:"m"},
+  {t:"Ludo et Léo",k:5,g:"m"}, {t:"Emma et Rémi",k:5,g:"m"}, {t:"les enfants",k:5,g:"m"},
+  {t:"les filles",k:5,g:"f"}, {t:"mes copains",k:5,g:"m"}, {t:"Emma et ses amies",k:5,g:"f"},
+  {t:"Ludo et moi",k:3,g:"m",ce2:true}, {t:"Emma et moi",k:3,g:"f",ce2:true},
+  {t:"Léo et toi",k:4,g:"m",ce2:true}, {t:"toi et Emma",k:4,g:"m",ce2:true}
+];
+const PRONOMS_SUJETS = [
+  {t:"je",k:0,pron:true},{t:"tu",k:1,pron:true},{t:"il",k:2,g:"m",pron:true},{t:"elle",k:2,g:"f",pron:true},
+  {t:"nous",k:3,pron:true},{t:"vous",k:4,pron:true},{t:"ils",k:5,g:"m",pron:true},{t:"elles",k:5,g:"f",pron:true}
+];
+const PERS_NOM = ["1re personne","2e personne","3e personne","1re personne","2e personne","3e personne"];
+
+/* =========================================================
+   OUTILS
+   ========================================================= */
+const $ = id => document.getElementById(id);
+const alea = a => a[Math.floor(Math.random()*a.length)];
+const melange = a => { a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const maj = s => s.charAt(0).toUpperCase() + s.slice(1);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const verbe = inf => VERBES.find(v => v.inf === inf);
+const estEr = v => !IRR[v.inf];
+
+// Conjugue : renvoie {forme, rad, term}
+function conj(v, k){
+  if(IRR[v.inf]){
+    const f = IRR[v.inf][k];
+    if(PAR_COEUR.includes(v.inf)) return {forme:f, rad:f, term:"", coeur:true};
+    const m = f.match(/(ons|ez|ent|es|s|t|d|x)$/);
+    const t = m ? m[1] : "";
+    return {forme:f, rad:f.slice(0, f.length - t.length), term:t};
+  }
+  let r = v.inf.slice(0,-2);
+  if(k === 3 && r.endsWith("g")) r += "e";
+  if(k === 3 && r.endsWith("c")) r = r.slice(0,-1) + "ç";
+  return {forme:r + TERM_ER[k], rad:r, term:TERM_ER[k]};
+}
+const voyelle = f => /^[aeiouyéèêâîôûh]/i.test(f);
+function pronomDe(k, forme, variante){
+  if(k === 0) return voyelle(forme) ? "j'" : "je";
+  if(k === 1) return "tu";
+  if(k === 3) return "nous";
+  if(k === 4) return "vous";
+  return variante || (k === 2 ? alea(["il","elle","on"]) : alea(["ils","elles"]));
+}
+const colle = (p, f) => p.endsWith("'") ? p + f : p + " " + f;
+const formeHTML = c => c.coeur ? `<b class="rad">${esc(c.forme)}</b>` : `<span class="rad">${esc(c.rad)}</span><span class="term">${esc(c.term)}</span>`;
+const pronomReprise = s => s.k===0?"je":s.k===1?"tu":s.k===3?"nous":s.k===4?"vous":s.k===2?(s.g==="f"?"elle":"il"):(s.g==="f"?"elles":"ils");
+
+function norm(s){ return String(s).trim().toLowerCase().replace(/[’`´]/g,"'").replace(/\s+/g," "); }
+function sansAccent(s){ return s.normalize("NFD").replace(/[̀-ͯ]/g,""); }
+// 0 = faux, 1 = juste, 2 = juste sauf les accents
+function compare(rep, attendu){
+  const a = norm(rep), b = norm(attendu);
+  if(a === b) return 1;
+  if(sansAccent(a) === sansAccent(b)) return 2;
+  return 0;
+}
+
+/* =========================================================
+   MASCOTTE : le personnage « verbe » au masque rouge
+   ========================================================= */
+function mascotte(humeur){
+  const bouche = humeur === "ok" ? '<path d="M33 60 Q50 76 67 60" stroke="#1d2733" stroke-width="4" fill="none" stroke-linecap="round"/>'
+             : humeur === "ko" ? '<ellipse cx="50" cy="64" rx="7" ry="6" fill="#1d2733"/>'
+             : '<path d="M36 61 Q50 70 64 61" stroke="#1d2733" stroke-width="4" fill="none" stroke-linecap="round"/>';
+  $("mascotte").innerHTML = `<svg viewBox="0 0 100 100" aria-hidden="true">
+    <circle cx="50" cy="52" r="42" fill="#ffd36b" stroke="#1d2733" stroke-width="3"/>
+    <path d="M12 40 Q50 26 88 40 L86 52 Q68 58 50 50 Q32 58 14 52 Z" fill="#c8281e" stroke="#1d2733" stroke-width="2.5"/>
+    <ellipse cx="34" cy="44" rx="7" ry="6" fill="#fff"/><ellipse cx="66" cy="44" rx="7" ry="6" fill="#fff"/>
+    <circle cx="35" cy="45" r="3.2" fill="#1d2733"/><circle cx="67" cy="45" r="3.2" fill="#1d2733"/>
+    <path d="M88 40 q10 -2 9 8" stroke="#c8281e" stroke-width="4" fill="none" stroke-linecap="round"/>
+    ${bouche}</svg>`;
+}
+
+/* =========================================================
+   ÉTAT
+   ========================================================= */
+let niveau = "CE1", mode = "terminaison", filtre = "tous";
+let serie = [], index = 0, resultats = [], courant = null, attente = false;
+try{
+  const m = JSON.parse(localStorage.getItem("conj-present") || "null");
+  if(m){ if(["CE1","CE2"].includes(m.niveau)) niveau = m.niveau; if(m.mode) mode = m.mode; if(m.filtre) filtre = m.filtre; }
+}catch(e){}
+function sauver(){ try{ localStorage.setItem("conj-present", JSON.stringify({niveau, mode, filtre})); }catch(e){} }
+
+function verbesDispo(seulementEr){
+  let v = VERBES.filter(x => niveau === "CE2" || x.niv === "CE1");
+  if(seulementEr) return v.filter(estEr);
+  if(filtre === "er") v = v.filter(estEr);
+  else if(filtre === "eaa") v = v.filter(x => PAR_COEUR.includes(x.inf));
+  else if(filtre === "irr") v = v.filter(x => IRR[x.inf] && !PAR_COEUR.includes(x.inf));
+  return v.length ? v : VERBES.filter(x => x.niv === "CE1");
+}
+const sujetsDispo = () => SUJETS.filter(s => niveau === "CE2" || !s.ce2);
+
+/* =========================================================
+   FABRICATION DES QUESTIONS
+   ========================================================= */
+function tireVerbes(n, seulementEr){
+  const dispo = verbesDispo(seulementEr);
+  const out = [];
+  let sac = [];
+  for(let i=0;i<n;i++){ if(!sac.length) sac = melange(dispo); out.push(sac.pop()); }
+  return out;
+}
+
+function fabriquer(){
+  const n = mode === "associer" ? 5 : 10;
+  if(mode === "terminaison"){
+    return tireVerbes(n, true).map(v => {
+      const k = Math.floor(Math.random()*6), c = conj(v,k);
+      return {v, k, c, pro:pronomDe(k, c.forme)};
+    });
+  }
+  if(mode === "ecrire"){
+    return tireVerbes(n).map(v => {
+      const k = Math.floor(Math.random()*6), c = conj(v,k);
+      return {v, k, c, pro:pronomDe(k, c.forme)};
+    });
+  }
+  if(mode === "associer"){
+    return tireVerbes(n).map(v => ({v, pros:[0,1,2,3,4,5].map(k => pronomDe(k, conj(v,k).forme))}));
+  }
+  if(mode === "accord"){
+    const sujets = sujetsDispo();
+    // moitié singulier, moitié pluriel environ
+    return tireVerbes(n).map((v,i) => {
+      const pool = sujets.filter(s => i%2 ? s.k===5 || s.k===4 : s.k===2 || s.k===3);
+      const s = alea(pool.length ? pool : sujets);
+      return {v, s, comp:alea(v.c), c:conj(v,s.k)};
+    });
+  }
+  if(mode === "transposer"){
+    const sujets = sujetsDispo().filter(s => s.k===2 || s.k===5);
+    const cibles = sujetsDispo().concat(PRONOMS_SUJETS.filter(p => niveau === "CE2" || p.k===2 || p.k===5 || p.k===0 || p.k===1));
+    const verbs = tireVerbes(n*2);
+    const out = [];
+    for(let i=0;i<n;i++){
+      const src = alea(sujets);
+      let pool = cibles.filter(c => c.k !== src.k && (niveau === "CE2" || c.k === 2 || c.k === 5 || c.k === 0 || c.k === 1));
+      // en CE1 : surtout singulier <-> pluriel
+      if(niveau === "CE1" && Math.random() < .7) pool = pool.filter(c => !c.pron && (c.k===2||c.k===5));
+      const cib = alea(pool);
+      const v1 = verbs[2*i];
+      let v2 = verbs[2*i+1]; if(v2.inf === v1.inf) v2 = alea(verbesDispo().filter(x => x.inf !== v1.inf)) || v2;
+      out.push({src, cib, v1, c1:alea(v1.c), v2, c2:alea(v2.c), deux: niveau === "CE2"});
+    }
+    return out;
+  }
+  return [];
+}
+
+/* =========================================================
+   AFFICHAGE
+   ========================================================= */
+const CONSIGNES = {
+  terminaison:"Choisis la bonne terminaison.",
+  ecrire:"Écris le verbe conjugué au présent.",
+  associer:"Relie chaque pronom à son verbe : clique sur un pronom, puis sur le verbe.",
+  accord:"Accorde le verbe avec le groupe sujet.",
+  transposer:"Récris la phrase avec le nouveau groupe sujet."
+};
+
+function nouvelleSerie(){
+  serie = fabriquer(); index = 0; resultats = []; attente = false;
+  afficherQuestion();
+}
+
+function progres(){
+  $("progres").innerHTML = serie.map((_,i) => `<i class="${i < resultats.length ? (resultats[i].ok ? "ok":"ko") : i === index ? "en-cours" : ""}"></i>`).join("");
+}
+
+function majInterface(){
+  document.querySelectorAll(".niveaux button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.niv === niveau)));
+  document.querySelectorAll(".modes button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
+  const optIrr = $("filtre").querySelector('option[value="irr"]');
+  optIrr.hidden = niveau === "CE1"; optIrr.disabled = niveau === "CE1";
+  if(niveau === "CE1" && filtre === "irr") filtre = "tous";
+  $("filtre").value = filtre;
+  $("filtre").disabled = mode === "terminaison";
+  $("note-filtre").hidden = mode !== "terminaison";
+  $("consigne").textContent = CONSIGNES[mode];
+}
+
+const clavierHTML = () => `<div class="clavier" aria-label="Lettres accentuées">${["é","è","ê","à","ç","'"].map(l => `<button type="button" data-l="${l}">${l}</button>`).join("")}</div>`;
+const boutonValider = () => `<div class="actions"><button class="valider" id="valider">Valider</button></div>`;
+
+function afficherQuestion(){
+  majInterface(); mascotte(); progres();
+  $("retour").innerHTML = "";
+  const q = serie[index]; courant = q;
+  const z = $("zone");
+
+  if(mode === "terminaison"){
+    z.innerHTML = `<div class="question">${esc(maj(q.pro.endsWith("'") ? q.pro : q.pro + " "))}<span class="rad">${esc(q.c.rad)}</span><span class="trou" id="trou">?</span>
+      <div class="inf">(${esc(q.v.inf)})</div></div>
+      <div class="choix" id="choix">${["e","es","ons","ez","ent"].map(t => `<button data-t="${t}">-${t}</button>`).join("")}</div>`;
+    z.querySelectorAll("#choix button").forEach(b => b.onclick = () => repondreChoix(b, b.dataset.t === q.c.term));
+  }
+
+  else if(mode === "ecrire"){
+    z.innerHTML = `<div class="question">${esc(maj(q.k===0 ? "je / j'" : q.pro))} <span class="inf">(${esc(q.v.inf)})</span> → <input id="rep1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Verbe conjugué"></div>
+      ${clavierHTML()}${boutonValider()}`;
+    $("rep1").focus();
+    $("valider").onclick = validerSaisie;
+  }
+
+  else if(mode === "associer"){
+    const formes = melange([0,1,2,3,4,5].map(k => conj(q.v,k).forme));
+    q.trouves = 0; q.erreurs = 0; q.sel = null;
+    z.innerHTML = `<div class="assoc"><div class="verbe-titre">${esc(q.v.inf)}</div>
+      <div class="col" id="col-p">${q.pros.map((p,k) => `<button data-k="${k}">${esc(p)}</button>`).join("")}</div>
+      <div class="col" id="col-f">${formes.map(f => `<button data-f="${esc(f)}">${esc(f)}</button>`).join("")}</div></div>`;
+    z.querySelectorAll("#col-p button").forEach(b => b.onclick = () => {
+      if(b.classList.contains("fait") || attente) return;
+      z.querySelectorAll("#col-p button").forEach(x => x.classList.remove("sel"));
+      b.classList.add("sel"); q.sel = +b.dataset.k;
+    });
+    z.querySelectorAll("#col-f button").forEach(b => b.onclick = () => {
+      if(b.classList.contains("fait") || q.sel === null || attente) return;
+      const bp = z.querySelector(`#col-p button[data-k="${q.sel}"]`);
+      if(conj(q.v, q.sel).forme === b.dataset.f){
+        bp.classList.remove("sel"); bp.classList.add("fait"); b.classList.add("fait");
+        bp.textContent = colle(q.pros[q.sel], b.dataset.f);
+        q.sel = null; q.trouves++;
+        if(q.trouves === 6) terminer(q.erreurs === 0, q.erreurs === 0 ? "" : `${q.erreurs} erreur${q.erreurs>1?"s":""} pendant l'association.`);
+      } else {
+        q.erreurs++; b.classList.add("faux"); mascotte("ko");
+        setTimeout(() => { b.classList.remove("faux"); mascotte(); }, 600);
+      }
+    });
+  }
+
+  else if(mode === "accord"){
+    const sujet = maj(q.s.t);
+    const ce1 = niveau === "CE1";
+    z.innerHTML = `<div class="question"><span class="gs">${esc(sujet)}</span> ${ce1 ? '<span class="trou" id="trou">…</span>' : '<input id="rep1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Verbe conjugué">'} ${esc(q.comp)}.
+      <div class="inf">(${esc(q.v.inf)})</div></div>
+      ${ce1 ? `<div class="choix formes" id="choix">${melange(optionsAccord(q)).map(f => `<button data-f="${esc(f)}">${esc(f)}</button>`).join("")}</div>` : clavierHTML() + boutonValider()}
+      <div class="actions"><button class="btn" id="btn-indice">💡 Par quel pronom remplacer ?</button></div><div style="text-align:center" id="indice"></div>`;
+    $("btn-indice").onclick = () => { $("indice").innerHTML = `<span class="indice">${esc(maj(q.s.t))} → <b>${esc(pronomReprise(q.s))}</b></span>`; };
+    if(ce1) z.querySelectorAll("#choix button").forEach(b => b.onclick = () => repondreChoix(b, b.dataset.f === q.c.forme));
+    else { $("rep1").focus(); $("valider").onclick = validerSaisie; }
+  }
+
+  else if(mode === "transposer"){
+    const s = q.src, c = q.cib;
+    const f1s = conj(q.v1, s.k).forme, f2s = conj(q.v2, s.k).forme;
+    q.r1 = conj(q.v1, c.k); q.r2 = conj(q.v2, c.k);
+    q.pr2 = c.k === 0 ? (voyelle(q.r2.forme) ? "j'" : "je") : pronomReprise(c);
+    let orig = `<span class="gs">${esc(maj(s.t))}</span> ${esc(f1s)} ${esc(q.c1)}.`;
+    if(q.deux) orig += ` ${esc(maj(pronomReprise(s)))} ${esc(f2s)} ${esc(q.c2)}.`;
+    let debut = c.k === 0 ? (voyelle(q.r1.forme) ? "J'" : "Je") : maj(c.t);
+    let nouv = `<span class="gs">${esc(debut)}</span>${debut.endsWith("'") ? "" : " "}<input id="rep1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Premier verbe"> ${esc(q.c1)}.`;
+    if(q.deux) nouv += ` <input id="repP" class="pron" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Pronom"> <input id="rep2" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Deuxième verbe"> ${esc(q.c2)}.`;
+    z.innerHTML = `<div class="original">${orig}</div>
+      <div class="remplace">Remplace <b>${esc(s.t)}</b> par <b>${esc(c.t)}</b>.</div>
+      <div class="question" style="font-size:clamp(22px,3.4vw,34px)">${nouv}</div>
+      ${clavierHTML()}${boutonValider()}`;
+    $("rep1").focus();
+    $("valider").onclick = validerSaisie;
+  }
+
+  // Clavier des accents
+  let dernier = $("rep1");
+  z.querySelectorAll("input").forEach(i => i.addEventListener("focus", () => dernier = i));
+  z.querySelectorAll(".clavier button").forEach(b => b.onclick = () => {
+    if(!dernier) return;
+    const p = dernier.selectionStart ?? dernier.value.length;
+    dernier.value = dernier.value.slice(0,p) + b.dataset.l + dernier.value.slice(dernier.selectionEnd ?? p);
+    dernier.focus(); dernier.setSelectionRange(p+1, p+1);
+  });
+}
+
+function optionsAccord(q){
+  const f = new Set([conj(q.v,2).forme, conj(q.v,5).forme, conj(q.v,1).forme, conj(q.v,q.s.k).forme]);
+  return [...f].slice(0,4);
+}
+
+/* =========================================================
+   CORRECTION
+   ========================================================= */
+function repondreChoix(bouton, juste){
+  if(attente) return;
+  attente = true;
+  bouton.classList.add(juste ? "juste" : "faux");
+  if(!juste){
+    const bonne = [...$("choix").querySelectorAll("button")].find(b => (b.dataset.t && b.dataset.t === courant.c.term) || (b.dataset.f && b.dataset.f === courant.c.forme));
+    if(bonne) bonne.classList.add("juste");
+  }
+  if(mode === "terminaison"){ const t = $("trou"); t.textContent = courant.c.term; t.style.borderColor = juste ? "var(--vert)" : "var(--rouge)"; }
+  if(mode === "accord"){ const t = $("trou"); t.innerHTML = formeHTML(courant.c); }
+  terminer(juste);
+}
+
+function validerSaisie(){
+  if(attente) return;
+  const q = courant;
+  const champs = [];
+  if(mode === "ecrire" || mode === "accord") champs.push(["rep1", [q.c.forme]]);
+  if(mode === "transposer"){
+    champs.push(["rep1", [q.r1.forme]]);
+    if(q.deux){
+      champs.push(["repP", q.cib.k === 0 ? ["je","j'"] : [q.pr2]]);
+      champs.push(["rep2", [q.r2.forme]]);
+    }
+  }
+  if(champs.some(([id]) => !norm($(id).value))){ $(champs.find(([id]) => !norm($(id).value))[0]).focus(); return; }
+  let tout = true, accents = false;
+  champs.forEach(([id, attendus]) => {
+    const r = Math.max(...attendus.map(a => compare($(id).value, a)));
+    $(id).classList.add(r === 1 ? "juste" : "faux");
+    if(r !== 1) tout = false;
+    if(r === 2) accents = true;
+  });
+  attente = true;
+  terminer(tout, accents ? "Attention aux accents !" : "");
+}
+
+function correctionHTML(){
+  const q = courant;
+  if(mode === "terminaison" || mode === "ecrire") return `${esc(maj(q.pro))}${q.pro.endsWith("'") ? "" : " "}${formeHTML(q.c)}`;
+  if(mode === "accord") return `${esc(maj(q.s.t))} = <b>${esc(pronomReprise(q.s))}</b> → ${esc(maj(q.s.t))} ${formeHTML(q.c)} ${esc(q.comp)}.`;
+  if(mode === "transposer"){
+    const d = q.cib.k === 0 ? (voyelle(q.r1.forme) ? "J'" : "Je") : maj(q.cib.t);
+    let s = `${esc(d)}${d.endsWith("'") ? "" : " "}${formeHTML(q.r1)} ${esc(q.c1)}.`;
+    if(q.deux) s += ` ${esc(maj(q.pr2))}${q.pr2.endsWith("'") ? "" : " "}${formeHTML(q.r2)} ${esc(q.c2)}.`;
+    return s;
+  }
+  if(mode === "associer") return q.pros.map((p,k) => `${esc(p)}${p.endsWith("'")?"":" "}${formeHTML(conj(q.v,k))}`).join(" · ");
+  return "";
+}
+
+function terminer(juste, message){
+  attente = true;
+  resultats.push({ok:juste, corr:correctionHTML()});
+  progres();
+  mascotte(juste ? "ok" : "ko");
+  const dernier = index === serie.length - 1;
+  const btn = `<div class="actions"><button class="valider" id="suivant">${dernier ? "Voir mon score" : "Suivant →"}</button></div>`;
+  if(juste){
+    $("retour").innerHTML = `<div class="retour ok">${alea(["Bravo !","Super !","C'est juste !","Excellent !"])}</div>`;
+    setTimeout(suivant, mode === "associer" ? 1100 : 1000);
+  } else {
+    $("retour").innerHTML = `<div class="retour ko">${message ? esc(message) + "<br>" : ""}La bonne réponse :<div class="corr">${correctionHTML()}</div></div>${btn}`;
+    $("suivant").onclick = suivant; $("suivant").focus();
+  }
+}
+
+function suivant(){
+  if(!attente) return;
+  attente = false;
+  if(index < serie.length - 1){ index++; afficherQuestion(); }
+  else afficherFin();
+}
+
+function afficherFin(){
+  const ok = resultats.filter(r => r.ok).length, n = serie.length;
+  const pct = ok / n;
+  const etoiles = pct === 1 ? 3 : pct >= .7 ? 2 : pct >= .4 ? 1 : 0;
+  mascotte(etoiles >= 2 ? "ok" : undefined);
+  $("progres").innerHTML = resultats.map(r => `<i class="${r.ok?"ok":"ko"}"></i>`).join("");
+  const erreurs = resultats.filter(r => !r.ok);
+  $("zone").innerHTML = `<div class="fin">
+    <div class="etoiles">${"★".repeat(etoiles)}${"☆".repeat(3-etoiles)}</div>
+    <div class="score">${ok} / ${n}</div>
+    ${erreurs.length ? `<div>À revoir :</div><ul>${erreurs.map(r => `<li>${r.corr}</li>`).join("")}</ul>` : "<div>Aucune erreur, bravo !</div>"}
+    <div class="actions"><button class="valider" id="rejouer">Nouvelle série</button></div></div>`;
+  $("retour").innerHTML = "";
+  $("rejouer").onclick = nouvelleSerie; $("rejouer").focus();
+}
+
+/* =========================================================
+   LA LEÇON
+   ========================================================= */
+function remplirLecon(inf){
+  const sel = $("lecon-verbe");
+  sel.innerHTML = VERBES.filter(x => niveau === "CE2" || x.niv === "CE1").map(x => `<option ${x.inf===inf?"selected":""}>${esc(x.inf)}</option>`).join("");
+  const v = verbe(inf);
+  const lignes = [0,1,2].map(i => {
+    const s = conj(v,i), p = conj(v,i+3);
+    const ps = i===0 ? (voyelle(s.forme)?"j'":"je") : i===1 ? "tu" : "il, elle, on";
+    const pp = ["nous","vous","ils, elles"][i];
+    return `<tr><td class="pers">${PERS_NOM[i]}</td><td>${esc(ps)}${ps.endsWith("'")?"":" "}${formeHTML(s)}</td><td>${esc(pp)} ${formeHTML(p)}</td></tr>`;
+  }).join("");
+  let extra = "";
+  const coeurSVG = `<svg width="34" height="30" viewBox="0 0 34 30" aria-hidden="true"><path d="M17 29 C4 19 0 13 0 8 A8 8 0 0 1 17 5 A8 8 0 0 1 34 8 C34 13 30 19 17 29Z" fill="#c8281e"/></svg>`;
+  if(estEr(v)){
+    extra = `<div class="coeur">${coeurSVG}<div>Les verbes en <b>-er</b> : les terminaisons sont dans l'ordre :<br><b class="term">-e / -es / -e / -ons / -ez / -ent</b></div></div>`;
+    if(v.inf.endsWith("ger")) extra += `<div class="bulle">Avec <b>nous</b>, on garde le <b>e</b> pour entendre [ʒ] : nous ${formeHTML(conj(v,3))}.</div>`;
+    if(v.inf.endsWith("cer")) extra += `<div class="bulle">Avec <b>nous</b>, le c devient <b>ç</b> pour entendre [s] : nous ${formeHTML(conj(v,3))}.</div>`;
+  } else if(PAR_COEUR.includes(v.inf)){
+    extra = `<div class="bulle"><b>${esc(v.inf)}</b> est un verbe très utilisé qui ne ressemble à aucun autre : je l'apprends <b>par cœur</b>.</div>`;
+  } else {
+    extra = `<div class="bulle">Ce verbe change de radical. Les terminaisons sont souvent : <b class="term">-s / -s / -t (ou -d) / -ons / -ez / -ent</b>.</div>`;
+  }
+  extra += `<div class="bulle">Tu ne sais jamais sans <b class="term">s</b> ! Avec <b>ils</b> et <b>elles</b>, on écrit <b class="term">-ent</b> mais on ne l'entend pas.</div>`;
+  extra += `<div class="pour-trouver"><b>Pour trouver la terminaison :</b> je cherche le sujet (« Qui est-ce qui + verbe ? »), puis je le remplace par un pronom : <i>Ludo → il</i>, <i>Ludo et Léo → ils</i>.</div>`;
+  $("lecon-titre").textContent = "Le présent : " + v.inf;
+  $("lecon-contenu").innerHTML = `<table class="conj"><thead><tr><th></th><th>Singulier</th><th>Pluriel</th></tr></thead><tbody>${lignes}</tbody></table>${extra}`;
+}
+function ouvrirLecon(){
+  const inf = courant && (courant.v ? courant.v.inf : courant.v1 ? courant.v1.inf : "chanter") || "chanter";
+  remplirLecon(verbe(inf) && (niveau === "CE2" || verbe(inf).niv === "CE1") ? inf : "chanter");
+  $("voile").hidden = false; $("fermer-lecon").focus();
+}
+$("lecon-verbe").onchange = e => remplirLecon(e.target.value);
+$("btn-lecon").onclick = ouvrirLecon;
+$("fermer-lecon").onclick = () => $("voile").hidden = true;
+$("voile").onclick = e => { if(e.target === $("voile")) $("voile").hidden = true; };
+
+/* =========================================================
+   ÉVÉNEMENTS
+   ========================================================= */
+document.querySelectorAll(".niveaux button").forEach(b => b.onclick = () => { niveau = b.dataset.niv; sauver(); nouvelleSerie(); });
+document.querySelectorAll(".modes button").forEach(b => b.onclick = () => { mode = b.dataset.mode; sauver(); nouvelleSerie(); });
+$("filtre").onchange = e => { filtre = e.target.value; sauver(); nouvelleSerie(); };
+$("btn-nouveau").onclick = nouvelleSerie;
+document.addEventListener("keydown", e => {
+  if(!$("voile").hidden){ if(e.key === "Escape") $("voile").hidden = true; return; }
+  if(e.key !== "Enter") return;
+  if(attente && $("suivant")){ e.preventDefault(); suivant(); return; }
+  if(!attente && $("valider") && e.target.tagName === "INPUT"){ e.preventDefault(); validerSaisie(); }
+});
+
+if(!CONSIGNES[mode]) mode = "terminaison";
+nouvelleSerie();
+</script>
+</body>
+</html>
