@@ -59,6 +59,11 @@ button{font-family:inherit;cursor:pointer}
 .etapes{font-size:36px;line-height:1.7;text-align:left}
 .etapes .lab{display:inline-block;min-width:330px;color:#666;font-size:30px}
 .plus1{color:#c79a00;font-weight:bold}
+.chronobar{height:14px;background:#e3e3e3;border-radius:7px;overflow:hidden;margin:0 0 10px}
+.chronobar div{height:100%;background:#2e9e44;transition:width 1s linear}
+.chronobar div.urg{background:#e2423b}
+.mode.defi{border-color:#c0392b;box-shadow:0 4px 0 #c0392b;background:#fff6f4}
+.end .rec{font-size:30px;color:#2b6cb0;font-weight:bold}
 .fs{position:fixed;right:10px;bottom:10px;font-size:18px;padding:6px 10px;border-radius:8px;border:2px solid #999;background:#fff;opacity:.7}
 
 .mat{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center}
@@ -109,6 +114,9 @@ const MODES_D = [
     { label: "Calcul mental", desc: "10 doubles, sans schéma, le plus vite possible.", type: "series",
       make: () => POOL().map(n => ({ answers: [2*n],
         view: () => `<div class="phrase" style="font-size:64px">Le double de ${n}<br>= ${F(0)}</div>` })) },
+    { label: "⏱ Défi 1 minute", desc: "Le plus de doubles possible en 1 minute !", type: "defi",
+      gen: () => { const n = rnd(1, 10); return { answers: [2*n],
+        view: () => `<div class="phrase" style="font-size:64px">Le double de ${n}<br>= ${F(0)}</div>` }; } },
 ];
 
 const MODES_PD = [
@@ -136,6 +144,9 @@ const MODES_PD = [
     { label: "Calcul mental", desc: "10 presque doubles, le plus vite possible.", type: "series",
       make: () => POOL().map(p => { const [a, b] = PAIRE(p); return { answers: [2*p+1],
         view: () => `<div class="phrase" style="font-size:64px">${a} + ${b}<br>= ${F(0)}</div>` }; }) },
+    { label: "⏱ Défi 1 minute", desc: "Le plus de presque doubles possible en 1 minute !", type: "defi",
+      gen: () => { const [a, b] = PAIRE(rnd(1, 10)); return { answers: [Math.min(a, b) * 2 + 1],
+        view: () => `<div class="phrase" style="font-size:64px">${a} + ${b}<br>= ${F(0)}</div>` }; } },
 ];
 
 window.APP = {
@@ -153,7 +164,11 @@ window.APP = {
   const app = $("#app");
   const C = window.APP; // configuration propre à chaque application
   const S = { view: "menu", mode: null, qs: [], i: 0, score: 0, vals: [], k: 0, input: "", errs: 0,
-              locked: false, t0: 0, disc: null, msg: "", msgCls: "" };
+              locked: false, t0: 0, disc: null, msg: "", msgCls: "",
+              defi: false, fin: 0, timer: null, nb: 0 };
+  const DUREE = 60; // secondes du défi
+  const reste = () => Math.max(0, Math.ceil((S.fin - Date.now()) / 1000));
+  const stopTimer = () => { clearInterval(S.timer); S.timer = null; };
 
   const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   window.shuffle = shuffle;
@@ -171,12 +186,12 @@ window.APP = {
   window.F = F;
 
   function menu() {
-    S.view = "menu";
+    stopTimer(); S.view = "menu";
     app.innerHTML = `
       <header><h1>${C.title}</h1><p class="sub">${C.subtitle || ""}</p></header>
       ${C.settings ? C.settings() : ""}
       <div class="modes">${C.modes.map((m, n) => `
-        <button class="mode" data-n="${n}"><b>${m.label}</b><span>${m.desc}</span></button>`).join("")}
+        <button class="mode${m.type === "defi" ? " defi" : ""}" data-n="${n}"><b>${m.label}</b><span>${m.desc}</span></button>`).join("")}
       </div>`;
     app.querySelectorAll(".mode").forEach((b) => b.onclick = () => start(C.modes[+b.dataset.n]));
     if (C.bindSettings) C.bindSettings(menu);
@@ -185,7 +200,18 @@ window.APP = {
   function start(m) {
     S.mode = m;
     if (m.type === "discover") { S.view = "discover"; S.disc = m.init(); return discover(); }
-    S.view = "series"; S.qs = m.make(); S.i = 0; S.score = 0; S.t0 = Date.now();
+    stopTimer();
+    S.defi = m.type === "defi"; S.view = "series"; S.i = 0; S.score = 0; S.nb = 0; S.t0 = Date.now();
+    S.qs = S.defi ? [m.gen()] : m.make();
+    if (S.defi) {
+      S.fin = Date.now() + DUREE * 1000;
+      S.timer = setInterval(() => {
+        const r = reste(), c = document.getElementById("chrono"), bar = document.querySelector(".chronobar div");
+        if (c) c.textContent = r;
+        if (bar) { bar.style.width = (100 * r / DUREE) + "%"; bar.classList.toggle("urg", r <= 10); }
+        if (r <= 0) { stopTimer(); S.locked = true; setTimeout(finish, 400); }
+      }, 250);
+    }
     newQ();
   }
 
@@ -197,7 +223,9 @@ window.APP = {
 
   function top(label) {
     return `<div class="top"><button class="back">⟵ Menu</button><div class="ttl">${label}</div>
-      ${S.view === "series" ? `<div class="prog">${S.i + 1} / ${S.qs.length} &nbsp; ⭐ ${S.score}</div>` : "<div></div>"}</div>`;
+      ${S.view === "series" ? (S.defi ? `<div class="prog">⏱ <span id="chrono">${reste()}</span> s &nbsp; ✅ ${S.score}</div>`
+                                       : `<div class="prog">${S.i + 1} / ${S.qs.length} &nbsp; ⭐ ${S.score}</div>`) : "<div></div>"}</div>
+      ${S.view === "series" && S.defi ? `<div class="chronobar"><div class="${reste() <= 10 ? "urg" : ""}" style="width:${100 * reste() / DUREE}%"></div></div>` : ""}`;
   }
   function bindTop() { app.querySelector(".back").onclick = menu; }
 
@@ -230,29 +258,60 @@ window.APP = {
       if (S.k < q.answers.length) { S.msg = "Oui !"; S.msgCls = "good"; return renderQ(); }
       if (S.errs === 0) S.score++;
       S.msg = S.errs === 0 ? "Bravo ! ⭐" : "C'est juste !"; S.msgCls = "good";
-      S.locked = true; renderQ(); setTimeout(next, 1300);
+      S.locked = true; renderQ(); setTimeout(next, S.defi ? 500 : 1300);
     } else {
       S.errs++;
-      if (S.errs % 2 === 1) { S.msg = "Essaie encore."; S.msgCls = "bad"; S.input = ""; renderQ(); shake(); }
+      if (!S.defi && S.errs % 2 === 1) { S.msg = "Essaie encore."; S.msgCls = "bad"; S.input = ""; renderQ(); shake(); }
       else {
         S.vals[S.k] = { v: good, bad: true }; S.k++; S.input = "";
         S.msg = "La bonne réponse est " + good + "."; S.msgCls = "bad";
         if (S.k < q.answers.length) return renderQ();
-        S.locked = true; renderQ(); setTimeout(next, 2200);
+        S.locked = true; renderQ(); setTimeout(next, S.defi ? 1200 : 2200);
       }
     }
   }
   function shake() { const st = app.querySelector(".stage"); st.classList.add("shake"); setTimeout(() => st.classList.remove("shake"), 400); }
 
   function next() {
+    if (S.view !== "series") return;
+    S.nb++;
+    if (S.defi) {
+      if (reste() <= 0) return finish();
+      S.qs.push(S.mode.gen()); S.i++; return newQ();
+    }
     S.i++;
     if (S.i < S.qs.length) return newQ();
+    finish();
+  }
+
+  function finish() {
+    if (S.view !== "series") return;
+    stopTimer();
+    if (S.defi) return finishDefi();
     const sec = Math.round((Date.now() - S.t0) / 1000), n = S.qs.length;
     const stars = S.score >= n ? "⭐⭐⭐" : S.score >= n * 0.7 ? "⭐⭐" : S.score >= n * 0.4 ? "⭐" : "";
     S.view = "end";
     app.innerHTML = `${top(S.mode.label)}<div class="end">
       <div class="big">${S.score} / ${n}</div><div class="stars">${stars}</div>
       <p>Temps : ${Math.floor(sec / 60)} min ${sec % 60} s</p>
+      <div class="row"><button class="again">Recommencer</button><button class="tomenu">Menu</button></div></div>`;
+    bindTop();
+    app.querySelector(".again").onclick = () => start(S.mode);
+    app.querySelector(".tomenu").onclick = menu;
+  }
+
+  function finishDefi() {
+    const cle = "defi:" + location.pathname + ":" + C.title + ":" + S.mode.label;
+    let rec = 0; try { rec = +localStorage.getItem(cle) || 0; } catch (e) {}
+    const nouveau = S.score > rec;
+    if (nouveau) { rec = S.score; try { localStorage.setItem(cle, rec); } catch (e) {} }
+    const stars = S.score >= 20 ? "⭐⭐⭐" : S.score >= 14 ? "⭐⭐" : S.score >= 8 ? "⭐" : "";
+    S.view = "end";
+    app.innerHTML = `${top(S.mode.label)}<div class="end">
+      <p>En 1 minute, tu as trouvé</p>
+      <div class="big">${S.score}</div><p>bonnes réponses sur ${S.nb} calculs.</p>
+      <div class="stars">${stars}</div>
+      <p class="rec">${nouveau && S.score > 0 ? "🏆 Nouveau record !" : "Ton record : " + rec}</p>
       <div class="row"><button class="again">Recommencer</button><button class="tomenu">Menu</button></div></div>`;
     bindTop();
     app.querySelector(".again").onclick = () => start(S.mode);
