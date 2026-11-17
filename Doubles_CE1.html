@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Les doubles – CE1</title><style>*{box-sizing:border-box}
+<title>Les doubles et presque doubles – CE1</title><style>*{box-sizing:border-box}
 body{margin:0;font-family:"Andika","Comic Sans MS","Trebuchet MS",sans-serif;background:#f4f1ea;color:#222}
 #app{max-width:1100px;margin:0 auto;padding:14px 18px 30px;min-height:100vh}
 header{text-align:center;margin:10px 0 18px}
@@ -51,6 +51,14 @@ button{font-family:inherit;cursor:pointer}
 .total{border:3px solid #111;background:#fff;text-align:center;font-size:44px;padding:4px 0;min-height:64px}
 .dots{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;max-width:170px;margin-top:4px}
 .dot{width:24px;height:24px;border-radius:50%;background:#f06ba8;border:2px solid #b8336f}
+.dot.plus{background:#ffd23f;border-color:#c79a00;box-shadow:0 0 0 3px #e0a800}
+.tabs{display:flex;justify-content:center;gap:0;margin:0 0 18px}
+.tabs button{font-size:26px;padding:12px 26px;border:3px solid #333;background:#fff;font-weight:bold}
+.tabs button:first-child{border-radius:14px 0 0 14px}.tabs button:last-child{border-radius:0 14px 14px 0;border-left:none}
+.tabs button.on{background:#2b6cb0;color:#fff}
+.etapes{font-size:36px;line-height:1.7;text-align:left}
+.etapes .lab{display:inline-block;min-width:330px;color:#666;font-size:30px}
+.plus1{color:#c79a00;font-weight:bold}
 .fs{position:fixed;right:10px;bottom:10px;font-size:18px;padding:6px 10px;border-radius:8px;border:2px solid #999;background:#fff;opacity:.7}
 
 .mat{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center}
@@ -74,10 +82,13 @@ const dots = (n) => `<div class="dots">${'<span class="dot"></span>'.repeat(n)}<
 const schema = (a, b, t) => `<div class="schema"><div class="cells"><div class="cell c1">${a}</div><div class="cell c2">${b}</div></div><div class="total">${t}</div></div>`;
 const POOL = () => shuffle([1,2,3,4,5,6,7,8,9,10]);
 
-window.APP = {
-  title: "Les doubles",
-  subtitle: "Le double d'une quantité, c'est deux fois la quantité.",
-  modes: [
+/* Presque doubles : deux nombres qui se suivent → double de la PETITE quantité, plus 1. */
+const dotsPlus = (n) => `<div class="dots">${'<span class="dot"></span>'.repeat(n)}<span class="dot plus"></span></div>`;
+const PAIRE = (p) => Math.random() < 0.5 ? [p, p + 1] : [p + 1, p];   // petite quantité en 1er ou en 2e
+const cellsPD = (a, b, p) => [a === p ? a + dots(p) : a + dotsPlus(p), b === p ? b + dots(p) : b + dotsPlus(p)];
+let ONGLET = "d";
+
+const MODES_D = [
     { label: "Découvrir", desc: "Choisis un nombre et regarde son double.", type: "discover",
       init: () => ({ n: 3, shown: false }),
       render: (d) => `
@@ -98,7 +109,42 @@ window.APP = {
     { label: "Calcul mental", desc: "10 doubles, sans schéma, le plus vite possible.", type: "series",
       make: () => POOL().map(n => ({ answers: [2*n],
         view: () => `<div class="phrase" style="font-size:64px">Le double de ${n}<br>= ${F(0)}</div>` })) },
-  ],
+];
+
+const MODES_PD = [
+    { label: "Découvrir", desc: "Deux nombres qui se suivent : le double de la petite quantité, plus 1.", type: "discover",
+      init: () => ({ p: 6, shown: false }),
+      render: (d) => `
+        <div class="nums">${[1,2,3,4,5,6,7,8,9,10].map(n => `<button class="${n===d.p?'on':''}" data-n="${n}">${n} + ${n+1}</button>`).join("")}</div>
+        ${schema(d.p + dots(d.p), (d.p + 1) + dotsPlus(d.p), d.shown ? `<b>${2*d.p+1}</b>` : "……")}
+        <div class="phrase">${d.p} + ${d.p+1}, c'est le double de ${d.p}, <span class="plus1">plus 1</span> :<br>
+          ${d.p} + ${d.p} + <span class="plus1">1</span> = ${d.shown ? `${2*d.p} + <span class="plus1">1</span> = <b>${2*d.p+1}</b>` : "……"}</div>
+        <button class="act-btn main" id="rev">${d.shown ? "Cacher" : "Montrer le calcul"}</button>`,
+      bind: (d, re) => {
+        document.querySelectorAll(".nums button").forEach(b => { b.style.width = "auto"; b.style.padding = "0 12px"; b.onclick = () => { d.p = +b.dataset.n; d.shown = false; re(); }; });
+        document.getElementById("rev").onclick = () => { d.shown = !d.shown; re(); };
+      } },
+    { label: "Pas à pas", desc: "La petite quantité, son double, puis plus 1.", type: "series",
+      make: () => POOL().map(p => { const [a, b] = PAIRE(p), c = cellsPD(a, b, p); return { answers: [p, 2*p, 2*p+1],
+        view: () => `${schema(c[0], c[1], "……")}
+          <div class="etapes"><span class="lab">La petite quantité :</span> ${F(0)}<br>
+          <span class="lab">Son double :</span> ${F(1)}<br>
+          <span class="lab">Plus <span class="plus1">1</span> :</span> ${a} + ${b} = ${F(2)}</div>` }; }) },
+    { label: "Décompose", desc: "6 + 7 = 6 + 6 + 1 = 12 + 1 = 13", type: "series",
+      make: () => POOL().map(p => { const [a, b] = PAIRE(p); return { answers: [2*p, 2*p+1],
+        view: () => `<div class="phrase">${a} + ${b}<br>= ${p} + ${p} + <span class="plus1">1</span><br>= ${F(0)} + <span class="plus1">1</span><br>= ${F(1)}</div>` }; }) },
+    { label: "Calcul mental", desc: "10 presque doubles, le plus vite possible.", type: "series",
+      make: () => POOL().map(p => { const [a, b] = PAIRE(p); return { answers: [2*p+1],
+        view: () => `<div class="phrase" style="font-size:64px">${a} + ${b}<br>= ${F(0)}</div>` }; }) },
+];
+
+window.APP = {
+  get title() { return ONGLET === "d" ? "Les doubles" : "Les presque doubles"; },
+  get subtitle() { return ONGLET === "d" ? "Le double d'une quantité, c'est deux fois la quantité."
+                                          : "Deux nombres qui se suivent : le double de la petite quantité, plus 1."; },
+  settings: () => `<div class="tabs"><button data-t="d" class="${ONGLET==='d'?'on':''}">Doubles</button><button data-t="pd" class="${ONGLET==='pd'?'on':''}">Presque doubles</button></div>`,
+  bindSettings: (re) => document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => { ONGLET = b.dataset.t; re(); }),
+  get modes() { return ONGLET === "d" ? MODES_D : MODES_PD; },
 };
 </script>
 <script>/* Moteur commun : séries de 10 questions, champs à compléter, pavé numérique (TBI) */
