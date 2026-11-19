@@ -102,6 +102,11 @@ h1{margin:4px 0 0;font-size:3rem;font-weight:400;line-height:1;text-align:center
 /* ---------- matériel ---------- */
 .astuce{background:#fff8e1;border:3px dashed var(--yellow);border-radius:16px;padding:10px 14px;margin:14px auto 0;max-width:900px;font-size:1.25rem;text-align:center}
 .astuce b{color:var(--red)}
+.exemple{margin-top:8px;padding:8px 10px;background:#fff;border-radius:12px;border:2px solid #E4DCC4}
+.exemple .nb{font-size:1.9rem;white-space:nowrap}
+.exemple .fl{color:var(--orange);margin:0 6px}
+.cu{color:#d0428a;font-weight:700;text-decoration:underline;text-decoration-thickness:3px}
+.cd{color:#2a5ea8;font-weight:700;text-decoration:underline;text-decoration-thickness:3px}
 .msg .astuce{font-weight:400;font-size:1.25rem;color:var(--ink)}
 .mat{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-items:flex-end;margin:10px 0 0}
 .mg{display:flex;flex-direction:column;align-items:center;gap:4px}
@@ -332,11 +337,41 @@ function astuce(s){
   }
   if (p === 5) return av ? "De 5 en 5 : j'utilise ma <b>boîte de 10 retournée</b>. Je cache <b>5</b> jetons, puis encore <b>5</b> : la boîte est <b>pleine</b>, je la retourne !"
                          : "De 5 en 5 en reculant : j'enlève <b>5 jetons</b> de ma boîte retournée. S'il n'y en a pas assez, je retourne une <b>boîte de 10</b> pour l'ouvrir.";
-  if (p === 10) return (av ? "De 10 en 10 : j'ajoute <b>1 boîte de 10</b> à chaque saut." : "De 10 en 10 en reculant : j'enlève <b>1 boîte de 10</b> à chaque saut.") + " Les jetons ne bougent pas : le chiffre des unités reste le même.";
-  if (p === 100) return (av ? "De 100 en 100 : j'ajoute <b>1 boîte de 100</b>" : "De 100 en 100 en reculant : j'enlève <b>1 boîte de 100</b>") + " à chaque saut. Les dizaines et les unités ne bougent pas.";
+  if (p === 10) return (av ? "De 10 en 10 : j'ajoute <b>1 boîte de 10</b> à chaque saut." : "De 10 en 10 en reculant : j'enlève <b>1 boîte de 10</b> à chaque saut.") + " Les jetons ne bougent pas : le chiffre des unités reste le même." + exemple(s);
+  if (p === 100) return (av ? "De 100 en 100 : j'ajoute <b>1 boîte de 100</b>" : "De 100 en 100 en reculant : j'enlève <b>1 boîte de 100</b>") + " à chaque saut. Les boîtes de 10 et les jetons ne bougent pas : les dizaines et les unités restent les mêmes." + exemple(s);
   if (p === 1000) return (av ? "De 1 000 en 1 000 : j'ajoute <b>1 boîte de 1 000</b>" : "De 1 000 en 1 000 en reculant : j'enlève <b>1 boîte de 1 000</b>") + " à chaque saut.";
   return "De " + fmt(p) + " en " + fmt(p) + " : à chaque saut, " + (av ? "j'ajoute " : "j'enlève ") + "<b>" + decompose(p) + "</b>.";
 }
+/* exemple avec des unités (et des dizaines) qui ne bougent pas : de 10 en 10, de 100 en 100 */
+function colorie(n, p){
+  var f = fmt(n);
+  if (p === 10) return f.slice(0,-1) + '<span class="cu">' + f.slice(-1) + '</span>';
+  return f.slice(0,-2) + '<span class="cd">' + f.slice(-2,-1) + '</span><span class="cu">' + f.slice(-1) + '</span>';
+}
+function exemple(s){
+  var p = s.pas;
+  if (p !== 10 && p !== 100) return "";
+  if (s._ex) return s._ex;
+  function bon(a){ return p === 10 ? a % 10 !== 0 : (a % 10 !== 0 && Math.floor(a/10) % 10 !== 0); }
+  var t;
+  if (bon(s.t[0])) t = s.t.slice(0,4);
+  else {
+    var c = conf(), a0 = null, k = 0, up = Math.max(c.lo, c.hi - 3*p - 1);
+    while (k++ < 200) {
+      var x = rnd(c.lo, up);
+      if (bon(x) && Math.floor(x/(p*10)) === Math.floor((x+3*p)/(p*10))) { a0 = x; break; }  // pas de passage à la centaine / au millier
+    }
+    if (a0 === null) a0 = p === 10 ? 34 : 345;
+    t = [a0, a0+p, a0+2*p, a0+3*p];
+    if (s.sens === "recule") t.reverse();
+  }
+  var u = t[0] % 10, du = t[0] % 100;
+  var txt = p === 10
+    ? 'Les <b>unités ne changent pas</b> : toujours <span class="cu">' + u + '</span> ' + (u > 1 ? "jetons" : "jeton") + ' ! C\'est le chiffre des dizaines qui change.'
+    : 'Les <b>dizaines et les unités ne changent pas</b> : toujours <span class="cd">' + Math.floor(du/10) + '</span><span class="cu">' + u + '</span> ! C\'est le chiffre des centaines qui change.';
+  return s._ex = '<div class="exemple">Exemple : <span class="nb">' + t.map(function(n){ return colorie(n, p); }).join('<span class="fl">→</span>') + '</span><br>' + txt + '</div>';
+}
+
 /* ce qui se passe dans la boîte de 10 pendant le saut */
 function noteSaut(prev, n){
   var a = chiffres(n), b = chiffres(prev);
