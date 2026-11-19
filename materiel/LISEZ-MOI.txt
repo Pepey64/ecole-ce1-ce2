@@ -1,0 +1,13 @@
+Matériel de numération de la classe (images d'origine, fond transparent)
+- dot.png      : jeton rose = 1 unité
+- box10.png    : boîte bleue de 10, fermée (pleine)
+- box100.png   : boîte verte de 100, fermée
+- box1000.png  : boîte rose de 1 000, fermée
+- open10.png   : boîte de 10 retournée (ouverte) : 10 jetons
+- open100.png  : boîte de 100 retournée : 10 boîtes de 10
+- open1000.png : boîte de 1 000 retournée : 10 boîtes de 100
+Les applis doivent fonctionner hors ligne : on intègre ces images en base64 dans le fichier HTML.
+Places des 10 jetons dans open10.png (en % de l'image, moitié gauche puis moitié droite) :
+[25.8,27.3] [42.9,27.9] [34.2,46.7] [25.4,63.1] [44.6,63.0] | [59.3,26.9] [76.4,27.2] [67.4,46.1] [58.7,62.6] [77.9,62.6]
+Fenêtre blanche de open10.png : left 17.6 %, top 7.1 %, largeur 66.4 %, hauteur 74.3 %.
+Cache noir (5 places cachées) : left 51 %, top 0, largeur 37 %, hauteur 90 %.
