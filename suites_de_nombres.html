@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les suites de nombres – CE1 / CE2</title>
+<style>
+:root{
+  --paper:#FAF6EA; --line:rgba(46,111,149,.16); --ink:#243B2C;
+  --red:#D6483D; --blue:#2E6F95; --yellow:#F2B33D; --green:#4C9A5B;
+  --purple:#7C5CA6; --orange:#E8843C; --grey:#8A8A8A; --border:#B9C4CC;
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);background-color:var(--paper);
+  background-image:repeating-linear-gradient(var(--line) 0px,var(--line) 1px,transparent 1px,transparent 28px);
+  font-family:'Nunito','Segoe UI',Verdana,sans-serif;-webkit-tap-highlight-color:transparent}
+.hand{font-family:'Patrick Hand','Segoe Print','Comic Sans MS','Bradley Hand',cursive}
+#app{max-width:1100px;margin:0 auto;padding:16px 16px 60px}
+button{font-family:inherit;cursor:pointer;touch-action:manipulation}
+h1{margin:4px 0 0;font-size:3rem;font-weight:400;line-height:1;text-align:center}
+.sub{margin:.3rem 0 1rem;font-weight:700;color:var(--blue);text-align:center;font-size:1.15rem}
+
+/* ---------- menu ---------- */
+.settings{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:0 0 18px}
+.grp{background:#fff;border:2px solid #E4DCC4;border-radius:14px;padding:10px 14px;font-size:1.1rem}
+.grp b{display:block;margin-bottom:6px;color:var(--blue)}
+.tog{font-size:1.1rem;padding:8px 14px;margin:2px;border-radius:12px;border:2px solid #9aa5ad;background:#f3f1ea;color:var(--ink);font-weight:700}
+.tog.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.tog:disabled{opacity:.3;cursor:not-allowed}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.mode{background:#fff;border:3px solid var(--ink);border-left:12px solid var(--c,var(--blue));border-radius:18px;padding:16px;text-align:left;font-size:1.05rem;box-shadow:0 4px 0 var(--ink);color:var(--ink)}
+.mode b{display:block;font-family:'Patrick Hand','Segoe Print','Comic Sans MS',cursive;font-size:1.8rem;font-weight:400;margin-bottom:4px}
+.mode span{color:#555}
+.mode small{display:block;margin-top:6px;color:var(--green);font-weight:800}
+.mode:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.memo{background:#fff8e1;border:3px dashed var(--yellow);border-radius:16px;padding:12px 16px;margin:0 0 18px;font-size:1.2rem;text-align:center}
+.memo b{color:var(--red)}
+
+/* ---------- barre du haut ---------- */
+.top{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;margin-bottom:8px}
+.top .ttl{text-align:center;font-size:2rem}
+.back{font-size:1.05rem;padding:8px 14px;border-radius:12px;border:2px solid var(--ink);background:#fff;font-weight:700;color:var(--ink)}
+.score{font-size:1.4rem;font-weight:800;white-space:nowrap}
+.progress{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin:4px 0 12px}
+.dot{width:1.9rem;height:1.9rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;background:#fff;color:#B7AF92;border:2px solid #E4DCC4}
+.dot.cur{border-color:var(--blue);color:var(--blue)}
+.dot.ok{background:var(--green);color:#fff;border-color:var(--green)}
+.dot.ko{background:var(--orange);color:#fff;border-color:var(--orange)}
+
+/* ---------- la suite ---------- */
+.stage{background:#fff;border:2px solid #E4DCC4;border-radius:20px;padding:18px 14px 20px;overflow-x:auto}
+.consigne{text-align:center;font-size:1.45rem;font-weight:800;margin:0 0 6px}
+.consigne .pas{color:var(--red)}
+.suite{display:grid;grid-template-rows:76px auto;min-width:640px;margin:8px auto 0;max-width:980px}
+.arc{position:relative;height:76px}
+.arc svg{position:absolute;left:0;bottom:0;width:100%;height:54px;overflow:visible}
+.arc path{fill:none;stroke:var(--orange);stroke-width:4;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.arc .tip{position:absolute;right:8%;bottom:-2px;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-top:14px solid var(--orange);transform:rotate(-25deg)}
+.arc.hid path{stroke:#E4DCC4}.arc.hid .tip{border-top-color:#E4DCC4}
+.arc.hl path{stroke:var(--purple)}.arc.hl .tip{border-top-color:var(--purple)}
+.bub{position:absolute;left:50%;top:0;transform:translateX(-50%);min-width:68px;padding:3px 12px;border-radius:9999px;background:var(--orange);color:#fff;font-size:1.6rem;text-align:center;white-space:nowrap;border:3px solid var(--orange);line-height:1.15}
+.arc.hid .bub{background:#fff;color:#C8BFA4;border-color:#E4DCC4}
+.arc.hl .bub{background:var(--purple);border-color:var(--purple)}
+.bub.ask{background:#fff;color:var(--orange);border-style:dashed}
+.bub.act{background:#eaf2fb;color:var(--blue);border:3px solid var(--blue);box-shadow:0 0 0 4px rgba(46,111,149,.2)}
+.bub.ok{background:var(--green);border-color:var(--green);color:#fff}
+.bub.shown{background:var(--red);border-color:var(--red);color:#fff}
+.case{margin:0 5px;min-height:78px;border:3px solid var(--ink);border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:clamp(1.7rem,3.4vw,2.6rem);font-family:'Patrick Hand','Segoe Print','Comic Sans MS',cursive;padding:0 4px;white-space:nowrap}
+.case.blank{border-style:dashed;border-color:#9aa5ad;color:#9aa5ad;cursor:pointer;background:#fbfaf6}
+.case.act{border:4px solid var(--blue);background:#eaf2fb;color:var(--blue);box-shadow:0 0 0 4px rgba(46,111,149,.2)}
+.case.ok{border-color:var(--green);background:#E7F5E8;color:#1d6b2e}
+.case.shown{border-color:var(--red);background:#FBEAE8;color:var(--red)}
+.case.hl{background:#fff3c4;border-color:var(--yellow)}
+.case.ghost{border-style:dotted;border-color:#E4DCC4;color:transparent}
+.caret{display:inline-block;width:3px;height:1em;background:var(--blue);margin-left:2px;vertical-align:-.12em;animation:bl 1s steps(1) infinite}
+@keyframes bl{50%{opacity:0}}
+.shake{animation:sh .35s}
+@keyframes sh{0%,100%{transform:translateX(0)}25%{transform:translateX(-9px)}75%{transform:translateX(9px)}}
+.pop{animation:pp .35s}
+@keyframes pp{50%{transform:scale(1.15)}}
+
+.msg{text-align:center;font-size:1.5rem;font-weight:800;min-height:2.2rem;margin:12px 0 4px}
+.msg.good{color:var(--green)}.msg.bad{color:var(--red)}.msg.info{color:var(--purple)}
+.tools{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:6px 0}
+.btn{font-size:1.2rem;padding:10px 20px;border-radius:14px;border:3px solid var(--ink);background:#fff;box-shadow:0 4px 0 var(--ink);font-weight:800;color:var(--ink)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.main{background:var(--blue);color:#fff}
+.btn.help{background:#fff8e1}
+.btn[hidden]{display:none}
+
+/* ---------- pavé numérique ---------- */
+.pad{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;max-width:720px;margin:14px auto 0}
+.pad button{font-size:2.3rem;padding:8px 0;border-radius:14px;border:3px solid var(--ink);background:#fff;box-shadow:0 4px 0 var(--ink);font-weight:800;color:var(--ink)}
+.pad button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.pad .ok{background:var(--green);color:#fff}.pad .del{background:var(--yellow)}
+
+/* ---------- observer ---------- */
+.calc{text-align:center;font-size:2rem;min-height:2.6rem;margin:12px 0 0}
+.calc .p{color:var(--orange)}
+.obs-set{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin:0 0 10px;font-weight:700}
+
+/* ---------- fin ---------- */
+.end{text-align:center;background:#fff;border:2px solid #E4DCC4;border-radius:20px;padding:30px;font-size:1.4rem}
+.end .big{font-size:5rem;font-weight:800;line-height:1.1}
+.end .stars{font-size:3.6rem;min-height:4.2rem}
+.fs{position:fixed;right:10px;bottom:10px;font-size:1rem;padding:6px 10px;border-radius:8px;border:2px solid #999;background:#fff;opacity:.75}
+@media (max-width:700px){h1{font-size:2.2rem}.top .ttl{font-size:1.4rem}.pad button{font-size:1.8rem}.consigne{font-size:1.2rem}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<button class="fs" id="fs">⛶ plein écran</button>
+<script>
+(function(){
+"use strict";
+
+/* ================= RÉGLAGES ================= */
+var NIVEAUX = {
+  CE1: { petit: { lo: 0,    hi: 100,   nom: "jusqu'à 100",        pas: [2,5,10] },
+         grand: { lo: 100,  hi: 1000,  nom: "de 100 à 1 000",     pas: [2,5,10,50,100] } },
+  CE2: { petit: { lo: 0,    hi: 1000,  nom: "jusqu'à 1 000",      pas: [2,5,10,25,50,100] },
+         grand: { lo: 1000, hi: 10000, nom: "de 1 000 à 10 000",  pas: [2,5,10,25,50,100,250,500,1000] } }
+};
+var N = 6;              // nombre de cases
+var NB_QUESTIONS = 8;
+var KEY = "suites_nombres_v1";
+
+var R = load() || { niv: "CE1", plage: "petit", pas: { CE1: [2,5,10], CE2: [25,250,500] }, sens: "avance" };
+
+function load(){ try { return JSON.parse(localStorage.getItem(KEY)); } catch(e){ return null; } }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(R)); } catch(e){} }
+function getRec(m){ try { return +(localStorage.getItem(KEY+"_rec_"+R.niv+"_"+m) || 0); } catch(e){ return 0; } }
+function setRec(m,v){ try { localStorage.setItem(KEY+"_rec_"+R.niv+"_"+m, v); } catch(e){} }
+
+function conf(){ return NIVEAUX[R.niv][R.plage]; }
+function pasActifs(){
+  var ok = conf().pas, sel = (R.pas[R.niv] || []).filter(function(p){ return ok.indexOf(p) >= 0; });
+  return sel.length ? sel : ok.slice();
+}
+
+/* ================= OUTILS ================= */
+var app = document.getElementById("app");
+function rnd(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function pick(t){ return t[Math.floor(Math.random()*t.length)]; }
+function fmt(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+function multipleIn(min,max,m){
+  var a = Math.ceil(min/m), b = Math.floor(max/m);
+  if (b < a) return null;
+  return rnd(a,b)*m;
+}
+
+/* départ : la moitié du temps un nombre "rond" (multiple du pas), sinon un départ moins rond */
+function depart(pas, min, max){
+  var rond = Math.random() < 0.5, m;
+  if (rond) m = pas;
+  else if (pas <= 10) m = 1;
+  else if (pas === 25) m = 5;
+  else if (pas <= 100) m = 10;
+  else m = 50;
+  var v = multipleIn(min, max, m);
+  if (v === null) v = multipleIn(min, max, 1);
+  return v;
+}
+
+var dernier = "";
+function genSuite(){
+  var c = conf(), essais = 0, s;
+  do {
+    var pas = pick(pasActifs());
+    var sens = R.sens === "deux" ? pick(["avance","recule"]) : R.sens;
+    var span = pas*(N-1);
+    var a0 = depart(pas, c.lo, c.hi - span);
+    if (a0 === null) { a0 = c.lo; }
+    var t = []; for (var i=0;i<N;i++) t.push(a0 + i*pas);
+    if (sens === "recule") t.reverse();
+    s = { pas: pas, sens: sens, t: t };
+    essais++;
+  } while (t.join() === dernier && essais < 30);
+  dernier = s.t.join();
+  return s;
+}
+function signe(s){ return s.sens === "recule" ? "−" : "+"; }
+
+/* ================= MENU ================= */
+var MODES = [
+  { id: "observe",  c: "var(--purple)", titre: "👀 J'observe",            txt: "Avec la maîtresse ou le maître : on fait les sauts un par un, au tableau." },
+  { id: "complete", c: "var(--orange)", titre: "✏️ Je complète",          txt: "Le pas est donné dans les bulles. Écris les nombres qui manquent." },
+  { id: "suite",    c: "var(--blue)",   titre: "🔍 Trouve le pas",         txt: "Les nombres se suivent. Trouve le pas, puis complète la suite." },
+  { id: "loin",     c: "var(--green)",  titre: "🕵️ Pas à la suite !",      txt: "Les nombres connus ne sont pas côte à côte. Compte les sauts, trouve le pas, complète." },
+  { id: "defi",     c: "var(--red)",    titre: "🏆 Le défi",               txt: "Un peu de tout : complète, trouve le pas, nombres éloignés." }
+];
+
+function menu(){
+  stopKeys();
+  var c = conf(), allP = NIVEAUX[R.niv].grand.pas.concat(), sel = pasActifs();
+  var h = '<h1 class="hand">🐸 Les suites de nombres</h1>' +
+    '<p class="sub">De 2 en 2, de 5 en 5, de 10 en 10… on avance toujours du même pas !</p>' +
+    '<div class="memo hand">Dans une suite, on avance (ou on recule) <b>toujours du même nombre</b> : c\'est le <b>pas</b>.<br>' +
+    '25 → 30 → 35 → 40 : on avance de <b>5 en 5</b>. Le pas est <b>+5</b>.</div>' +
+    '<div class="settings">' +
+    grp("Niveau", ["CE1","CE2"].map(function(n){ return tog("niv", n, n, R.niv===n); }).join("")) +
+    grp("Les nombres", ["petit","grand"].map(function(p){ return tog("plage", p, NIVEAUX[R.niv][p].nom, R.plage===p); }).join("")) +
+    grp("Le pas", allP.map(function(p){
+      var dispo = c.pas.indexOf(p) >= 0;
+      return '<button class="tog' + (dispo && sel.indexOf(p)>=0 ? " on" : "") + '" data-k="pas" data-v="'+p+'"' + (dispo ? "" : " disabled") + '>' + fmt(p) + '</button>';
+    }).join("")) +
+    grp("Le sens", tog("sens","avance","➡️ j'avance",R.sens==="avance") + tog("sens","recule","⬅️ je recule",R.sens==="recule") + tog("sens","deux","les deux",R.sens==="deux")) +
+    '</div><div class="modes">' +
+    MODES.map(function(m){
+      var rec = m.id === "observe" ? "" : getRec(m.id);
+      return '<button class="mode" style="--c:'+m.c+'" data-mode="'+m.id+'"><b>'+m.titre+'</b><span>'+m.txt+'</span>' +
+        (rec ? '<small>Record ' + R.niv + ' : ' + rec + ' / ' + NB_QUESTIONS + ' ' + etoiles(rec) + '</small>' : '') + '</button>';
+    }).join("") + '</div>';
+  app.innerHTML = h;
+
+  app.querySelectorAll(".tog").forEach(function(b){
+    b.onclick = function(){
+      var k = b.dataset.k, v = b.dataset.v;
+      if (k === "pas") {
+        var l = R.pas[R.niv] = (R.pas[R.niv] || []).slice(), p = +v, i = l.indexOf(p);
+        if (i >= 0) l.splice(i,1); else l.push(p);
+      } else R[k] = v;
+      save(); menu();
+    };
+  });
+  app.querySelectorAll(".mode").forEach(function(b){
+    b.onclick = function(){ if (b.dataset.mode === "observe") observe(); else demarrer(b.dataset.mode); };
+  });
+}
+function grp(t, inner){ return '<div class="grp"><b>'+t+'</b>'+inner+'</div>'; }
+function tog(k,v,label,on){ return '<button class="tog'+(on?" on":"")+'" data-k="'+k+'" data-v="'+v+'">'+label+'</button>'; }
+function etoiles(sc){ return sc >= NB_QUESTIONS ? "⭐⭐⭐" : sc >= NB_QUESTIONS*0.75 ? "⭐⭐" : sc >= NB_QUESTIONS*0.5 ? "⭐" : ""; }
+
+/* ================= DESSIN D'UNE SUITE ================= */
+/* arcs[i] : { etat: "given"|"hid"|"ask"|"act"|"ok"|"shown", txt, hl }
+   cases[i]: { etat: "given"|"blank"|"act"|"ok"|"shown"|"ghost", txt, hl } */
+function dessinSuite(arcs, cases){
+  var h = '<div class="suite" style="grid-template-columns:repeat('+(2*N)+',1fr)">';
+  for (var i=0;i<N-1;i++){
+    var a = arcs[i], cl = "arc" + (a.etat==="hid" ? " hid" : "") + (a.hl ? " hl" : "");
+    var bcl = "bub hand" + ({ask:" ask",act:" act",ok:" ok",shown:" shown"}[a.etat] || "");
+    h += '<div class="'+cl+'" style="grid-column:'+(2*i+2)+' / span 2;grid-row:1" data-arc="'+i+'">' +
+      '<svg viewBox="0 0 100 54" preserveAspectRatio="none"><path d="M6 54 C 24 2, 76 2, 94 50"/><path d="M84 40 L94 51 L98 35"/></svg>' +
+      '<span class="'+bcl+'">'+a.txt+'</span></div>';
+  }
+  for (var j=0;j<N;j++){
+    var c = cases[j];
+    var ccl = "case" + (c.etat !== "given" ? " " + c.etat : "") + (c.etat==="act" ? " blank act" : "") + (c.hl ? " hl" : "");
+    h += '<div class="'+ccl+'" style="grid-column:'+(2*j+1)+' / span 2;grid-row:2" data-case="'+j+'">'+c.txt+'</div>';
+  }
+  return h + '</div>';
+}
+
+/* ================= J'OBSERVE (modelage) ================= */
+var O = null;
+function observe(){
+  stopKeys();
+  O = { s: genSuite(), k: 1 };
+  renderObs();
+  startKeys(function(e){ if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") { e.preventDefault(); obsNext(); } });
+}
+function renderObs(){
+  var s = O.s, sg = signe(s), arcs = [], cases = [];
+  for (var i=0;i<N-1;i++) arcs.push({ etat: i < O.k-1 ? "given" : "hid", txt: i < O.k-1 ? sg+fmt(s.pas) : sg+" …" });
+  for (var j=0;j<N;j++) cases.push(j < O.k ? { etat: "given", txt: fmt(s.t[j]) } : { etat: "ghost", txt: "0" });
+  var calc = O.k > 1 ? fmt(s.t[O.k-2]) + ' <span class="p">' + sg + ' ' + fmt(s.pas) + '</span> = <b>' + fmt(s.t[O.k-1]) + '</b>' : "On part de <b>" + fmt(s.t[0]) + "</b>.";
+  var pasBtns = conf().pas.map(function(p){ return '<button class="tog'+(p===s.pas?" on":"")+'" data-p="'+p+'">'+fmt(p)+'</button>'; }).join("");
+  app.innerHTML = barre("👀 J'observe", "") +
+    '<div class="obs-set">Le pas : ' + pasBtns + '</div>' +
+    '<div class="stage"><p class="consigne">On ' + (s.sens==="recule" ? "recule" : "avance") + ' de <span class="pas">' + fmt(s.pas) + ' en ' + fmt(s.pas) + '</span>. Le pas est <span class="pas">' + sg + fmt(s.pas) + '</span>.</p>' +
+    dessinSuite(arcs, cases) + '<div class="calc hand">' + calc + '</div></div>' +
+    '<div class="tools" style="margin-top:14px">' +
+    '<button class="btn main" id="nx">' + (O.k < N ? "Saut suivant ➡️" : "Recommencer 🔁") + '</button>' +
+    '<button class="btn" id="nv">🎲 Nouvelle suite</button></div>';
+  document.getElementById("nx").onclick = obsNext;
+  document.getElementById("nv").onclick = function(){ O = { s: genSuite(), k: 1 }; renderObs(); };
+  app.querySelectorAll("[data-p]").forEach(function(b){
+    b.onclick = function(){
+      var p = +b.dataset.p, c = conf(), span = p*(N-1), a0 = depart(p, c.lo, c.hi-span), t = [];
+      for (var i=0;i<N;i++) t.push(a0+i*p);
+      if (O.s.sens === "recule") t.reverse();
+      O = { s: { pas: p, sens: O.s.sens, t: t }, k: 1 }; renderObs();
+    };
+  });
+  backBtn();
+  var last = app.querySelector('[data-case="'+(O.k-1)+'"]'); if (last && O.k>1) last.classList.add("pop");
+}
+function obsNext(){ if (O.k < N) O.k++; else O.k = 1; renderObs(); }
+
+/* ================= ENTRAÎNEMENT ================= */
+var S = null;   // série
+var Q = null;   // question en cours
+
+function demarrer(mode){
+  stopKeys();
+  S = { mode: mode, i: 0, score: 0, res: [] };
+  question();
+  startKeys(clavier);
+}
+
+function typeQuestion(){
+  if (S.mode !== "defi") return S.mode;
+  return ["complete","suite","loin","complete","suite","loin","loin","suite"][S.i % 8];
+}
+
+function question(){
+  var s = genSuite(), type = typeQuestion(), connus;
+  if (type === "complete") {
+    connus = [0];
+    if (Math.random() < 0.5) connus.push(rnd(2, N-1));
+  } else if (type === "suite") {
+    connus = (R.niv === "CE2" && Math.random() < 0.5) ? [0,1] : [0,1,2];
+  } else {
+    var motifs = R.niv === "CE1"
+      ? [[0,2],[1,3],[2,4],[3,5],[0,3],[1,4],[2,5],[0,2,4],[1,3,5]]
+      : [[0,2],[1,3],[0,3],[1,4],[2,5],[0,4],[1,5],[0,5],[0,2,5],[0,3,5],[1,4,5]];
+    connus = pick(motifs);
+  }
+  Q = { s: s, type: type, connus: connus, etape: type === "complete" ? "cases" : "pas",
+        val: {}, essais: {}, faute: false, fini: false, act: null, buf: "", aide: false };
+  Q.act = Q.etape === "pas" ? "pas" : premiereCase();
+  renderQ();
+}
+function blanks(){ var b=[]; for (var i=0;i<N;i++) if (Q.connus.indexOf(i)<0) b.push(i); return b; }
+function premiereCase(){ var b = blanks(); for (var i=0;i<b.length;i++) if (Q.val[b[i]] === undefined) return b[i]; return null; }
+
+function consigne(){
+  var s = Q.s, mot = s.sens === "recule" ? "recule" : "avance";
+  if (Q.etape === "pas") {
+    return Q.type === "loin"
+      ? "Les nombres connus ne se suivent pas. De combien " + (mot==="recule"?"recule":"avance") + "-t-on à chaque saut ?"
+      : "Quel est le pas ? De combien " + (mot==="recule"?"recule":"avance") + "-t-on à chaque saut ?";
+  }
+  return "On " + mot + ' de <span class="pas">' + fmt(s.pas) + " en " + fmt(s.pas) + "</span>. Complète la suite.";
+}
+
+function renderQ(msgTxt, msgCl){
+  var s = Q.s, sg = signe(s), arcs = [], cases = [];
+  var pasConnu = Q.etape === "cases";
+  for (var i=0;i<N-1;i++){
+    if (pasConnu) arcs.push({ etat: Q.essais.pasMontre ? "shown" : (Q.type==="complete" ? "given" : "ok"), txt: sg+fmt(s.pas) });
+    else if (i === 0) arcs.push({ etat: Q.act === "pas" ? "act" : "ask", txt: sg + " " + (Q.buf ? fmt(Q.buf) : "") + '<span class="caret"></span>' });
+    else arcs.push({ etat: "ask", txt: sg + " ?" });
+  }
+  for (var j=0;j<N;j++){
+    if (Q.connus.indexOf(j) >= 0) cases.push({ etat: "given", txt: fmt(s.t[j]) });
+    else if (Q.val[j] !== undefined) cases.push({ etat: Q.val[j], txt: fmt(s.t[j]) });
+    else if (Q.act === j) cases.push({ etat: "act", txt: (Q.buf ? fmt(Q.buf) : "") + '<span class="caret"></span>' });
+    else cases.push({ etat: "blank", txt: "?" });
+  }
+  if (Q.aide && Q.etape === "pas") {
+    var pr = paireAide();
+    cases[pr[0]].hl = cases[pr[1]].hl = true;
+    for (var k=pr[0];k<pr[1];k++) arcs[k].hl = true;
+  }
+  var dots = "";
+  for (var d=0; d<NB_QUESTIONS; d++){
+    var r = S.res[d];
+    dots += '<div class="dot' + (r===true?" ok":r===false?" ko":d===S.i?" cur":"") + '">' + (d+1) + '</div>';
+  }
+  var m = MODES.filter(function(x){ return x.id === S.mode; })[0];
+  app.innerHTML = barre(m.titre, "⭐ " + S.score) +
+    '<div class="progress">' + dots + '</div>' +
+    '<div class="stage" id="stage"><p class="consigne">' + consigne() + '</p>' + dessinSuite(arcs, cases) +
+    '<div class="msg ' + (msgCl||"") + '" id="msg">' + (msgTxt||"") + '</div>' +
+    '<div class="tools">' +
+      (Q.etape === "pas" && !Q.fini ? '<button class="btn help" id="aide">💡 Coup de pouce</button>' : '') +
+      '<button class="btn main" id="suiv"' + (Q.fini ? "" : " hidden") + '>' + (S.i+1 < NB_QUESTIONS ? "Suivant ➡️" : "Résultat 🏁") + '</button>' +
+    '</div></div>' + (Q.fini ? "" : pave());
+  backBtn();
+  app.querySelectorAll(".case.blank").forEach(function(c){
+    c.onclick = function(){ if (Q.etape === "cases" && !Q.fini) { Q.act = +c.dataset.case; Q.buf = ""; renderQ(); } };
+  });
+  var a = document.getElementById("aide"); if (a) a.onclick = aide;
+  document.getElementById("suiv").onclick = suivant;
+  app.querySelectorAll(".pad button").forEach(function(b){ b.onclick = function(){ touche(b.dataset.t); }; });
+}
+
+function pave(){
+  var t = ["1","2","3","4","5","⌫","6","7","8","9","0","OK"];
+  return '<div class="pad">' + t.map(function(x){
+    return '<button data-t="'+x+'" class="'+(x==="OK"?"ok":x==="⌫"?"del":"")+'">'+x+'</button>';
+  }).join("") + '</div>';
+}
+
+function clavier(e){
+  if (!Q) return;
+  if (/^[0-9]$/.test(e.key)) touche(e.key);
+  else if (e.key === "Backspace") { e.preventDefault(); touche("⌫"); }
+  else if (e.key === "Enter") { e.preventDefault(); if (Q.fini) suivant(); else touche("OK"); }
+}
+
+function touche(t){
+  if (Q.fini || Q.act === null) return;
+  if (t === "⌫") Q.buf = Q.buf.slice(0,-1);
+  else if (t === "OK") { if (Q.buf) verifier(); return; }
+  else if (Q.buf.length < 5) Q.buf = (Q.buf === "0" ? "" : Q.buf) + t;
+  renderQ();
+}
+
+function paireAide(){
+  var c = Q.connus.slice().sort(function(a,b){return a-b;});
+  if (Q.type !== "loin") return [c[0], c[0]+1];
+  for (var i=0;i<c.length-1;i++) if (c[i+1]-c[i] > 1) return [c[i], c[i+1]];
+  return [c[0], c[c.length-1]];
+}
+
+function aide(){
+  Q.aide = true;
+  var s = Q.s, pr = paireAide(), a = s.t[pr[0]], b = s.t[pr[1]], k = pr[1]-pr[0];
+  var mot = s.sens === "recule" ? "recule" : "avance", diff = Math.abs(b-a), txt;
+  if (k === 1) txt = "Regarde deux nombres côte à côte : de " + fmt(a) + " à " + fmt(b) + ", on " + mot + " de combien ?";
+  else if (R.niv === "CE1") txt = "De " + fmt(a) + " à " + fmt(b) + ", il y a " + k + " sauts. Essaie un pas : " + pasActifs().map(fmt).join(", ") + "… lequel marche ?";
+  else txt = "De " + fmt(a) + " à " + fmt(b) + " : " + k + " sauts. L'écart est " + fmt(diff) + ". Quel nombre, " + k + " fois, fait " + fmt(diff) + " ?";
+  renderQ(txt, "info");
+}
+
+function verifier(){
+  var s = Q.s, v = parseInt(Q.buf, 10), cle = Q.act === "pas" ? "pas" : Q.act;
+  var attendu = Q.act === "pas" ? s.pas : s.t[Q.act];
+  if (v === attendu) {
+    Q.buf = "";
+    if (Q.act === "pas") { Q.etape = "cases"; Q.aide = false; Q.act = premiereCase(); renderQ("Oui ! Le pas est " + signe(s) + fmt(s.pas) + ". Complète maintenant.", "good"); }
+    else { Q.val[Q.act] = "ok"; Q.act = premiereCase(); finCase(); }
+    return;
+  }
+  Q.essais[cle] = (Q.essais[cle] || 0) + 1;
+  Q.faute = true; Q.buf = "";
+  if (Q.essais[cle] >= 2) {
+    if (Q.act === "pas") { Q.etape = "cases"; Q.essais.pasMontre = true; Q.aide = false; Q.act = premiereCase(); renderQ("Le pas était " + signe(s) + fmt(s.pas) + ". Complète maintenant.", "bad"); }
+    else { Q.val[Q.act] = "shown"; var n = Q.act; Q.act = premiereCase(); finCase(indice(n, true)); }
+    return;
+  }
+  renderQ(Q.act === "pas" ? "Pas tout à fait… Essaie encore !" : indice(Q.act, false), "bad");
+  var st = document.getElementById("stage"); if (st) { st.classList.add("shake"); }
+}
+
+/* indice explicite : on s'appuie sur une case voisine connue */
+function indice(i, corrige){
+  var s = Q.s, sg = signe(s), inv = s.sens === "recule" ? "+" : "−";
+  function connu(j){ return j>=0 && j<N && (Q.connus.indexOf(j)>=0 || Q.val[j] !== undefined); }
+  if (corrige) return "C'était " + fmt(s.t[i]) + " : " + (i>0 ? fmt(s.t[i-1]) + " " + sg + " " + fmt(s.pas) : fmt(s.t[i+1]) + " " + inv + " " + fmt(s.pas)) + " = " + fmt(s.t[i]) + ".";
+  if (connu(i-1)) return "Regarde la case d'avant : " + fmt(s.t[i-1]) + " " + sg + " " + fmt(s.pas) + " = ?";
+  if (connu(i+1)) return "Regarde la case d'après : " + fmt(s.t[i+1]) + " " + inv + " " + fmt(s.pas) + " = ?";
+  return "Commence par une case à côté d'un nombre connu.";
+}
+
+function finCase(txt){
+  if (Q.act === null) {
+    Q.fini = true;
+    S.res[S.i] = !Q.faute;
+    if (!Q.faute) S.score++;
+    renderQ(Q.faute ? (txt ? txt + " " : "") + "La suite est complète." : pick(["Bravo ! ⭐","Super ! ⭐","Parfait ! ⭐","Champion ! ⭐"]), Q.faute ? "info" : "good");
+  } else renderQ(txt || "", txt ? "bad" : "");
+}
+
+function suivant(){
+  if (!Q || !Q.fini) return;
+  S.i++;
+  if (S.i >= NB_QUESTIONS) return fin();
+  question();
+}
+
+function fin(){
+  stopKeys(); Q = null;
+  var sc = S.score, old = getRec(S.mode), rec = sc > old;
+  if (rec) setRec(S.mode, sc);
+  app.innerHTML = '<div class="end"><div class="hand" style="font-size:2.4rem">' +
+    (sc === NB_QUESTIONS ? "🎉 Bravo, tout est juste !" : sc >= NB_QUESTIONS*0.5 ? "👏 Bien joué !" : "💪 Continue, tu progresses !") + '</div>' +
+    '<div class="big">' + sc + ' / ' + NB_QUESTIONS + '</div><div class="stars">' + etoiles(sc) + '</div>' +
+    '<p>' + (rec ? "🏅 Nouveau record !" : old ? "Record : " + old + " / " + NB_QUESTIONS : "") + '</p>' +
+    '<p style="font-size:1rem;color:#7A7458">⭐ 4 suites justes du premier coup &nbsp; ⭐⭐ 6 &nbsp; ⭐⭐⭐ 8</p>' +
+    '<div class="tools"><button class="btn main" id="rj">🔁 Rejouer</button><button class="btn" id="mn">🏠 Menu</button></div></div>';
+  document.getElementById("rj").onclick = function(){ demarrer(S.mode); };
+  document.getElementById("mn").onclick = menu;
+}
+
+/* ================= COMMUN ================= */
+function barre(titre, droite){
+  return '<div class="top"><button class="back" id="back">⬅ Menu</button><div class="ttl hand">' + titre +
+    ' <span style="font-size:1rem;color:var(--blue);font-family:Nunito,sans-serif;font-weight:800">' + R.niv + ' · ' + conf().nom + '</span></div>' +
+    '<div class="score">' + droite + '</div></div>';
+}
+function backBtn(){ var b = document.getElementById("back"); if (b) b.onclick = menu; }
+
+var keyH = null;
+function startKeys(f){ stopKeys(); keyH = f; document.addEventListener("keydown", keyH); }
+function stopKeys(){ if (keyH) document.removeEventListener("keydown", keyH); keyH = null; }
+
+document.getElementById("fs").onclick = function(){
+  try {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  } catch(e){}
+};
+
+menu();
+})();
+</script>
+</body>
+</html>
