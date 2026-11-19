@@ -99,6 +99,21 @@ h1{margin:4px 0 0;font-size:3rem;font-weight:400;line-height:1;text-align:center
 .calc .p{color:var(--orange)}
 .obs-set{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin:0 0 10px;font-weight:700}
 
+/* ---------- matériel ---------- */
+.astuce{background:#fff8e1;border:3px dashed var(--yellow);border-radius:16px;padding:10px 14px;margin:14px auto 0;max-width:900px;font-size:1.25rem;text-align:center}
+.astuce b{color:var(--red)}
+.msg .astuce{font-weight:400;font-size:1.25rem;color:var(--ink)}
+.mat{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-items:flex-end;margin:10px 0 0}
+.mg{display:flex;flex-direction:column;align-items:center;gap:4px}
+.mg .ic{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;max-width:260px;min-height:40px;align-items:flex-end}
+.mg .lb{font-size:.85rem;font-weight:800;color:#6b6650;text-align:center}
+.mg svg{display:block}
+.mg .new{animation:pp .5s;filter:drop-shadow(0 0 4px #F2B33D)}
+.note{font-weight:800;color:var(--purple);margin-top:6px}
+.chips{display:flex;gap:6px;justify-content:center;margin-top:8px}
+.chip{font-family:'Patrick Hand','Segoe Print','Comic Sans MS',cursive;font-size:1.6rem;width:2.4rem;height:2.4rem;border-radius:50%;border:3px solid var(--border);display:flex;align-items:center;justify-content:center;background:#fff}
+.chip.on{background:var(--orange);border-color:var(--orange);color:#fff}
+
 /* ---------- fin ---------- */
 .end{text-align:center;background:#fff;border:2px solid #E4DCC4;border-radius:20px;padding:30px;font-size:1.4rem}
 .end .big{font-size:5rem;font-weight:800;line-height:1.1}
@@ -116,10 +131,10 @@ h1{margin:4px 0 0;font-size:3rem;font-weight:400;line-height:1;text-align:center
 
 /* ================= RÉGLAGES ================= */
 var NIVEAUX = {
-  CE1: { petit: { lo: 0,    hi: 100,   nom: "jusqu'à 100",        pas: [2,5,10] },
-         grand: { lo: 100,  hi: 1000,  nom: "de 100 à 1 000",     pas: [2,5,10,50,100] } },
-  CE2: { petit: { lo: 0,    hi: 1000,  nom: "jusqu'à 1 000",      pas: [2,5,10,25,50,100] },
-         grand: { lo: 1000, hi: 10000, nom: "de 1 000 à 10 000",  pas: [2,5,10,25,50,100,250,500,1000] } }
+  CE1: { petit: { lo: 0,    hi: 100,   nom: "jusqu'à 100",        pas: [1,2,5,10] },
+         grand: { lo: 100,  hi: 1000,  nom: "de 100 à 1 000",     pas: [1,2,5,10,50,100] } },
+  CE2: { petit: { lo: 0,    hi: 1000,  nom: "jusqu'à 1 000",      pas: [1,2,5,10,25,50,100] },
+         grand: { lo: 1000, hi: 10000, nom: "de 1 000 à 10 000",  pas: [1,2,5,10,25,50,100,250,500,1000] } }
 };
 var N = 6;              // nombre de cases
 var NB_QUESTIONS = 8;
@@ -155,6 +170,7 @@ function depart(pas, min, max){
   var rond = Math.random() < 0.5, m;
   if (rond) m = pas;
   else if (pas <= 10) m = 1;
+  if (pas === 1) m = 1;
   else if (pas === 25) m = 5;
   else if (pas <= 100) m = 10;
   else m = 50;
@@ -184,7 +200,7 @@ function signe(s){ return s.sens === "recule" ? "−" : "+"; }
 
 /* ================= MENU ================= */
 var MODES = [
-  { id: "observe",  c: "var(--purple)", titre: "👀 J'observe",            txt: "Avec la maîtresse ou le maître : on fait les sauts un par un, au tableau." },
+  { id: "observe",  c: "var(--purple)", titre: "👀 J'observe",            txt: "On fait les sauts un par un et on regarde le matériel : jetons et boîtes." },
   { id: "complete", c: "var(--orange)", titre: "✏️ Je complète",          txt: "Le pas est donné dans les bulles. Écris les nombres qui manquent." },
   { id: "suite",    c: "var(--blue)",   titre: "🔍 Trouve le pas",         txt: "Les nombres se suivent. Trouve le pas, puis complète la suite." },
   { id: "loin",     c: "var(--green)",  titre: "🕵️ Pas à la suite !",      txt: "Les nombres connus ne sont pas côte à côte. Compte les sauts, trouve le pas, complète." },
@@ -195,7 +211,7 @@ function menu(){
   stopKeys();
   var c = conf(), allP = NIVEAUX[R.niv].grand.pas.concat(), sel = pasActifs();
   var h = '<h1 class="hand">🐸 Les suites de nombres</h1>' +
-    '<p class="sub">De 2 en 2, de 5 en 5, de 10 en 10… on avance toujours du même pas !</p>' +
+    '<p class="sub">De 1 en 1, de 2 en 2, de 5 en 5, de 10 en 10… on avance toujours du même pas !</p>' +
     '<div class="memo hand">Dans une suite, on avance (ou on recule) <b>toujours du même nombre</b> : c\'est le <b>pas</b>.<br>' +
     '25 → 30 → 35 → 40 : on avance de <b>5 en 5</b>. Le pas est <b>+5</b>.</div>' +
     '<div class="settings">' +
@@ -252,6 +268,88 @@ function dessinSuite(arcs, cases){
   return h + '</div>';
 }
 
+/* ================= MATÉRIEL DE LA CLASSE ================= */
+/* jeton rose = 1 ; boîte bleue de 10 ; boîte verte de 100 ; boîte rose de 1 000 */
+var COUL = { 10: ["#3B7DD8","#2a5ea8"], 100: ["#4C9A5B","#357343"], 1000: ["#E06AA6","#b84a84"] };
+function boite(v, neuf){
+  var c = COUL[v], lab = fmt(v), w = v === 1000 ? 58 : 46;
+  return '<svg class="' + (neuf ? "new" : "") + '" width="' + w + '" height="36" viewBox="0 0 ' + w + ' 36">' +
+    '<rect x="1.5" y="6" width="' + (w-3) + '" height="28" rx="4" fill="' + c[0] + '" stroke="' + c[1] + '" stroke-width="3"/>' +
+    '<rect x="0" y="1" width="' + w + '" height="9" rx="3" fill="' + c[1] + '"/>' +
+    '<text x="' + (w/2) + '" y="27" text-anchor="middle" font-family="Nunito,Verdana,sans-serif" font-weight="800" font-size="14" fill="#fff">' + lab + '</text></svg>';
+}
+/* boîte de 10 retournée (ouverte) : 10 places, u jetons ; neufs = indices ajoutés, partis = indices enlevés */
+function boiteOuverte(u, neufs, partis){
+  var h = '<svg width="150" height="66" viewBox="0 0 150 66"><rect x="2" y="2" width="146" height="62" rx="8" fill="#eef4fc" stroke="#3B7DD8" stroke-width="3"/>';
+  for (var i=0;i<10;i++){
+    var x = 18 + (i%5)*28.5, y = 19 + Math.floor(i/5)*28;
+    if (i < u) h += '<circle cx="'+x+'" cy="'+y+'" r="11" fill="#F27FB8" stroke="' + (neufs.indexOf(i)>=0 ? "#F2B33D" : "#c2507f") + '" stroke-width="' + (neufs.indexOf(i)>=0 ? 4 : 2) + '"/>';
+    else if (partis.indexOf(i) >= 0) h += '<circle cx="'+x+'" cy="'+y+'" r="11" fill="none" stroke="#c2507f" stroke-width="2" stroke-dasharray="4 3"/>';
+    else h += '<circle cx="'+x+'" cy="'+y+'" r="11" fill="none" stroke="#c9d6e6" stroke-width="2"/>';
+  }
+  return h + '</svg>';
+}
+function chiffres(n){ return { m: Math.floor(n/1000), c: Math.floor(n/100)%10, d: Math.floor(n/10)%10, u: n%10 }; }
+function plur(k, s1, s2){ return k + " " + (k > 1 ? s2 : s1); }
+
+/* le nombre n représenté avec le matériel ; prev = nombre d'avant (pour montrer ce qui change) */
+function materiel(n, prev){
+  var a = chiffres(n), b = prev === null ? a : chiffres(prev), h = '<div class="mat">';
+  function grp(v, k, kb, lab){
+    var ic = ""; for (var i=0;i<k;i++) ic += boite(v, prev !== null && i >= kb);
+    return '<div class="mg"><div class="ic">' + (ic || '<span style="color:#bbb;font-weight:800">—</span>') + '</div><div class="lb">' + lab + '</div></div>';
+  }
+  if (a.m || b.m || n >= 1000) h += grp(1000, a.m, b.m, plur(a.m, "boîte de 1 000", "boîtes de 1 000"));
+  if (a.c || b.c || n >= 100) h += grp(100, a.c, b.c, plur(a.c, "boîte de 100", "boîtes de 100"));
+  h += grp(10, a.d, b.d, plur(a.d, "boîte de 10", "boîtes de 10"));
+  var neufs = [], partis = [];
+  if (prev !== null) {
+    if (n > prev && a.u > b.u && n - prev < 10) for (var i=b.u;i<a.u;i++) neufs.push(i);
+    if (n > prev && a.u < b.u) for (var j=0;j<a.u;j++) neufs.push(j);
+    if (n < prev && a.u < b.u) for (var k=a.u;k<b.u;k++) partis.push(k);
+  }
+  h += '<div class="mg"><div class="ic">' + boiteOuverte(a.u, neufs, partis) + '</div><div class="lb">' + plur(a.u, "jeton", "jetons") + ' dans la boîte retournée</div></div>';
+  return h + '</div>';
+}
+function decompose(p){
+  var a = chiffres(p), t = [];
+  if (a.m) t.push(plur(a.m, "boîte de 1 000", "boîtes de 1 000"));
+  if (a.c) t.push(plur(a.c, "boîte de 100", "boîtes de 100"));
+  if (a.d) t.push(plur(a.d, "boîte de 10", "boîtes de 10"));
+  if (a.u) t.push(plur(a.u, "jeton", "jetons"));
+  return t.length > 1 ? t.slice(0,-1).join(", ") + " et " + t[t.length-1] : t[0];
+}
+/* l'astuce de la classe pour chaque pas */
+function astuce(s){
+  var p = s.pas, av = s.sens !== "recule";
+  if (p === 1) return av ? "De 1 en 1 : j'ajoute <b>1 unité</b>, <b>1 jeton de plus</b>. Donc c'est le <b>nombre suivant</b> !"
+                         : "De 1 en 1 en reculant : j'enlève <b>1 unité</b>, <b>1 jeton de moins</b>. C'est le <b>nombre d'avant</b> !";
+  if (p === 2) {
+    var pair = s.t[0] % 2 === 0;
+    return "De 2 en 2 : je connais par cœur <b>0, 2, 4, 6, 8</b>. " + (pair
+      ? "Le chiffre des unités se termine toujours par <b>0, 2, 4, 6 ou 8</b>."
+      : "Ici on part d'un nombre impair : le chiffre des unités se termine toujours par <b>1, 3, 5, 7 ou 9</b>.");
+  }
+  if (p === 5) return av ? "De 5 en 5 : j'utilise ma <b>boîte de 10 retournée</b>. Je cache <b>5</b> jetons, puis encore <b>5</b> : la boîte est <b>pleine</b>, je la retourne !"
+                         : "De 5 en 5 en reculant : j'enlève <b>5 jetons</b> de ma boîte retournée. S'il n'y en a pas assez, je retourne une <b>boîte de 10</b> pour l'ouvrir.";
+  if (p === 10) return (av ? "De 10 en 10 : j'ajoute <b>1 boîte de 10</b> à chaque saut." : "De 10 en 10 en reculant : j'enlève <b>1 boîte de 10</b> à chaque saut.") + " Les jetons ne bougent pas : le chiffre des unités reste le même.";
+  if (p === 100) return (av ? "De 100 en 100 : j'ajoute <b>1 boîte de 100</b>" : "De 100 en 100 en reculant : j'enlève <b>1 boîte de 100</b>") + " à chaque saut. Les dizaines et les unités ne bougent pas.";
+  if (p === 1000) return (av ? "De 1 000 en 1 000 : j'ajoute <b>1 boîte de 1 000</b>" : "De 1 000 en 1 000 en reculant : j'enlève <b>1 boîte de 1 000</b>") + " à chaque saut.";
+  return "De " + fmt(p) + " en " + fmt(p) + " : à chaque saut, " + (av ? "j'ajoute " : "j'enlève ") + "<b>" + decompose(p) + "</b>.";
+}
+/* ce qui se passe dans la boîte de 10 pendant le saut */
+function noteSaut(prev, n){
+  var a = chiffres(n), b = chiffres(prev);
+  if (n > prev && a.u < b.u) return "🔄 10 jetons : la boîte est pleine, je la retourne ! Elle devient une boîte de 10.";
+  if (n < prev && a.u > b.u) return "🔄 Pas assez de jetons : je retourne une boîte de 10 pour l'ouvrir.";
+  if (n > prev && a.d < b.d && a.u >= b.u) return "📦 10 boîtes de 10 : je les range dans une boîte de 100 !";
+  return "";
+}
+function chipsUnites(s, n){
+  var l = s.t[0] % 2 === 0 ? [0,2,4,6,8] : [1,3,5,7,9];
+  return '<div class="chips">' + l.map(function(x){ return '<span class="chip' + (n % 10 === x ? " on" : "") + '">' + x + '</span>'; }).join("") + '</div>';
+}
+
 /* ================= J'OBSERVE (modelage) ================= */
 var O = null;
 function observe(){
@@ -269,7 +367,7 @@ function renderObs(){
   app.innerHTML = barre("👀 J'observe", "") +
     '<div class="obs-set">Le pas : ' + pasBtns + '</div>' +
     '<div class="stage"><p class="consigne">On ' + (s.sens==="recule" ? "recule" : "avance") + ' de <span class="pas">' + fmt(s.pas) + ' en ' + fmt(s.pas) + '</span>. Le pas est <span class="pas">' + sg + fmt(s.pas) + '</span>.</p>' +
-    dessinSuite(arcs, cases) + '<div class="calc hand">' + calc + '</div></div>' +
+    dessinSuite(arcs, cases) + '<div class="calc hand">' + calc + '</div>' + panneau(s, O.k) + '</div>' +
     '<div class="tools" style="margin-top:14px">' +
     '<button class="btn main" id="nx">' + (O.k < N ? "Saut suivant ➡️" : "Recommencer 🔁") + '</button>' +
     '<button class="btn" id="nv">🎲 Nouvelle suite</button></div>';
@@ -285,6 +383,14 @@ function renderObs(){
   });
   backBtn();
   var last = app.querySelector('[data-case="'+(O.k-1)+'"]'); if (last && O.k>1) last.classList.add("pop");
+}
+function panneau(s, k){
+  var n = s.t[k-1], prev = k > 1 ? s.t[k-2] : null, note = prev === null ? "" : noteSaut(prev, n);
+  var h = '<div class="astuce hand">' + astuce(s);
+  if (s.pas === 2) h += chipsUnites(s, n);
+  if (s.pas <= 1000) h += materiel(n, prev);
+  if (note) h += '<div class="note">' + note + '</div>';
+  return h + '</div>';
 }
 function obsNext(){ if (O.k < N) O.k++; else O.k = 1; renderObs(); }
 
@@ -365,7 +471,7 @@ function renderQ(msgTxt, msgCl){
     '<div class="stage" id="stage"><p class="consigne">' + consigne() + '</p>' + dessinSuite(arcs, cases) +
     '<div class="msg ' + (msgCl||"") + '" id="msg">' + (msgTxt||"") + '</div>' +
     '<div class="tools">' +
-      (Q.etape === "pas" && !Q.fini ? '<button class="btn help" id="aide">💡 Coup de pouce</button>' : '') +
+      (!Q.fini ? '<button class="btn help" id="aide">💡 Coup de pouce</button>' : '') +
       '<button class="btn main" id="suiv"' + (Q.fini ? "" : " hidden") + '>' + (S.i+1 < NB_QUESTIONS ? "Suivant ➡️" : "Résultat 🏁") + '</button>' +
     '</div></div>' + (Q.fini ? "" : pave());
   backBtn();
@@ -407,6 +513,16 @@ function paireAide(){
 }
 
 function aide(){
+  if (Q.etape === "cases") {
+    var j = Q.act, s0 = Q.s, ref = null;
+    if (j !== null) {
+      if (j > 0 && (Q.connus.indexOf(j-1) >= 0 || Q.val[j-1] !== undefined)) ref = j-1;
+    }
+    var h = '<div class="astuce hand" style="margin-top:0">' + astuce(s0);
+    if (s0.pas === 2) h += chipsUnites(s0, -1);
+    if (ref !== null && s0.pas <= 1000) h += '<div style="margin-top:6px;font-size:1rem;font-weight:800;color:#6b6650">' + fmt(s0.t[ref]) + ' avec le matériel :</div>' + materiel(s0.t[ref], null);
+    return renderQ(h + '</div>', "");
+  }
   Q.aide = true;
   var s = Q.s, pr = paireAide(), a = s.t[pr[0]], b = s.t[pr[1]], k = pr[1]-pr[0];
   var mot = s.sens === "recule" ? "recule" : "avance", diff = Math.abs(b-a), txt;
