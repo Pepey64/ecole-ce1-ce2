@@ -377,7 +377,7 @@ function groupes(p,withImg=true){
 }
 
 /* ---------- État ---------- */
-let SRC=store.get("src","tout");
+let SRC=store.get("src","tout"); if(!["tout","zoo","vie"].includes(SRC)) SRC="tout";
 let S={screen:"home",demo:0};
 const cur=()=>S.list[S.i];
 const MODES={
@@ -455,7 +455,7 @@ function home(){
     demoPanel(),
     h("section",{class:"panel",style:"gap:10px"},
       h("div",{class:"label"},"Les phrases"),
-      h("div",{class:"row"},[["tout","Toutes les phrases"],["zoo","Au zoo"],["crado","La princesse Crado"],["vie","La classe et la vie de tous les jours"]].map(([k,l])=>
+      h("div",{class:"row"},[["tout","Toutes les phrases"],["zoo","Au zoo"],["vie","La classe et la vie de tous les jours"]].map(([k,l])=>
         h("button",{class:"btn tab","aria-selected":String(SRC===k),onclick:()=>setSrc(k)},l)))
     ),
     h("section",{class:"modes"},Object.entries(MODES).map(([k,m])=>{
