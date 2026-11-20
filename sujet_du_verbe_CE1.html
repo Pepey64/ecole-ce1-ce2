@@ -188,7 +188,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
           <ol>
             <li>Je cherche le <b class="verb">verbe</b> avec les lunettes <b class="verb">ne … pas</b>.</li>
             <li>Je pose la question : <b>Qui est-ce qui + verbe ?</b></li>
-            <li>Je réponds en encadrant le sujet avec <span class="tile">C'est</span> … <span class="tile">qui</span><br>(ou <span class="tile">Ce sont</span> … <span class="tile">qui</span> quand ils sont plusieurs).</li>
+            <li>Je réponds en encadrant le sujet avec <span class="tile">C'est</span> … <span class="tile">qui</span>. <b>qui</b> est toujours devant le verbe<br>(ou <span class="tile">Ce sont</span> … <span class="tile">qui</span> quand ils sont plusieurs).</li>
           </ol>
           <p style="font-family:var(--f-body);font-size:22px">Qui est-ce qui <b class="verb">aboie</b> ? → <span class="tile">C'est</span> <span class="insub">le gros chien de ma voisine</span> <span class="tile">qui</span> <b class="verb">aboie</b>.</p>
         </div>
@@ -425,7 +425,7 @@ function header(){
 const DEMO = parse(["[Dans le jardin ,] {le joli petit chat noir} *grimpe* dans l'arbre .","Il","vie","Où ?"]);
 function demoPanel(){
   const p=DEMO, st=S.demo;
-  const titles=["Voici une phrase.","1. Je cherche le verbe avec les lunettes.","2. Je pose la question : Qui est-ce qui + verbe ?","3. Je réponds avec C'est … qui.","Le groupe sujet et le groupe verbal."];
+  const titles=["Voici une phrase.","1. Je cherche le verbe avec les lunettes.","2. Je pose la question : Qui est-ce qui + verbe ?","3. Je réponds : je place qui devant le verbe, puis C'est.","Le groupe sujet et le groupe verbal."];
   const panel=h("section",{class:"panel"},
     h("div",{class:"bar"},h("div",{class:"label"},"Exemple · je regarde"),
       h("div",{class:"steps"},titles.map((_,k)=>h("span",{class:"step"+(k===st?" on":k<st?" ok":"")},k===0?"Phrase":k===4?"Les groupes":"Étape "+k)))),
@@ -477,8 +477,8 @@ function bar(){
 }
 function stepsBar(){
   if(S.mode==="pronom") return null;
-  const order=S.mode==="guide"?["verb","ce","qui","done"]:["verb","sel","done"];
-  const names=S.mode==="guide"?{verb:"1. Le verbe",ce:"2. La question",qui:"3. C'est … qui",done:"Les groupes"}:{verb:"1. Le verbe",sel:"2. Le groupe sujet",done:"Les groupes"};
+  const order=S.mode==="guide"?["verb","qui","ce","done"]:["verb","sel","done"];
+  const names=S.mode==="guide"?{verb:"1. Le verbe",qui:"2. La question · qui",ce:"3. C'est",done:"Les groupes"}:{verb:"1. Le verbe",sel:"2. Le groupe sujet",done:"Les groupes"};
   const at=order.indexOf(S.step);
   return h("div",{class:"steps"},order.map((k,i)=>h("span",{class:"step"+(i===at?" on":i<at?" ok":"")},names[k])));
 }
@@ -503,7 +503,7 @@ function stepVerb(panel){
 }
 function tapVerb(i){
   const p=cur();
-  if(i===p.v){ S.last=null; S.step=S.mode==="guide"?"ce":"sel"; }
+  if(i===p.v){ S.last=null; S.step=S.mode==="guide"?"qui":"sel"; }
   else { S.last=i; S.tried.add(i); S.err++; }
   render();
 }
@@ -518,29 +518,29 @@ function stepFrame(panel){
   const p=cur(), n=p.w.length;
   verbFound(panel);
   panel.append(question(p));
-  const placingCe = S.step==="ce";
-  panel.append(h("p",{class:"consigne"},placingCe
-    ? ["Je réponds avec ",h("span",{class:"tile"},p.ce)," … ",h("span",{class:"tile"},"qui"),". Touche l'endroit où tu places ",h("b",{},"« "+p.ce+" »"),"."]
-    : ["Maintenant, touche l'endroit où tu places ",h("b",{},"« qui »"),"."]));
+  const placingQui = S.step==="qui";
+  panel.append(h("p",{class:"consigne"},placingQui
+    ? ["Je réponds avec ",h("span",{class:"tile"},p.ce)," … ",h("span",{class:"tile"},"qui"),". D'abord, touche l'endroit où tu places ",h("b",{},"« qui »"),". Rappel : ",h("b",{},"qui")," est toujours devant le verbe !"]
+    : ["Maintenant, touche l'endroit où tu places ",h("b",{},"« "+p.ce+" »"),"."]));
   const line=h("div",{class:"phrase"});
   for(let g=0;g<=n;g++){
     const ok = g<n && !isP(p.w[g]);
-    if(placingCe && ok && g<p.v){
-      line.append(h("button",{class:"gap"+(S.cTried.has(g)?" tried":""),disabled:S.cTried.has(g),"aria-label":"Placer "+p.ce+" ici",onclick:()=>placeCe(g)},h("span",{},"+")));
-    }
-    if(!placingCe && g===S.cg) line.append(h("span",{class:"tile"},g===0?p.ce:p.ce.toLowerCase()));
-    if(!placingCe && ok && g>S.cg){
+    if(placingQui && ok && g>0){
       line.append(h("button",{class:"gap"+(S.qTried.has(g)?" tried":""),disabled:S.qTried.has(g),"aria-label":"Placer qui ici",onclick:()=>placeQui(g)},h("span",{},"+")));
     }
-    if(g<n){
-      let w=p.w[g]; if(!placingCe && S.cg===0 && g===0) w=low1(w,0);
-      if(!placingCe && p.pronSubj && g===p.s0) w=PRON[w];
-      line.append(pt(w,g===p.v?"verb":"plain"));
+    if(!placingQui && ok && g<p.v){
+      line.append(h("button",{class:"gap"+(S.cTried.has(g)?" tried":""),disabled:S.cTried.has(g),"aria-label":"Placer "+p.ce+" ici",onclick:()=>placeCe(g)},h("span",{},"+")));
     }
+    if(!placingQui && g===p.v) line.append(h("span",{class:"tile"},"qui"));
+    if(g<n) line.append(pt(p.w[g],g===p.v?"verb":"plain"));
   }
   panel.append(h("div",{class:"trayrow"},h("span",{class:"label"},"À placer :"),
-    h("span",{class:"tile"+(placingCe?"":" ghost")},p.ce),h("span",{class:"tile"+(placingCe?" ghost":"")},"qui")), line);
-  if(S.cWrong!=null && placingCe){
+    h("span",{class:"tile"+(placingQui?"":" ghost")},"qui"),h("span",{class:"tile"+(placingQui?" ghost":"")},p.ce)), line);
+  if(S.qWrong!=null && placingQui){
+    const f=framed(p,null,S.qWrong);
+    panel.append(h("div",{class:"phrase small"},f.nodes),verdict(false,"Non ! ",h("b",{},"qui")," est toujours juste devant le verbe ",h("b",{class:"verb"},p.w[p.v]),"."),h("div",{class:"row"},listenBtn(()=>f.txt)));
+  }
+  if(S.cWrong!=null && !placingQui){
     const f=framed(p,S.cWrong,p.v);
     let why;
     if(p.c0>=0 && S.cWrong<p.s0){
@@ -549,20 +549,16 @@ function stepFrame(panel){
     } else why=["Il manque des mots ! Le groupe sujet, c'est ",h("b",{},"tout le groupe")," qui répond à la question."];
     panel.append(h("div",{class:"phrase small"},f.nodes),verdict(false,"Ça ne se dit pas. ",...why),h("div",{class:"row"},listenBtn(()=>f.txt)));
   }
-  if(S.qWrong!=null && !placingCe){
-    const f=framed(p,S.cg,S.qWrong);
-    panel.append(h("div",{class:"phrase small"},f.nodes),verdict(false,"Ça ne se dit pas. ",h("b",{},"qui")," se place juste avant le verbe ",h("b",{class:"verb"},p.w[p.v]),"."),h("div",{class:"row"},listenBtn(()=>f.txt)));
-  }
 }
 function placeCe(g){
   const p=cur();
-  if(g===p.s0){ S.cg=g; S.cWrong=null; S.step="qui"; }
+  if(g===p.s0){ S.cg=g; S.cWrong=null; S.step="done"; }
   else { S.cTried.add(g); S.cWrong=g; S.err++; }
   render();
 }
 function placeQui(g){
   const p=cur();
-  if(g===p.v){ S.qg=g; S.qWrong=null; S.step="done"; }
+  if(g===p.v){ S.qg=g; S.qWrong=null; S.step="ce"; }
   else { S.qTried.add(g); S.qWrong=g; S.err++; }
   render();
 }
