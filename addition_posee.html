@@ -14,7 +14,7 @@
   --red:#D6483D; --blue:#2E6F95; --yellow:#F2B33D; --green:#4C9A5B;
   --purple:#7C5CA6; --orange:#E8843C; --border:#B9C4CC;
   --cu:#D6483D; --cd:#2a5ea8; --cc:#3f8f12;
-  --cs:clamp(46px,5.6vw,66px);
+  --cs:clamp(54px,6.6vw,80px); --fk:.69; --mb:-.21em;
 }
 *{box-sizing:border-box}
 body{margin:0;min-height:100vh;color:var(--ink);background-color:var(--paper);
@@ -72,7 +72,9 @@ h1{margin:4px 0 0;font-size:3rem;font-weight:400;line-height:1;text-align:center
   background-size:var(--cs) var(--cs),var(--cs) var(--cs),var(--cs) calc(var(--cs)/4);
   border-right:1px solid rgba(124,92,166,.45);border-bottom:1px solid rgba(46,111,149,.42)}
 .cell{width:var(--cs);height:var(--cs);position:relative;display:flex;align-items:flex-end;justify-content:center;
-  font-family:'Patrick Hand','Segoe Print',cursive;font-size:calc(var(--cs)*.86);line-height:1;padding-bottom:2px}
+  font-family:'Patrick Hand','Segoe Print',cursive;font-size:calc(var(--cs)*var(--fk));line-height:1}
+/* chiffre posé sur la ligne d'écriture, haut de 2 interlignes */
+.cell .ch{display:block;line-height:1;margin-bottom:var(--mb)}
 .cell.hd{font-family:'Nunito',sans-serif;font-weight:800;font-size:calc(var(--cs)*.42);align-items:center}
 .cell.ret{font-size:calc(var(--cs)*.5);color:var(--red);align-items:flex-end}
 .cell.tap{cursor:pointer}
@@ -536,6 +538,7 @@ function grille(){
   var n = S.n, cur = S.stage === "place" ? S.liste[S.pi] : null, tap = cur && cur.t !== "trait" && !demo();
   var h = '<div class="grille" style="grid-template-columns:repeat(' + (n+3) + ',var(--cs))">';
   function cell(cls, v, at){ return '<div class="cell ' + cls + '"' + (at || "") + '>' + v + '</div>'; }
+  function ch(v){ return v === "" ? "" : '<span class="ch">' + v + '</span>'; }
   function hl(i){ return S.stage === "calc" && S.i === i ? " colhl" : ""; }
   function ligne(f){ h += cell("",""); h += f(-1); for (var i=n-1;i>=0;i--) h += f(i); h += cell("",""); }
   ligne(function(i){ return i < 0 ? cell("hd","") : cell("hd" + hl(i), COL[i], ' style="color:' + COUL[i] + '"'); });
@@ -546,13 +549,13 @@ function grille(){
       var t = tap ? " tap" : "";
       if (i < 0){
         var tg = S.tgt === "plus" && r === "B" ? " tgt" : "", bd = S.bad === r + "s" ? " bad" : "";
-        return cell("sg" + t + tr + tg + bd + (r === "B" && S.fresh.plus ? " new" : ""), r === "B" && S.plus ? "+" : "", ' data-r="' + r + '" data-i="s"');
+        return cell("sg" + t + tr + tg + bd + (r === "B" && S.fresh.plus ? " new" : ""), ch(r === "B" && S.plus ? "+" : ""), ' data-r="' + r + '" data-i="s"');
       }
       var cls = t + tr + (S.tgt === r + i ? " tgt" : "") + (S.bad === r + i ? " bad" : "") + hl(i) + (S.fresh[r+i] ? " new" : "");
-      return cell(cls, S.places[r + i] && D[i] !== undefined ? D[i] : "", ' data-r="' + r + '" data-i="' + i + '"');
+      return cell(cls, ch(S.places[r + i] && D[i] !== undefined ? D[i] : ""), ' data-r="' + r + '" data-i="' + i + '"');
     });
   });
-  ligne(function(i){ return i < 0 ? cell("","") : cell("res" + hl(i) + (S.fresh["s"+i] ? " new" : ""), S.col[i].res === null ? "" : S.col[i].res); });
+  ligne(function(i){ return i < 0 ? cell("","") : cell("res" + hl(i) + (S.fresh["s"+i] ? " new" : ""), ch(S.col[i].res === null ? "" : S.col[i].res)); });
   ligne(function(){ return cell("",""); });
   return h + '</div>';
 }
@@ -607,6 +610,21 @@ function clavier(e){
     else if (e.key === "Enter") { touche("ok"); e.preventDefault(); }
   } else if (e.key === "Enter" && S.tools.length === 1) { e.preventDefault(); S.tools[0][2](); }
 }
+
+/* calage : chiffres hauts de 2 interlignes, posés sur la ligne d'écriture */
+function calage(){
+  try {
+    var c = document.createElement("canvas").getContext("2d");
+    c.font = '100px "Patrick Hand"';
+    var m = c.measureText("8"), asc = m.actualBoundingBoxAscent / 100;
+    var A = m.fontBoundingBoxAscent / 100, D = m.fontBoundingBoxDescent / 100;
+    if (!(asc > 0) || !(A > 0)) return;
+    var st = document.documentElement.style;
+    st.setProperty("--fk", (0.5 / asc).toFixed(3));
+    st.setProperty("--mb", (-((1 - (A + D)) / 2 + D)).toFixed(3) + "em");
+  } catch(e){}
+}
+if (document.fonts && document.fonts.load) document.fonts.load('100px "Patrick Hand"').then(calage, calage); else calage();
 
 $("fs").onclick = function(){
   try {
