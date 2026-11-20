@@ -99,6 +99,7 @@ h1{margin:4px 0 0;font-size:3rem;font-weight:400;line-height:1;text-align:center
 .mg.plein{border:2px solid var(--yellow);border-radius:10px;padding:3px 6px;background:#fffbea}
 .pl{font-size:1.5rem;font-weight:800;color:var(--orange);line-height:1}
 .fl{font-size:.9rem;font-weight:800;color:var(--purple);text-align:center}
+.jetons{display:grid;grid-template-columns:repeat(5,24px);gap:3px;justify-content:center}
 .zero{font-size:1.3rem;color:#bbb;font-weight:800}
 img.new{animation:pp .6s;filter:drop-shadow(0 0 4px #F2B33D) drop-shadow(0 0 2px #F2B33D)}
 .ouverte{position:relative;display:inline-block}
@@ -195,7 +196,12 @@ function boiteOuverte(u, neuf, L){
 }
 /* k objets du rang i (0 = jetons dans une boîte retournée, 1 = boîtes de 10, 2 = boîtes de 100) */
 function objets(i, k, neuf){
-  if (i === 0) return boiteOuverte(k, neuf);
+  if (i === 0){   // des jetons seuls, hors des boîtes, rangés par 5
+    if (!k) return '<span class="zero">0</span>';
+    var h = '<div class="jetons">';
+    for (var q=0;q<k;q++) h += img("dot", 24, neuf ? "new" : "");
+    return h + '</div>';
+  }
   var s = ""; for (var j=0;j<k;j++) s += img(i === 1 ? "box10" : "box100", i === 1 ? 26 : 30, neuf ? "new" : "");
   return s || '<span class="zero">0</span>';
 }
