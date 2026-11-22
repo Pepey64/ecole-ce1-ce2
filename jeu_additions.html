@@ -137,7 +137,7 @@
   .chronobar { height: 14px; background: #ddd; border-radius: 8px; overflow: hidden; margin: 0 auto 12px; max-width: 520px; }
   .chronobar div { height: 100%; background: #2E9E5B; transition: width .25s linear; }
   .chronobar div.urg { background: #D64545; }
-  .defi-calc { width: 280px; height: 130px; margin: 0 auto 10px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+  .defi-calc { width: 340px; height: 130px; margin: 0 auto 10px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
     font-size: 48px; font-weight: 800; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
   .defi-ans { text-align: center; font-size: 44px; font-weight: 800; min-height: 60px; margin-bottom: 6px; }
   .defi-ans.bon { color: #2E9E5B; } .defi-ans.faux { color: #D64545; }
@@ -211,6 +211,15 @@ for (let a = 1; a <= 10; a++) {
   for (let b = 1; b <= 10; b++) {
     ALL.push({ a, b, sum: a + b, cat: category(a, b) });
   }
+}
+
+// Compléments à 10 : le résultat fait toujours 10, on demande donc le complément ou une soustraction
+function question(f) {
+  if (f.cat === "compl") {
+    if (Math.random() < 0.5) return { txt: `${f.a} + … = 10`, ans: f.b, pre: "… = " };
+    return { txt: `10 − ${f.a}`, ans: f.b, pre: "= " };
+  }
+  return { txt: `${f.a} + ${f.b}`, ans: f.sum, pre: "= " };
 }
 
 let currentCat = "tous";
@@ -295,8 +304,9 @@ function showGameCard() {
   }
   const f = gameDeck[gameIndex % gameDeck.length];
   front.style.background = CATS[f.cat].color;
-  front.textContent = `${f.a} + ${f.b}`;
-  back.textContent = `= ${f.sum}`;
+  const q = question(f);
+  front.textContent = q.txt;
+  back.textContent = q.pre + q.ans;
   box.classList.remove("flipped");
   buttons.innerHTML = `<button class="btn-flip" onclick="flipBig()">🔄 Retourner</button>`;
 }
@@ -329,7 +339,7 @@ function updateScore() {
 
 // ---- Défi 1 minute (un thème ou toutes les stratégies mélangées) ----
 const DUREE = 60;
-const D = { cat: null, fact: null, saisie: "", score: 0, nb: 0, fin: 0, timer: null, bloque: false };
+const D = { cat: null, fact: null, q: null, saisie: "", score: 0, nb: 0, fin: 0, timer: null, bloque: false };
 const recKey = (cat) => "jeu_additions_defi_" + cat;
 function getRec(cat) { try { return +(localStorage.getItem(recKey(cat)) || 0); } catch (e) { return 0; } }
 function setRec(cat, v) { try { localStorage.setItem(recKey(cat), v); } catch (e) {} }
@@ -359,7 +369,7 @@ function piocher() {
 
 function defiStart(cat) {
   D.cat = cat; D.score = 0; D.nb = 0; D.saisie = ""; D.bloque = false;
-  D.fact = piocher();
+  D.fact = piocher(); D.q = question(D.fact);
   D.fin = Date.now() + DUREE * 1000;
   defiPlay();
   clearInterval(D.timer);
@@ -380,8 +390,8 @@ function defiPlay(etat) {
       <button onclick="defiMenu()">✖ Arrêter</button></div>
     <div class="chrono" id="d-chrono">${r} s</div>
     <div class="chronobar"><div id="d-bar" class="${r <= 10 ? "urg" : ""}" style="width:${100 * r / DUREE}%"></div></div>
-    <div class="defi-calc" style="background:${CATS[f.cat].color}">${f.a} + ${f.b}</div>
-    <div class="defi-ans ${etat || ""}">${etat === "faux" ? "= " + f.sum : (D.saisie ? "= " + D.saisie : "= ?")}</div>
+    <div class="defi-calc" style="background:${CATS[f.cat].color}">${D.q.txt}</div>
+    <div class="defi-ans ${etat || ""}">${D.q.pre}${etat === "faux" ? D.q.ans : (D.saisie || "?")}</div>
     <div class="pad">${[1,2,3,4,5,6,7,8,9,0].map(d => `<button data-d="${d}">${d}</button>`).join("")}
       <button class="del" data-d="del">⌫</button><button class="ok" data-d="ok">OK</button></div>`;
   defiEl.querySelectorAll(".pad button").forEach(b => b.onclick = () => defiKey(b.dataset.d));
@@ -392,14 +402,14 @@ function defiKey(k) {
   if (k === "del") { D.saisie = D.saisie.slice(0, -1); defiPlay(); return; }
   if (k === "ok") {
     if (!D.saisie) return;
-    const juste = +D.saisie === D.fact.sum;
+    const juste = +D.saisie === D.q.ans;
     D.nb++; if (juste) D.score++;
     D.bloque = true;
     if (!juste) D.saisie = "";
     defiPlay(juste ? "bon" : "faux");
     setTimeout(() => {
       if (!D.cat || resteD() <= 0) return;
-      D.bloque = false; D.saisie = ""; D.fact = piocher(); defiPlay();
+      D.bloque = false; D.saisie = ""; D.fact = piocher(); D.q = question(D.fact); defiPlay();
     }, juste ? 500 : 1200);
     return;
   }
