@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le Coffre du Père Noël</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;800&display=swap">
+<style>
+/* VOICE: joyeux, chaleureux, une histoire à vivre pour des élèves de CE1–CE2
+   IDEA: un jeu point-and-click en 4 pièces : la maison, la cuisine de la Mère Noël, l'atelier de fabrication, l'écurie
+   PICTURE: quatre décors illustrés animés (feu, vapeur, engrenages, tapis roulant), objets cliquables
+   COLOUR and TYPE: bois chaud, vert sapin, rouge Noël, or ; Fredoka + Nunito
+   LAYOUT: en-tête avec les 5 boules-clés, grande scène, bulle de dialogue, parchemins en fenêtre */
+:root{color-scheme:dark;--bg:#10261f;--paper:#fff8ec;--ink:#2a1d14;--muted:#6d5a4a;--red:#d42a3a;--red2:#a51c2a;--gold:#f2b632;--ok:#1f8a4c;--snow:#fbfdfc}
+*{box-sizing:border-box;min-width:0}
+[hidden]{display:none!important}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--snow);font:17px/1.5 Nunito,system-ui,sans-serif;overflow-x:clip}
+h1,h2{font-family:Fredoka,Nunito,sans-serif;line-height:1.1;margin:0;text-wrap:balance}
+.wrap{max-width:1120px;margin:0 auto;padding:16px max(16px,3vw) 32px;display:grid;gap:14px}
+.top{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between}
+.top h1{font-size:clamp(24px,3.6vw,36px)}
+.top h1 span{color:var(--gold)}
+.keys{display:flex;gap:10px;flex-wrap:wrap}
+.key{display:grid;justify-items:center;gap:0;font:600 12px Fredoka,sans-serif;color:#9fc7b8;width:64px;text-align:center}
+.key .orb{position:relative;width:40px;height:48px}
+.key .orb svg{position:absolute;inset:0}
+.key .orb b{position:absolute;left:0;right:0;top:15px;font:700 20px Fredoka,sans-serif;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+.key.on{color:#fff}
+.key.pop .orb{animation:pop .7s}
+@keyframes pop{40%{transform:scale(1.4)}}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:rgba(255,255,255,.1);border-radius:999px;padding:6px 14px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.stage{position:relative;border-radius:18px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.45);background:#2a160b;aspect-ratio:1000/600}
+.stage svg{display:block;width:100%;height:100%}
+.stage svg.show{animation:fade .6s}
+@keyframes fade{from{opacity:0}}
+.room{position:absolute;left:12px;top:12px;background:rgba(16,38,31,.82);color:#fff;font:600 15px Fredoka,sans-serif;border-radius:999px;padding:5px 14px;pointer-events:none}
+.hot{cursor:pointer;transition:filter .2s}
+.hot:hover,.hot:focus-visible{filter:drop-shadow(0 0 5px #ffe9a3) drop-shadow(0 0 12px #ffc93c);outline:none}
+.reveal .hot{animation:glow 1.2s 2}
+@keyframes glow{50%{filter:drop-shadow(0 0 8px #fff3b0) drop-shadow(0 0 18px #ffc93c)}}
+.tw{animation:tw 1.6s infinite alternate}
+@keyframes tw{to{opacity:.35}}
+.flame{animation:fl .5s infinite alternate ease-in-out;transform-origin:860px 470px}
+.flame.b{animation-duration:.37s}
+@keyframes fl{to{transform:scale(1.06,.9)}}
+.flick{animation:fk 2.2s infinite alternate}
+@keyframes fk{to{opacity:.55}}
+.smoke,.steam{animation:sm 3s infinite;transform-box:fill-box;transform-origin:center}
+@keyframes sm{from{opacity:.7;transform:translateY(0)}to{opacity:0;transform:translateY(-34px) scale(1.8)}}
+.spin{animation:spin 6s linear infinite;transform-box:fill-box;transform-origin:center}
+.spin.rev{animation-direction:reverse;animation-duration:4s}
+@keyframes spin{to{transform:rotate(360deg)}}
+.belt{animation:belt .8s linear infinite}
+@keyframes belt{to{stroke-dashoffset:-40}}
+.ride{animation:ride 9s linear infinite}
+@keyframes ride{from{transform:translateX(0)}to{transform:translateX(420px)}}
+.talk{background:var(--paper);color:var(--ink);border-radius:18px;padding:14px 16px;display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:14px;align-items:center;min-height:100px;box-shadow:0 6px 0 rgba(0,0,0,.25)}
+.face{width:72px;height:72px;border-radius:50%;background:#e8f2ec;overflow:hidden}
+.face svg{width:100%;height:100%}
+.who{font:700 15px Fredoka,sans-serif;color:var(--red2)}
+.say{margin:2px 0 0;font-size:18px}
+.say.note{font-family:Fredoka,sans-serif;background:#f6e7c4;border-radius:10px;padding:8px 12px;transform:rotate(-.6deg)}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{font:600 16px Fredoka,sans-serif;border:0;border-radius:14px;padding:10px 18px;min-height:44px;cursor:pointer;background:var(--red);color:#fff;box-shadow:0 4px 0 var(--red2)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--red2)}
+.btn.ghost{background:transparent;color:#cfe6dc;box-shadow:inset 0 0 0 2px #4a8a72}
+.btn.gold{background:var(--gold);color:#4a2c00;box-shadow:0 4px 0 #b37f10}
+.paper .btn.ghost{color:var(--muted);box-shadow:inset 0 0 0 2px #cdb99a}
+button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.ov{position:fixed;inset:0;z-index:20;background:rgba(10,20,16,.78);display:grid;place-items:center;padding:16px;overflow-y:auto}
+.paper{background:var(--paper);color:var(--ink);border-radius:20px;max-width:620px;width:100%;padding:22px 22px 20px;display:grid;gap:12px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:up .3s}
+@keyframes up{from{transform:translateY(20px);opacity:0}}
+.paper h2{font-size:26px;padding-right:40px}
+.ptag{font:600 14px Fredoka,sans-serif;color:var(--red2)}
+.paper p{margin:0}
+.x{position:absolute;top:10px;right:10px;width:44px;height:44px;border-radius:50%;border:0;background:#efe2cc;color:var(--ink);font:700 22px Fredoka,sans-serif;cursor:pointer}
+.q{background:#f1e6d2;border-radius:14px;padding:12px 14px}
+.q p+p{margin-top:4px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input[type=text],input[type=number]{font:700 18px Nunito,sans-serif;border:2px solid #d4c1a1;border-radius:12px;padding:8px 12px;min-height:44px;background:#fff;color:var(--ink);width:9em}
+input.wide{width:100%}
+input.mini{width:5.6em;text-align:center;padding:8px 6px}
+.words,.choices{display:flex;flex-wrap:wrap;gap:8px}
+.w,.choice{font:700 18px Nunito,sans-serif;border:2px solid #d4c1a1;background:#fff;border-radius:10px;padding:6px 12px;min-height:44px;cursor:pointer;color:var(--ink)}
+.w.sel,.choice.sel{background:var(--gold);border-color:#c98f12}
+.choice.bad{border-color:var(--red);background:#fde3e5}
+.choice:disabled{cursor:default}
+.big{font:700 38px Fredoka,sans-serif;text-align:center;letter-spacing:.06em}
+.screen{background:#0e2a20;color:#5cf08a;border:4px solid #c9a24a;border-radius:12px;font:700 44px Fredoka,sans-serif;text-align:center;letter-spacing:.12em;padding:6px}
+.frame{display:grid;gap:8px}
+.frame .row{justify-content:center;font:700 20px Fredoka,sans-serif}
+.lbl{font:600 14px Fredoka,sans-serif;color:var(--muted);text-align:center}
+.conj{display:grid;gap:8px}
+.conj label{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:700}
+.conj input{width:8em}
+.conj input.mini{width:5.6em}
+.abc{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:4px}
+.abc span{background:#fff;border-radius:8px;text-align:center;padding:2px 0;font-size:14px;line-height:1.2}
+.abc b{display:block;font:700 17px Fredoka,sans-serif;color:var(--red2)}
+.grid5{display:grid;grid-template-columns:auto repeat(5,minmax(0,1fr));gap:4px;max-width:320px;margin:0 auto;width:100%;text-align:center;font:700 18px Fredoka,sans-serif}
+.grid5 span{background:#fff;border-radius:8px;padding:4px 0}
+.grid5 .h{background:#2d9a5f;color:#fff}
+.codeline{font:700 clamp(20px,4vw,28px) Fredoka,sans-serif;text-align:center;letter-spacing:.04em;word-spacing:.3em}
+.model{display:grid;gap:6px;background:#fff;border-radius:14px;padding:10px}
+.mrow{display:flex;gap:4px}
+.mb{border:3px solid #2d9a5f;border-radius:10px;padding:6px 8px;text-align:center;background:#eaf7ef;display:grid;gap:0;min-width:0}
+.mb.tot{border-color:#e08a1e;background:#fdf1df}
+.mb.gap{border-style:dashed;border-color:#d42a3a;background:#fdeced}
+.mb small{font:600 12px Fredoka,sans-serif;color:var(--muted)}
+.mb b{font:600 15px Nunito,sans-serif;overflow-wrap:anywhere}
+.mb span{font:700 22px Fredoka,sans-serif}
+.steps{display:flex;flex-wrap:wrap;gap:6px}
+.steps span{font:600 13px Fredoka,sans-serif;border:2px solid #d4c1a1;border-radius:999px;padding:3px 10px;color:var(--muted);background:#fff}
+.steps .on{background:#2f5fb3;border-color:#2f5fb3;color:#fff}
+.steps .ok{border-color:#2d9a5f;color:#1f8a4c;background:#eaf7ef}
+.cmpwrap{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:10px}
+.stmt{display:grid;gap:6px;align-content:start}
+.stmt p{background:#fff;border:2px solid #2a1d14;border-radius:10px;padding:6px 10px;font-size:16px}
+mark{background:#ffd76a;border-radius:4px;padding:0 3px;font-weight:800;color:inherit}
+.cm{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:200px auto;background:#fff;border-radius:14px;padding:10px;transition:opacity .3s}
+.cm.dim{opacity:.45}
+.ccol{display:grid;grid-template-rows:2fr 3fr;min-height:0}
+.ccol.big .cq{grid-row:1/3;grid-column:1}
+.ccol.big .dl{grid-row:1;grid-column:1;align-self:end;border-bottom:3px dotted #2a1d14;margin:0 3px;transform:translateY(3px);pointer-events:none;z-index:1}
+.cm>b{text-align:center;font:700 14px Fredoka,sans-serif;padding-top:4px;line-height:1.2}
+#cnS{color:#c46a0a}#cnB{color:#1f8a4c}
+.ecart{border:3px solid #2f5fb3;border-bottom:0;border-radius:12px 0 0 0;display:grid;justify-items:center;align-content:center;gap:2px;cursor:pointer}
+.ecart i{width:48px;height:48px;border:2px solid #555;border-radius:50%;display:grid;place-items:center;font:700 18px Fredoka,sans-serif;font-style:normal;background:#fff}
+.ecart small{font:600 11px Fredoka,sans-serif;color:#2f5fb3}
+.cq{display:grid;justify-items:center;align-content:start;padding-top:8px;cursor:pointer;position:relative}
+.cq i{font:700 22px Fredoka,sans-serif;font-style:normal}
+.cq.or{background:#fbd9a8;border:3px solid #e08a1e}
+.cq.gr{background:#bfeec4;border:3px solid #2d9a5f}
+.cm .pick{outline:3px dashed #f2b632;outline-offset:-3px}
+.rule{display:block;background:#fff8dc;border:2px dashed #c9a24a;border-radius:10px;padding:6px 10px;font-size:15px}
+.calc{font:700 26px Fredoka,sans-serif}
+.bigkey{position:fixed;inset:0;z-index:25;display:grid;place-items:center;align-content:center;gap:14px;background:rgba(10,20,16,.6);pointer-events:none;transition:background .5s}
+.bigkey.go{background:transparent}
+.bk-orb{position:relative;width:min(190px,45vw);aspect-ratio:40/48;transform-origin:center}
+.bk-orb svg{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 0 28px rgba(255,220,120,.85))}
+.bk-orb b{position:absolute;left:0;right:0;top:31%;text-align:center;font:700 clamp(54px,12vw,92px)/1 Fredoka,sans-serif;color:#fff;text-shadow:0 3px 6px rgba(0,0,0,.4)}
+.bigkey p{margin:0;font:700 clamp(20px,4vw,28px) Fredoka,sans-serif;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.5);transition:opacity .3s}
+.bigkey.go p{opacity:0}
+.conj.two{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.ws{display:grid;gap:3px;max-width:400px;width:100%;margin:0 auto;background:#2f5fb3;padding:6px;border-radius:12px}
+.ws button{aspect-ratio:1;border:0;border-radius:6px;background:#fff;font:700 clamp(13px,3.4vw,19px) Fredoka,sans-serif;color:var(--ink);padding:0;cursor:pointer;min-width:0}
+.ws button.st{background:#ffd76a}
+.ws button.fd{background:#bfeec4;color:#1f6b3c}
+.wl{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.wl span{font:700 15px Fredoka,sans-serif;background:#fff;border:2px solid #d4c1a1;border-radius:999px;padding:2px 10px}
+.wl span.ok{text-decoration:line-through;color:#1f8a4c;border-color:#2d9a5f;background:#eaf7ef}
+.pool{display:flex;flex-wrap:wrap;gap:8px;min-height:48px;align-content:flex-start}
+.bins{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bin{border:3px dashed #c9b48f;border-radius:14px;padding:8px;min-height:130px;cursor:pointer;background:#fff;display:grid;gap:6px;align-content:start}
+.bin h3{margin:0;font:700 16px Fredoka,sans-serif;text-align:center}
+.bin[data-b="c"] h3{color:#2f5fb3}.bin[data-b="p"] h3{color:var(--red2)}
+.bin.pick{border-color:var(--gold);background:#fff8dc}
+.xw{display:grid;gap:3px;margin:0 auto;width:fit-content;max-width:100%}
+.xc{position:relative;width:40px;height:40px}
+.xc input[type=text]{width:100%;height:100%;min-height:0;text-align:center;font:700 20px Fredoka,sans-serif;border:2px solid #2a1d14;border-radius:6px;padding:0;text-transform:uppercase}
+.xc input.bad{background:#fde3e5;border-color:var(--red)}
+.xc small{position:absolute;left:3px;top:0;font:700 10px Fredoka,sans-serif;color:var(--red2);pointer-events:none;z-index:1}
+.xb{width:40px;height:40px}
+.clues{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}
+.clues h3{margin:0;font:700 16px Fredoka,sans-serif}
+.clues ul{margin:4px 0 0;padding-left:18px;font-size:15px}
+.clues small{color:var(--muted)}
+@media(max-width:560px){.cmpwrap{grid-template-columns:1fr}}
+.sudo{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;max-width:300px;margin:0 auto;width:100%;background:#7a4a28;padding:6px;border-radius:14px}
+.sudo button{aspect-ratio:1;border:0;background:#fff;border-radius:8px;cursor:pointer;padding:12%;display:grid;place-items:center}
+.sudo button.giv{background:#f1e6d2;cursor:default}
+.sudo button:nth-child(4n+2){margin-right:4px}
+.sudo button:nth-child(n+5):nth-child(-n+8){margin-bottom:4px}
+.sudo svg{width:100%;height:100%}
+.quizq{display:grid;gap:8px}
+.quizq+.quizq{border-top:2px dashed #e4d5bb;padding-top:10px}
+.fb{min-height:1.4em;font-weight:800;color:var(--red2)}
+.hint{font-size:15px;color:var(--muted);background:#fff1cf;border-radius:12px;padding:8px 12px}
+.digits{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.digits input{width:56px;height:64px;text-align:center;font:700 30px Fredoka,sans-serif;border:2px solid #d4c1a1;border-radius:12px;color:var(--ink);padding:0;background:#fff}
+.win{text-align:center;justify-items:center}
+.win h2{font-size:clamp(30px,6vw,42px);color:var(--red);padding:0}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:30}
+footer{color:#9fc7b8;font-size:14px;text-align:center}
+@media(max-width:640px){.talk{grid-template-columns:56px minmax(0,1fr)}.face{width:56px;height:56px}.talk .btn{grid-column:1/-1}.say{font-size:16px}.key{width:54px}}
+@media(prefers-reduced-motion:reduce){.tw,.flame,.flick,.smoke,.steam,.spin,.belt,.ride,.reveal .hot{animation:none}}
+</style>
+</head>
+<body>
+<canvas id="confetti" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header class="top">
+    <h1>Le Coffre du <span>Père Noël</span></h1>
+    <div class="keys" id="keys" aria-label="Les 5 boules-clés"></div>
+    <div class="chips"><span class="chip" id="lvl"></span><span class="chip" id="timer">⏱ 00:00</span></div>
+  </header>
+
+  <div class="stage" id="stage"><span class="room" id="roomName"></span></div>
+
+  <div class="talk" aria-live="polite">
+    <div class="face" id="face"></div>
+    <div><div class="who" id="who"></div><p class="say" id="say"></p></div>
+    <button class="btn" id="next" type="button">Suite ▸</button>
+  </div>
+
+  <div class="tools">
+    <button class="btn gold" id="loupe" type="button">Loupe magique</button>
+    <button class="btn ghost" id="prev" type="button">◂ Pièce précédente</button>
+    <button class="btn ghost" id="fwd" type="button">Pièce suivante ▸</button>
+    <button class="btn ghost" id="reset" type="button">Recommencer</button>
+  </div>
+  <footer>Clique sur les objets du décor pour trouver les parchemins de Bourrasque. Chaque pièce terminée donne une boule-clé avec un chiffre du code.</footer>
+</div>
+
+<div class="ov" id="modal" hidden>
+  <div class="paper" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <button class="x" id="mClose" type="button" aria-label="Fermer">×</button>
+    <div class="ptag" id="mTag"></div>
+    <h2 id="mTitle"></h2>
+    <div id="mBody" style="display:grid;gap:12px"></div>
+    <p class="fb" id="mFb" aria-live="polite"></p>
+    <div class="row"><button class="btn" id="mOk" type="button">Valider</button><button class="btn ghost" id="mHint" type="button">Un indice, Grelot ?</button></div>
+    <p class="hint" id="mHintTxt" hidden></p>
+  </div>
+</div>
+
+<div class="ov" id="levels" hidden>
+  <div class="paper win">
+    <svg width="96" height="96" viewBox="0 0 80 80" aria-hidden="true"><path d="M19 48L5 38 20 57Z" fill="#f0bb93"/><path d="M61 48L75 38 60 57Z" fill="#f0bb93"/><circle cx="40" cy="50" r="22" fill="#f6c9a4"/><circle cx="32" cy="47" r="3.2" fill="#2a1a12"/><circle cx="48" cy="47" r="3.2" fill="#2a1a12"/><path d="M33 56Q40 63 47 56" stroke="#7a3b2a" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M16 38C20 20 36 8 60 4C53 14 56 26 64 38Z" fill="#1f8a4c"/><rect x="14" y="34" width="52" height="9" rx="4.5" fill="#d42a3a"/><circle cx="60" cy="5" r="5" fill="#f2b632"/></svg>
+    <h2 style="color:var(--ink)">Choisis ton niveau</h2>
+    <p>Les décors et l'histoire sont les mêmes. Seules les énigmes changent.</p>
+    <div class="row" style="justify-content:center"><button class="btn" type="button" data-lv="1">CE1</button><button class="btn" type="button" data-lv="2">CE2</button></div>
+  </div>
+</div>
+
+<div class="ov" id="win" hidden>
+  <div class="paper win">
+    <svg width="130" height="130" viewBox="0 0 120 120" aria-hidden="true"><path d="M32 50Q60 14 92 50Z" fill="#d42a3a"/><path d="M88 46Q104 40 100 26" stroke="#d42a3a" stroke-width="10" fill="none" stroke-linecap="round"/><circle cx="100" cy="24" r="8" fill="#fff"/><circle cx="60" cy="64" r="24" fill="#f6c9a4"/><path d="M30 62Q28 104 60 112Q92 104 90 62Q82 82 60 82Q38 82 30 62Z" fill="#fff"/><ellipse cx="51" cy="78" rx="11" ry="6" fill="#f4f4f4"/><ellipse cx="69" cy="78" rx="11" ry="6" fill="#f4f4f4"/><circle cx="60" cy="72" r="5" fill="#e98a7a"/><circle cx="51" cy="62" r="3" fill="#2a1a12"/><circle cx="69" cy="62" r="3" fill="#2a1a12"/><rect x="30" y="44" width="60" height="13" rx="6.5" fill="#fff"/></svg>
+    <h2>Ho ho ho ! Joyeux Noël !</h2>
+    <p>Le coffre est ouvert ! Grâce à toi, les cadeaux partiront à l'heure. Et Bourrasque ? Il fera la vaisselle de la Mère Noël jusqu'au printemps !</p>
+    <p><strong id="winTime"></strong></p>
+    <button class="btn" type="button" id="again">Rejouer</button>
+  </div>
+</div>
+
+<script>
+{
+const $=id=>document.getElementById(id);
+const R=(n,f)=>Array.from({length:n},(_,i)=>f(i)).join('');
+const COLORS=['#d42a3a','#f2b632','#4fb3e8','#e46fb0','#5fd08a','#9b7be0','#ff8a3d'];
+const ROOMNAMES=['La maison du Père Noël','La cuisine de la Mère Noël',"L'atelier de fabrication",'La salle du grand ordinateur',"L'écurie des rennes"];
+const SC=[0,1,2,3,4],LAST=SC.length-1;
+const KEYS=[3,8,5,7,2],KEYCOL=['#d42a3a','#4fb3e8','#f2b632','#9b7be0','#5fd08a'];
+
+/* ---------- personnages ---------- */
+function face(who){
+  if(who==='pere')return `<svg viewBox="0 0 80 80"><path d="M18 36Q40 8 62 36Z" fill="#d42a3a"/><circle cx="66" cy="22" r="6" fill="#fff"/><circle cx="40" cy="44" r="16" fill="#f6c9a4"/><path d="M20 44Q20 74 40 78Q60 74 60 44Q54 56 40 56Q26 56 20 44Z" fill="#fff"/><circle cx="34" cy="42" r="2.4" fill="#2a1a12"/><circle cx="46" cy="42" r="2.4" fill="#2a1a12"/><circle cx="40" cy="49" r="3.5" fill="#e98a7a"/><rect x="18" y="32" width="44" height="9" rx="4.5" fill="#fff"/></svg>`;
+  if(who==='mere')return `<svg viewBox="0 0 80 80"><circle cx="40" cy="20" r="12" fill="#eceff1"/><circle cx="40" cy="48" r="21" fill="#f6c9a4"/><path d="M19 47Q16 25 40 25Q64 25 61 47Q56 33 40 33Q24 33 19 47Z" fill="#eceff1"/><circle cx="32" cy="48" r="6.5" fill="#fff" fill-opacity=".3" stroke="#c9a24a" stroke-width="2"/><circle cx="48" cy="48" r="6.5" fill="#fff" fill-opacity=".3" stroke="#c9a24a" stroke-width="2"/><path d="M38.5 48h3" stroke="#c9a24a" stroke-width="2"/><circle cx="32" cy="48" r="2.3" fill="#2a1a12"/><circle cx="48" cy="48" r="2.3" fill="#2a1a12"/><circle cx="27" cy="58" r="4" fill="#f59a9a" opacity=".6"/><circle cx="53" cy="58" r="4" fill="#f59a9a" opacity=".6"/><path d="M34 60Q40 65 46 60" stroke="#7a3b2a" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M18 80Q20 68 40 68Q60 68 62 80Z" fill="#d42a3a"/><path d="M32 68h16l-8 7Z" fill="#fff"/></svg>`;
+  const hat=who==='bourrasque'?'#7b3fb5':'#1f8a4c', trim=who==='bourrasque'?'#f2b632':'#d42a3a';
+  const brows=who==='bourrasque'?'<path d="M27 40l9 3M53 40l-9 3" stroke="#5a3a22" stroke-width="2.5" stroke-linecap="round"/>':'';
+  const mouth=who==='bourrasque'?'<path d="M32 57Q42 63 50 54" stroke="#7a3b2a" stroke-width="2.5" fill="none" stroke-linecap="round"/>':'<path d="M33 56Q40 63 47 56" stroke="#7a3b2a" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+  return `<svg viewBox="0 0 80 80"><path d="M19 48L5 38 20 57Z" fill="#f0bb93"/><path d="M61 48L75 38 60 57Z" fill="#f0bb93"/><circle cx="40" cy="50" r="22" fill="#f6c9a4"/><circle cx="28" cy="56" r="4.5" fill="#f59a9a" opacity=".6"/><circle cx="52" cy="56" r="4.5" fill="#f59a9a" opacity=".6"/><circle cx="32" cy="47" r="3.2" fill="#2a1a12"/><circle cx="48" cy="47" r="3.2" fill="#2a1a12"/><circle cx="33" cy="46" r="1" fill="#fff"/><circle cx="49" cy="46" r="1" fill="#fff"/>${brows}${mouth}<path d="M16 38C20 20 36 8 60 4C53 14 56 26 64 38Z" fill="${hat}"/><rect x="14" y="34" width="52" height="9" rx="4.5" fill="${trim}"/><circle cx="60" cy="5" r="5" fill="#f2b632"/></svg>`;
+}
+const ICON={
+ sapin:'<path d="M20 3L31 17H25L34 29H6L15 17H9Z" fill="#1f8a4c"/><rect x="17" y="29" width="6" height="7" fill="#7a4a28"/><circle cx="20" cy="4" r="2.5" fill="#f2b632"/>',
+ etoile:'<path d="M20 3l4.9 10 11 1.6-8 7.8 1.9 11L20 28.2 10.2 33.4l1.9-11-8-7.8 11-1.6Z" fill="#f2b632" stroke="#d09a1c" stroke-width="1.5"/>',
+ cloche:'<path d="M20 5c-7 0-10 6-10 13v7l-4 5h28l-4-5v-7c0-7-3-13-10-13Z" fill="#f2b632"/><circle cx="20" cy="33" r="3.5" fill="#d09a1c"/><path d="M12 30h16" stroke="#d42a3a" stroke-width="3"/>',
+ cadeau:'<rect x="6" y="15" width="28" height="20" rx="2" fill="#d42a3a"/><rect x="4" y="10" width="32" height="7" rx="2" fill="#e5404f"/><rect x="17" y="10" width="6" height="25" fill="#f2b632"/><path d="M20 10c-6-8-12-4-8 0M20 10c6-8 12-4 8 0" stroke="#f2b632" stroke-width="3" fill="none"/>'
+};
+const ic=n=>`<svg viewBox="0 0 40 40" aria-hidden="true">${ICON[n]}</svg>`;
+const shadow=(cx,cy,rx)=>`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${rx*.14}" fill="#000" opacity=".28"/>`;
+const starPath=(x,y,s)=>{let d='';for(let i=0;i<10;i++){const r=i%2?s*.45:s,a=-Math.PI/2+i*Math.PI/5;d+=(i?'L':'M')+(x+r*Math.cos(a)).toFixed(1)+' '+(y+r*Math.sin(a)).toFixed(1)}return d+'Z'};
+const lock=(id,x,y)=>`<g id="${id}"><rect x="${x}" y="${y}" width="30" height="26" rx="5" fill="#c9cfd2"/><path d="M${x+6} ${y}v-8a9 9 0 0 1 18 0v8" stroke="#c9cfd2" stroke-width="5" fill="none"/><circle cx="${x+15}" cy="${y+11}" r="3.5" fill="#41484b"/></g>`;
+const vig=id=>`<radialGradient id="${id}" cx="50%" cy="50%" r="70%"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></radialGradient>`;
+
+/* ---------- décor 1 : la maison ---------- */
+function bulbs(){const pts=[];const seg=(p0,c,p1)=>{for(const t of [.12,.3,.5,.7,.88])pts.push([(1-t)**2*p0[0]+2*(1-t)*t*c[0]+t*t*p1[0],(1-t)**2*p0[1]+2*(1-t)*t*c[1]+t*t*p1[1]])};seg([0,40],[250,95],[500,45]);seg([500,45],[750,95],[1000,40]);
+  return pts.map((p,i)=>`<rect x="${p[0]-3}" y="${p[1]-2}" width="6" height="6" fill="#3a3a3a"/><ellipse class="tw" style="animation-delay:${(i%4)*.4}s" cx="${p[0]}" cy="${p[1]+9}" rx="6" ry="8" fill="${COLORS[i%7]}"/>`).join('')}
+function stones(){let s='';for(let r=0;r<8;r++)for(let c=-1;c<6;c++){const x=740+c*48+(r%2?24:0),y=256+r*29;s+=`<rect x="${x+2}" y="${y+2}" width="44" height="25" rx="5" fill="${['#9a948d','#86807a','#a7a19a','#8f8982'][(r*7+c*3+9)%4]}"/>`}return s}
+function stocking(x,col,cuff){return `<path d="M${x} 258h24v44c0 8 6 12 16 14c10 2 12 18 0 20c-14 2-30-2-40-18Z" fill="${col}"/><rect x="${x-3}" y="252" width="30" height="13" rx="4" fill="${cuff}"/>`}
+function maison(){return `
+<svg viewBox="0 0 1000 600" role="img" aria-label="La maison du Père Noël" id="sc0">
+<defs>
+ <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a4627"/><stop offset="1" stop-color="#9b5e34"/></linearGradient>
+ <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a3d20"/><stop offset="1" stop-color="#3f2412"/></linearGradient>
+ <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b2340"/><stop offset="1" stop-color="#2a5f86"/></linearGradient>
+ <linearGradient id="tree" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2a9563"/><stop offset=".55" stop-color="#1c7a50"/><stop offset=".56" stop-color="#15603f"/><stop offset="1" stop-color="#114d33"/></linearGradient>
+ <linearGradient id="redg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e5404f"/><stop offset="1" stop-color="#a51c2a"/></linearGradient>
+ <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffc35a" stop-opacity=".75"/><stop offset="1" stop-color="#ffc35a" stop-opacity="0"/></radialGradient>
+ ${vig('vig')}
+ <clipPath id="winclip"><rect x="64" y="84" width="182" height="182" rx="4"/></clipPath>
+ <clipPath id="fpclip"><rect x="740" y="254" width="240" height="226"/></clipPath>
+ <clipPath id="doorclip"><path d="M608 478V252A47 47 0 0 1 702 252V478Z"/></clipPath>
+</defs>
+<rect width="1000" height="480" fill="url(#wall)"/>
+${R(17,i=>`<rect x="${i*62}" y="30" width="3" height="450" fill="#000" opacity=".2"/><rect x="${i*62+3}" y="30" width="2" height="450" fill="#fff" opacity=".05"/>`)}
+<rect width="1000" height="32" fill="#4a2a15"/><rect y="30" width="1000" height="5" fill="#000" opacity=".25"/>
+<rect y="480" width="1000" height="120" fill="url(#floor)"/>
+${R(15,i=>{const k=i-7;return `<line x1="${500+k*45}" y1="482" x2="${500+k*150}" y2="600" stroke="#000" stroke-opacity=".25" stroke-width="2"/>`})}
+<rect y="470" width="1000" height="14" fill="#3b2110"/>
+<circle class="flick" cx="860" cy="400" r="420" fill="url(#glow)" opacity=".35"/>
+<path d="M0 40Q250 95 500 45Q750 95 1000 40" stroke="#2f7a4f" stroke-width="6" fill="none"/>
+${bulbs()}
+<g class="hot" data-id="fenetre" tabindex="0" role="button" aria-label="La fenêtre">
+ <rect x="30" y="56" width="250" height="9" rx="3" fill="#3b2110"/><rect x="50" y="70" width="210" height="210" rx="8" fill="#e9d8b8"/>
+ <g clip-path="url(#winclip)"><rect x="64" y="84" width="182" height="182" fill="url(#sky)"/><circle cx="205" cy="122" r="30" fill="#fff6d6" opacity=".2"/><circle cx="205" cy="122" r="17" fill="#fff6d6"/>
+  <path d="M64 228Q120 196 170 222T250 212V270H64Z" fill="#e8f3f7"/>${[[95,222],[120,214],[205,216]].map(([x,y])=>`<path d="M${x} ${y-30}l12 30h-24Z" fill="#12372b"/>`).join('')}
+  ${R(14,i=>`<circle cx="${70+(i*37)%175}" cy="${92+(i*53)%170}" r="2.2" fill="#fff" opacity=".85"/>`)}</g>
+ <rect x="152" y="84" width="6" height="182" fill="#e9d8b8"/><rect x="64" y="172" width="182" height="6" fill="#e9d8b8"/>
+ <rect x="40" y="276" width="230" height="14" rx="3" fill="#c9b48f"/><path d="M54 278q20-14 50-4q30-10 60 0q30-12 56 0q20-6 36 4Z" fill="#fff"/>
+ <path d="M34 64H88Q72 140 90 200Q100 240 74 304H34Z" fill="#c3283a"/><path d="M52 66Q58 180 50 302" stroke="#8f1b28" stroke-width="5" fill="none"/>
+ <path d="M276 64H222Q238 140 220 200Q210 240 236 304H276Z" fill="#c3283a"/><path d="M258 66Q252 180 260 302" stroke="#8f1b28" stroke-width="5" fill="none"/>
+</g>
+<g class="hot" data-id="sapin" tabindex="0" role="button" aria-label="Le sapin">
+ ${shadow(160,566,90)}<path d="M128 520h64l-6 46h-52Z" fill="#c3283a"/><rect x="124" y="516" width="72" height="10" rx="3" fill="#e5404f"/>
+ <path d="M160 300L222 400Q190 410 160 404Q130 410 98 400Z" fill="url(#tree)"/><path d="M160 350L238 460Q196 474 160 466Q124 474 82 460Z" fill="url(#tree)"/><path d="M160 410L252 520Q202 536 160 528Q118 536 68 520Z" fill="url(#tree)"/>
+ <path d="M112 392Q160 416 210 386M96 452Q160 484 226 448M84 512Q160 544 240 508" stroke="#f2b632" stroke-width="3.5" fill="none"/>
+ ${[[130,380,'#d42a3a'],[190,372,'#4fb3e8'],[150,440,'#f2b632'],[210,446,'#e46fb0'],[110,450,'#4fb3e8'],[176,500,'#d42a3a'],[120,506,'#f2b632'],[226,506,'#4fb3e8'],[160,350,'#e46fb0']].map(([x,y,c])=>`<circle cx="${x}" cy="${y}" r="8" fill="${c}"/><circle cx="${x-2.5}" cy="${y-2.5}" r="2.5" fill="#fff" opacity=".7"/>`).join('')}
+ <path d="${starPath(160,292,15)}" fill="#ffd34d" stroke="#e0a91c" stroke-width="2"/>
+ <rect x="62" y="534" width="44" height="34" rx="3" fill="#4fb3e8"/><rect x="80" y="534" width="8" height="34" fill="#fff"/><rect x="62" y="546" width="44" height="7" fill="#fff"/>
+</g>
+<g class="hot" data-id="hotte" tabindex="0" role="button" aria-label="La hotte">
+ ${shadow(286,568,52)}<path d="M254 470Q250 520 258 566H316Q324 520 318 470Z" fill="#b07a42"/>
+ ${R(5,i=>`<path d="M254 ${484+i*17}Q286 ${492+i*17} 318 ${484+i*17}" stroke="#7a4f24" stroke-width="3" fill="none"/>`)}${R(4,i=>`<line x1="${266+i*14}" y1="474" x2="${266+i*14}" y2="566" stroke="#8a5c2c" stroke-width="2"/>`)}
+ <ellipse cx="286" cy="470" rx="33" ry="9" fill="#5a3a1a"/><path d="M266 466c-4-22 2-34 14-36c10-2 14 14 8 34Z" fill="#b97a45"/><circle cx="270" cy="434" r="6" fill="#b97a45"/>
+ <path d="M300 468V430a10 10 0 0 1 20 0" stroke="#fff" stroke-width="7" fill="none"/><path d="M300 468V430a10 10 0 0 1 20 0" stroke="#d42a3a" stroke-width="7" stroke-dasharray="6 6" fill="none"/>
+</g>
+<g class="hot" data-id="nounours" tabindex="0" role="button" aria-label="Le nounours">
+ <ellipse cx="355" cy="146" rx="18" ry="17" fill="#b97a45"/><circle cx="343" cy="108" r="6" fill="#a56a38"/><circle cx="367" cy="108" r="6" fill="#a56a38"/><circle cx="355" cy="120" r="14" fill="#b97a45"/><ellipse cx="355" cy="126" rx="6" ry="4.5" fill="#e8c79a"/><circle cx="355" cy="124" r="2" fill="#2a1a12"/><circle cx="350" cy="117" r="1.8" fill="#2a1a12"/><path d="M357 117h4" stroke="#2a1a12" stroke-width="2" stroke-linecap="round"/><path d="M347 136l8 4 8-4-8 6Z" fill="#d42a3a"/>
+</g>
+${[[400,139,'#d42a3a','N'],[426,139,'#2d7a5f','O'],[413,115,'#f2b632','Ë'],[452,139,'#4fb3e8','L']].map(([x,y,c,l])=>`<rect x="${x}" y="${y}" width="24" height="24" rx="3" fill="${c}"/><text x="${x+12}" y="${y+18}" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="16" fill="#fff">${l}</text>`).join('')}
+<circle cx="510" cy="145" r="18" fill="#d42a3a"/><path d="M493 140Q510 150 527 140" stroke="#fff" stroke-width="5" fill="none"/>
+<rect x="300" y="163" width="262" height="10" rx="2" fill="#a0693a"/><rect x="300" y="171" width="262" height="3" fill="#000" opacity=".25"/>
+<rect x="340" y="214" width="50" height="33" fill="#d42a3a"/><ellipse cx="365" cy="214" rx="25" ry="7" fill="#f3e6d0"/><path d="M340 222l10 18 10-18 10 18 10-18 10 18" stroke="#f2b632" stroke-width="3" fill="none"/>
+<rect x="418" y="208" width="18" height="26" rx="3" fill="#2f5fb3"/><circle cx="427" cy="200" r="8" fill="#f6c9a4"/><rect x="419" y="180" width="16" height="16" rx="3" fill="#1a1a1a"/><rect x="420" y="234" width="6" height="13" fill="#1a1a1a"/><rect x="428" y="234" width="6" height="13" fill="#1a1a1a"/>
+${[[470,20,'#2d7a5f'],[492,16,'#f2b632'],[510,22,'#c3283a'],[534,18,'#4fb3e8']].map(([x,w,c],i)=>`<rect x="${x}" y="${197+i%2*6}" width="${w}" height="${50-i%2*6}" rx="2" fill="${c}"/>`).join('')}
+<rect x="300" y="247" width="262" height="10" rx="2" fill="#a0693a"/><path d="M310 173v20l16-20ZM552 173v20l-16-20ZM310 257v20l16-20ZM552 257v20l-16-20Z" fill="#7a4a28"/>
+${shadow(425,482,150)}<rect x="295" y="392" width="18" height="86" fill="#7a4a28"/><rect x="537" y="392" width="18" height="86" fill="#7a4a28"/>
+<rect x="300" y="448" width="250" height="8" fill="#8a5530"/><rect x="330" y="424" width="60" height="25" rx="3" fill="#c3283a"/>
+<rect x="280" y="372" width="290" height="22" rx="3" fill="#a86d3a"/><rect x="280" y="372" width="290" height="4" fill="#c98a50"/><rect x="290" y="394" width="270" height="18" fill="#8a5530"/>
+<g class="hot" data-id="train" tabindex="0" role="button" aria-label="Le petit train">
+ <rect x="300" y="332" width="60" height="30" rx="4" fill="#4fb3e8"/><rect x="309" y="340" width="42" height="14" rx="2" fill="#fff8ec"/><text x="330" y="351" text-anchor="middle" font-family="Fredoka" font-size="10" fill="#2a1d14">Bourrasque</text>
+ <rect x="366" y="330" width="56" height="32" rx="9" fill="url(#redg)"/><rect x="410" y="308" width="40" height="54" rx="4" fill="#b51f2e"/><rect x="405" y="301" width="50" height="9" rx="3" fill="#2a2a2a"/><rect x="418" y="315" width="24" height="17" rx="2" fill="#ffe9a3"/>
+ <rect x="374" y="310" width="14" height="22" fill="#2a2a2a"/><rect x="370" y="305" width="22" height="7" rx="2" fill="#2a2a2a"/>
+ <circle class="smoke" cx="381" cy="294" r="7" fill="#fff"/><circle class="smoke" style="animation-delay:1.5s" cx="388" cy="286" r="6" fill="#fff"/>
+ ${[[315,9],[345,9],[382,10],[407,10],[436,12]].map(([x,r])=>`<circle cx="${x}" cy="${372-r}" r="${r}" fill="#2a2a2a"/><circle cx="${x}" cy="${372-r}" r="3.5" fill="#f2b632"/>`).join('')}
+</g>
+<g class="hot" data-id="facture" tabindex="0" role="button" aria-label="Le parchemin enroulé">
+ <path d="M478 340h78v30h-78Z" fill="#f3e2bb"/><path d="M486 348h56M486 356h48M486 364h52" stroke="#c9b48f" stroke-width="2"/>
+ <ellipse cx="478" cy="355" rx="7" ry="16" fill="#e2cc9c"/><ellipse cx="556" cy="355" rx="7" ry="16" fill="#e2cc9c"/><rect x="512" y="338" width="8" height="34" fill="#d42a3a"/><circle cx="516" cy="355" r="8" fill="#a51c2a"/>
+</g>
+<g class="hot" data-id="lettres" tabindex="0" role="button" aria-label="Le sac de lettres">
+ ${shadow(528,574,52)}<path d="M484 572Q474 520 496 494L560 494Q584 520 572 572Z" fill="#d8c19a"/>
+ ${[[492,470,-14,'#d42a3a'],[518,462,6,'#2f5fb3'],[540,472,18,'#d42a3a'],[506,480,-4,'#2d7a5f']].map(([x,y,r,c])=>`<g transform="rotate(${r} ${x+18} ${y+12})"><rect x="${x}" y="${y}" width="36" height="24" rx="2" fill="#fff"/><path d="M${x} ${y}l18 13 18-13" stroke="#cfc6b6" stroke-width="2" fill="none"/><rect x="${x+26}" y="${y+3}" width="7" height="8" fill="${c}"/></g>`).join('')}
+ <rect x="502" y="526" width="52" height="20" rx="4" fill="#fff8ec"/><text x="528" y="541" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="13" fill="#a51c2a">Lettres</text>
+</g>
+<g class="hot" data-id="porte" tabindex="0" role="button" aria-label="La porte de la cuisine">
+ <path d="M598 478V250A57 57 0 0 1 712 250V478Z" fill="#3e220e"/><path d="M608 478V252A47 47 0 0 1 702 252V478Z" fill="#6b3a1c"/>
+ <g clip-path="url(#doorclip)">${R(3,i=>`<rect x="${630+i*24}" y="190" width="3" height="290" fill="#000" opacity=".3"/>`)}<rect x="604" y="282" width="102" height="10" fill="#2a2a2a"/><rect x="604" y="420" width="102" height="10" fill="#2a2a2a"/></g>
+ <circle cx="690" cy="372" r="6" fill="#f2b632"/><rect x="616" y="306" width="78" height="26" rx="4" fill="#e9d8b8"/><text x="655" y="324" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="15" fill="#5b2a1c">Cuisine</text>
+ <rect id="light0" x="608" y="473" width="94" height="6" fill="#ffd76a" opacity="0"/>${lock('lock0',640,356)}
+</g>
+<rect x="740" y="254" width="240" height="226" fill="#6f6a65"/><g clip-path="url(#fpclip)">${stones()}</g>
+<path d="M790 480V362Q860 296 930 362V480Z" fill="#1a0e08"/><circle class="flick" cx="860" cy="440" r="80" fill="url(#glow)"/>
+<rect x="818" y="456" width="84" height="14" rx="7" fill="#6b3d22" transform="rotate(-8 860 463)"/><rect x="818" y="456" width="84" height="14" rx="7" fill="#5a321b" transform="rotate(10 860 463)"/>
+<path class="flame" d="M818 470C800 432 830 412 826 382C846 402 850 420 862 358C876 400 902 410 892 380C918 420 922 444 902 470Z" fill="#ff7a1a"/>
+<path class="flame b" d="M836 470C828 446 846 432 846 412C858 428 860 440 866 404C878 434 892 444 884 470Z" fill="#ffd04a"/>
+<rect x="725" y="232" width="270" height="24" rx="3" fill="#6b3f22"/><rect x="725" y="232" width="270" height="5" fill="#8a5530"/>
+<g class="hot" data-id="chaussettes" tabindex="0" role="button" aria-label="Les chaussettes">${stocking(752,'#c3283a','#fff')}${stocking(900,'#2d7a5f','#fff')}${stocking(944,'#f2f2f2','#d42a3a')}</g>
+<rect x="765" y="200" width="12" height="32" rx="2" fill="#fff8ec"/><ellipse class="flick" cx="771" cy="193" rx="4" ry="7" fill="#ffc93c"/>
+<g class="hot" data-id="horloge" tabindex="0" role="button" aria-label="L'horloge">
+ <path d="M878 232V184a27 27 0 0 1 54 0V232Z" fill="#7a4a28"/><circle cx="905" cy="192" r="18" fill="#fffaf0" stroke="#c9a24a" stroke-width="3"/>
+ <line x1="905" y1="192" x2="900" y2="183" stroke="#2a1d14" stroke-width="3" stroke-linecap="round"/><line x1="905" y1="192" x2="918" y2="188" stroke="#2a1d14" stroke-width="2" stroke-linecap="round"/>
+</g>
+<rect width="1000" height="600" fill="url(#vig)" pointer-events="none"/><g id="badges0" pointer-events="none"></g>
+</svg>`}
+
+/* ---------- décor 2 : la cuisine de la Mère Noël ---------- */
+function cuisine(){return `
+<svg viewBox="0 0 1000 600" role="img" aria-label="La cuisine de la Mère Noël" id="sc1">
+<defs>
+ <linearGradient id="kwall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3dca8"/><stop offset="1" stop-color="#e9c98a"/></linearGradient>
+ <pattern id="chk" width="70" height="70" patternUnits="userSpaceOnUse"><rect width="70" height="70" fill="#f4efe6"/><rect width="35" height="35" fill="#c8323f"/><rect x="35" y="35" width="35" height="35" fill="#c8323f"/></pattern>
+ <pattern id="tl" width="40" height="40" patternUnits="userSpaceOnUse"><rect width="40" height="40" fill="#eaf4f8"/><rect width="40" height="40" fill="none" stroke="#b7d3df" stroke-width="2"/><circle cx="20" cy="20" r="6" fill="#7fb3c8" opacity=".45"/></pattern>
+ <pattern id="ging" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="#fff"/><rect width="8" height="16" fill="#e0505c" opacity=".55"/><rect width="16" height="8" fill="#e0505c" opacity=".55"/></pattern>
+ <linearGradient id="ovn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb347"/><stop offset="1" stop-color="#ff6a1a"/></linearGradient>
+ <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b2340"/><stop offset="1" stop-color="#2a5f86"/></linearGradient>
+ <linearGradient id="dark" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient>
+ ${vig('vig1')}
+ <clipPath id="wclip2"><rect x="64" y="84" width="162" height="150" rx="4"/></clipPath>
+</defs>
+<rect width="1000" height="480" fill="url(#kwall)"/>
+${R(25,i=>`<rect x="${i*42}" y="30" width="18" height="300" fill="#fff" opacity=".22"/>`)}
+<rect y="330" width="1000" height="150" fill="url(#tl)"/><rect y="326" width="1000" height="8" fill="#b5794a"/>
+<rect width="1000" height="32" fill="#7a4a28"/>
+<rect y="480" width="1000" height="120" fill="url(#chk)"/><rect y="480" width="1000" height="120" fill="url(#dark)"/><rect y="472" width="1000" height="10" fill="#8a5530"/>
+<path d="M0 44Q250 90 500 48Q750 90 1000 44" stroke="#1f7a4c" stroke-width="10" fill="none"/>
+${R(20,i=>`<circle cx="${25+i*50}" cy="${44+Math.sin(i*.63)*18+16}" r="5" fill="#d42a3a"/><circle cx="${32+i*50}" cy="${48+Math.sin(i*.63)*18+16}" r="4" fill="#d42a3a"/>`)}
+
+<g class="hot" data-id="fenetre2" tabindex="0" role="button" aria-label="La fenêtre de la cuisine">
+ <rect x="50" y="70" width="190" height="178" rx="8" fill="#fff"/><g clip-path="url(#wclip2)"><rect x="64" y="84" width="162" height="150" fill="url(#sky2)"/><circle cx="190" cy="118" r="15" fill="#fff6d6"/><path d="M64 200Q130 170 226 196V240H64Z" fill="#e8f3f7"/>${R(12,i=>`<circle cx="${70+(i*41)%150}" cy="${92+(i*29)%130}" r="2.4" fill="#fff"/>`)}</g>
+ <rect x="142" y="84" width="6" height="150" fill="#fff"/><rect x="64" y="156" width="162" height="6" fill="#fff"/>
+ <path d="M40 60H100Q86 130 100 170Q60 160 40 170Z" fill="url(#ging)"/><path d="M250 60H190Q204 130 190 170Q230 160 250 170Z" fill="url(#ging)"/><rect x="34" y="54" width="222" height="9" rx="3" fill="#7a4a28"/>
+ <rect x="40" y="246" width="210" height="12" rx="3" fill="#c98a50"/>
+ <g transform="translate(70 214)"><path d="M0 32L6 6H30L36 32Z" fill="#c3283a"/><path d="M18 6C8-12 0 4 12 6M18 6C28-12 36 4 24 6" fill="#1f7a4c"/></g>
+</g>
+
+<g class="hot" data-id="fourneau" tabindex="0" role="button" aria-label="La cuisinière">
+ ${shadow(150,524,110)}
+ <rect x="208" y="70" width="26" height="240" fill="#3a3a44"/><rect x="204" y="70" width="34" height="10" fill="#2b2b33"/>
+ <rect x="50" y="322" width="200" height="190" rx="10" fill="#2b2b33"/><rect x="40" y="306" width="220" height="20" rx="4" fill="#44444f"/>
+ <rect x="80" y="384" width="140" height="94" rx="8" fill="#1a1a20" stroke="#c9a24a" stroke-width="4"/><rect class="flick" x="100" y="404" width="100" height="52" rx="6" fill="url(#ovn)"/>
+ <rect x="95" y="372" width="110" height="8" rx="4" fill="#c9a24a"/>${R(4,i=>`<circle cx="${85+i*44}" cy="${346}" r="8" fill="#c9a24a"/><circle cx="${85+i*44}" cy="${346}" r="3" fill="#2b2b33"/>`)}
+ <rect x="60" y="510" width="16" height="14" fill="#2b2b33"/><rect x="224" y="510" width="16" height="14" fill="#2b2b33"/>
+ <path d="M66 306V268Q66 256 78 256H142Q154 256 154 268V306Z" fill="#c3283a"/><rect x="60" y="250" width="100" height="10" rx="5" fill="#a51c2a"/><circle cx="110" cy="244" r="6" fill="#a51c2a"/>
+ <circle class="steam" cx="96" cy="236" r="9" fill="#fff"/><circle class="steam" style="animation-delay:1s" cx="118" cy="228" r="8" fill="#fff"/><circle class="steam" style="animation-delay:2s" cx="106" cy="220" r="7" fill="#fff"/>
+ <path d="M176 306Q170 276 196 272Q222 276 216 306Z" fill="#c98a50"/><path d="M216 290q16-6 18-18" stroke="#c98a50" stroke-width="6" fill="none"/><path d="M180 276q16-16 32 0" stroke="#8a5530" stroke-width="4" fill="none"/>
+</g>
+
+<rect x="300" y="160" width="250" height="10" rx="2" fill="#a0693a"/><rect x="300" y="250" width="250" height="10" rx="2" fill="#a0693a"/>
+${[[312,'#f2b632'],[352,'#d42a3a'],[392,'#5fd08a'],[432,'#9b7be0']].map(([x,c])=>`<rect x="${x}" y="116" width="32" height="44" rx="6" fill="#fff" fill-opacity=".55" stroke="#c9d6dc" stroke-width="2"/><rect x="${x+3}" y="134" width="26" height="24" rx="4" fill="${c}"/><rect x="${x-2}" y="110" width="36" height="9" rx="3" fill="#c98a50"/>`).join('')}
+<g class="hot" data-id="maisonpain" tabindex="0" role="button" aria-label="La maison en pain d'épices">
+ <path d="M478 160V128L508 104L538 128V160Z" fill="#c07a3c"/><path d="M472 132L508 100L544 132" stroke="#fff" stroke-width="7" fill="none" stroke-linejoin="round"/><rect x="500" y="138" width="16" height="22" rx="7" fill="#7a4a28"/>${[[486,140],[530,140]].map(([x,y])=>`<rect x="${x-5}" y="${y-5}" width="10" height="10" fill="#ffe9a3"/>`).join('')}<circle cx="490" cy="126" r="3" fill="#d42a3a"/><circle cx="526" cy="126" r="3" fill="#5fd08a"/>
+</g>
+${[[318,'#fff'],[358,'#4fb3e8'],[398,'#fff'],[438,'#d42a3a']].map(([x,c])=>`<path d="M${x} 214h30v20q0 14-15 14t-15-14Z" fill="${c}" stroke="#c9d6dc" stroke-width="2"/><path d="M${x+30} 220q10 0 10 8t-10 8" stroke="#c9d6dc" stroke-width="3" fill="none"/>`).join('')}
+<path d="M310 170v18l14-18ZM540 170v18l-14-18ZM310 260v18l14-18ZM540 260v18l-14-18Z" fill="#7a4a28"/>
+
+${shadow(420,484,140)}
+<rect x="290" y="402" width="260" height="76" fill="#b5794a"/><rect x="300" y="410" width="115" height="60" rx="4" fill="#c98a50"/><rect x="425" y="410" width="115" height="60" rx="4" fill="#c98a50"/><circle cx="405" cy="440" r="4" fill="#7a4a28"/><circle cx="435" cy="440" r="4" fill="#7a4a28"/>
+<rect x="280" y="386" width="280" height="18" rx="3" fill="#eee7db"/><rect x="280" y="400" width="280" height="4" fill="#000" opacity=".15"/>
+<g class="hot" data-id="bocal" tabindex="0" role="button" aria-label="Le bocal de bonbons">
+ <path d="M326 386V318Q326 300 344 300H392Q410 300 410 318V386Z" fill="#dff1f7" fill-opacity=".7" stroke="#a9cbd8" stroke-width="3"/>
+ ${R(22,i=>`<circle cx="${338+(i*13)%62}" cy="${378-Math.floor(i/5)*14-(i%2)*4}" r="6.5" fill="${['#d42a3a','#5fd08a','#d42a3a','#5fd08a','#f2b632'][i%5]}"/>`)}
+ <rect x="320" y="288" width="96" height="16" rx="5" fill="#d42a3a"/><rect x="334" y="336" width="68" height="18" rx="3" fill="#fff8ec"/><text x="368" y="349" text-anchor="middle" font-family="Fredoka" font-size="11" font-weight="600" fill="#a51c2a">Bonbons</text>
+</g>
+<g class="hot" data-id="saladier" tabindex="0" role="button" aria-label="Le saladier">
+ <path d="M440 352Q440 386 484 386Q528 386 528 352Z" fill="#4fb3e8"/><ellipse cx="484" cy="352" rx="44" ry="9" fill="#3a8fbd"/><ellipse cx="484" cy="352" rx="36" ry="6" fill="#f3e2bb"/>
+ <path d="M500 350L530 300" stroke="#9aa5ab" stroke-width="4"/><path d="M526 296q14-10 12 6q-4 12-12-6" stroke="#9aa5ab" stroke-width="3" fill="none"/>
+ <rect x="440" y="376" width="80" height="9" rx="4.5" fill="#d9a35a" transform="rotate(-4 480 380)"/>
+</g>
+
+<g class="hot" data-id="frigo" tabindex="0" role="button" aria-label="Le réfrigérateur et ses aimants">
+ ${shadow(620,484,64)}
+ <rect x="568" y="168" width="104" height="310" rx="26" fill="#f4ecd8" stroke="#d8ccb0" stroke-width="3"/><line x1="568" y1="278" x2="672" y2="278" stroke="#d8ccb0" stroke-width="3"/>
+ <rect x="652" y="200" width="8" height="54" rx="4" fill="#b8c2c8"/><rect x="652" y="300" width="8" height="70" rx="4" fill="#b8c2c8"/>
+ <g transform="rotate(-4 612 330)"><rect x="586" y="300" width="56" height="62" fill="#fffaf0" stroke="#e0d2b4"/><path d="M592 314h44M592 324h36M592 334h40M592 344h30" stroke="#9c8f7a" stroke-width="2"/></g>
+ <circle cx="614" cy="300" r="6" fill="#d42a3a"/>
+ ${[[584,206,'#d42a3a','G'],[606,214,'#2d9a5f','?'],[628,204,'#f2b632','A'],[592,238,'#4fb3e8','?'],[618,244,'#9b7be0','U']].map(([x,y,c,l])=>`<rect x="${x}" y="${y}" width="18" height="20" rx="3" fill="${c}"/><text x="${x+9}" y="${y+15}" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="13" fill="#fff">${l}</text>`).join('')}
+</g>
+
+<g class="hot" data-id="porte2" tabindex="0" role="button" aria-label="La porte de l'atelier de fabrication">
+ <rect x="690" y="188" width="104" height="290" fill="#5a3218"/><rect x="698" y="196" width="88" height="282" fill="#7a4424"/>
+ <rect x="708" y="210" width="68" height="100" rx="4" fill="#6b3a1c"/><rect x="708" y="330" width="68" height="130" rx="4" fill="#6b3a1c"/>
+ <circle cx="776" cy="340" r="6" fill="#f2b632"/><rect x="700" y="250" width="84" height="26" rx="4" fill="#e9d8b8"/><text x="742" y="268" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="13" fill="#5b2a1c">Fabrication</text>
+ <rect id="light1" x="698" y="473" width="88" height="6" fill="#ffd76a" opacity="0"/>${lock('lock1',727,350)}
+</g>
+<g class="hot" data-id="horloge2" tabindex="0" role="button" aria-label="La pendule de la cuisine">
+ <circle cx="742" cy="122" r="30" fill="#fff8ec" stroke="#d42a3a" stroke-width="6"/><line x1="742" y1="122" x2="736" y2="106" stroke="#2a1d14" stroke-width="4" stroke-linecap="round"/><line x1="742" y1="122" x2="760" y2="118" stroke="#2a1d14" stroke-width="3" stroke-linecap="round"/><circle cx="742" cy="122" r="3" fill="#2a1d14"/>
+</g>
+<g class="hot" data-id="casseroles" tabindex="0" role="button" aria-label="Les casseroles">
+ <rect x="818" y="112" width="170" height="8" rx="4" fill="#7a4a28"/>
+ ${[[846,30],[902,38],[960,26]].map(([x,r])=>`<line x1="${x}" y1="120" x2="${x}" y2="${140}" stroke="#7a4a28" stroke-width="3"/><circle cx="${x}" cy="${140+r+6}" r="${r}" fill="#d07a3c"/><circle cx="${x}" cy="${140+r+6}" r="${r-7}" fill="#b5602a"/><rect x="${x-4}" y="138" width="8" height="10" fill="#7a4a28"/>`).join('')}
+</g>
+
+${shadow(895,524,100)}
+<rect x="812" y="420" width="12" height="100" fill="#7a4a28"/><rect x="966" y="420" width="12" height="100" fill="#7a4a28"/>
+<path d="M800 402H990V466Q974 478 958 466Q942 478 926 466Q910 478 894 466Q878 478 862 466Q846 478 830 466Q814 478 800 466Z" fill="url(#ging)"/><rect x="800" y="398" width="190" height="8" fill="#fff"/>
+<g class="hot" data-id="biscuits" tabindex="0" role="button" aria-label="Le plateau de biscuits">
+ <ellipse cx="852" cy="396" rx="44" ry="10" fill="#dfe3e6" stroke="#aab2b8" stroke-width="2"/>
+ ${[[830,388],[850,383],[870,389],[842,394],[862,395]].map(([x,y])=>`<path d="${starPath(x,y,9)}" fill="#d9a35a" stroke="#b07a32" stroke-width="1"/>`).join('')}
+ <rect x="880" y="360" width="14" height="32" rx="2" fill="#fff" opacity=".92"/>
+</g>
+<g class="hot" data-id="recettes" tabindex="0" role="button" aria-label="Le livre de recettes">
+ <path d="M910 398L948 392L986 398V372L948 366L910 372Z" fill="#fffaf0" stroke="#d9c9a8" stroke-width="2"/><line x1="948" y1="366" x2="948" y2="392" stroke="#d9c9a8" stroke-width="2"/>
+ <path d="M918 378l24-3M918 384l22-3M954 375l24 3M954 381l20 3" stroke="#9c8f7a" stroke-width="1.5"/><path d="M908 400L948 394L988 400" stroke="#c3283a" stroke-width="4" fill="none"/>
+</g>
+<rect width="1000" height="600" fill="url(#vig1)" pointer-events="none"/><g id="badges1" pointer-events="none"></g>
+</svg>`}
+
+/* ---------- décor 3 : l'atelier de fabrication ---------- */
+function gear(cx,cy,r,c,cls){return `<g class="spin ${cls||''}"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${c}" stroke-width="${r*.45}" stroke-dasharray="${(r*.34).toFixed(1)} ${(r*.28).toFixed(1)}"/><circle cx="${cx}" cy="${cy}" r="${r*.78}" fill="${c}"/><circle cx="${cx}" cy="${cy}" r="${r*.28}" fill="#3a3a44"/></g>`}
+function fabrication(){return `
+<svg viewBox="0 0 1000 600" role="img" aria-label="L'atelier de fabrication des jouets" id="sc2">
+<defs>
+ <pattern id="brick" width="60" height="30" patternUnits="userSpaceOnUse"><rect width="60" height="30" fill="#a4523a"/><path d="M0 1H60M0 16H60M30 1V16M1 16V30M59 16V30" stroke="#7a3524" stroke-width="2.5"/></pattern>
+ <linearGradient id="ffl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a5240"/><stop offset="1" stop-color="#3e2c20"/></linearGradient>
+ <radialGradient id="lamp" cx="50%" cy="0%" r="100%"><stop offset="0" stop-color="#ffe9a3" stop-opacity=".55"/><stop offset="1" stop-color="#ffe9a3" stop-opacity="0"/></radialGradient>
+ <linearGradient id="mach" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e5404f"/><stop offset="1" stop-color="#a51c2a"/></linearGradient>
+ ${vig('vig2')}
+</defs>
+<rect width="1000" height="480" fill="url(#brick)"/>
+<rect width="1000" height="34" fill="#4a2a15"/>${R(6,i=>`<rect x="${i*190+40}" y="0" width="26" height="60" fill="#5a321b"/>`)}
+<rect y="480" width="1000" height="120" fill="url(#ffl)"/>${R(12,i=>`<line x1="0" y1="${490+i*10}" x2="1000" y2="${490+i*10}" stroke="#000" stroke-opacity=".12"/>`)}<rect y="470" width="1000" height="12" fill="#2e2018"/>
+<rect x="300" y="60" width="160" height="110" rx="10" fill="#fff8ec" opacity=".12"/>
+<g class="hot" data-id="lampe" tabindex="0" role="button" aria-label="Les lampes">
+ ${[360,640].map(x=>`<line x1="${x}" y1="34" x2="${x}" y2="88" stroke="#2b2b2b" stroke-width="3"/><path d="M${x-26} 112L${x-12} 86H${x+12}L${x+26} 112Z" fill="#2d7a5f"/><path d="M${x-26} 112L${x-90} 400H${x+90}L${x+26} 112Z" fill="url(#lamp)"/><ellipse cx="${x}" cy="112" rx="14" ry="5" fill="#ffe9a3"/>`).join('')}
+</g>
+
+<g class="hot" data-id="machine" tabindex="0" role="button" aria-label="La grande machine et son compteur">
+ ${shadow(150,478,120)}
+ <path d="M70 196L56 120H244L230 196Z" fill="#b51f2e"/><rect x="50" y="112" width="200" height="14" rx="5" fill="#f2b632"/>
+ <rect x="48" y="190" width="204" height="282" rx="16" fill="url(#mach)"/>
+ ${R(6,i=>`<circle cx="${62}" cy="${210+i*44}" r="4" fill="#f2b632"/><circle cx="${238}" cy="${210+i*44}" r="4" fill="#f2b632"/>`)}
+ ${gear(98,232,30,'#f2b632')}${gear(150,222,18,'#c9cfd2','rev')}${gear(204,240,24,'#f2b632')}
+ <rect x="74" y="292" width="152" height="74" rx="10" fill="#0e2a20" stroke="#f2b632" stroke-width="5"/>
+ <text id="cnt" x="150" y="344" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="40" fill="#5cf08a" letter-spacing="4"></text>
+ <rect x="104" y="372" width="92" height="20" rx="4" fill="#fff8ec"/><text x="150" y="387" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="13" fill="#a51c2a">COMPTEUR</text>
+ <rect x="82" y="406" width="136" height="44" rx="8" fill="#7a1520"/><circle cx="104" cy="428" r="9" fill="#5fd08a"/><circle cx="132" cy="428" r="9" fill="#f2b632"/><circle cx="160" cy="428" r="9" fill="#4fb3e8"/><rect x="180" y="420" width="28" height="16" rx="3" fill="#c9cfd2"/>
+ <rect x="240" y="392" width="40" height="30" fill="#7a1520"/>
+ <rect x="226" y="60" width="22" height="56" fill="#3a3a44"/><circle class="smoke" cx="238" cy="52" r="10" fill="#e8e8e8"/><circle class="smoke" style="animation-delay:1.5s" cx="244" cy="42" r="8" fill="#e8e8e8"/>
+</g>
+
+<g class="hot" data-id="tableau" tabindex="0" role="button" aria-label="Le tableau de commande">
+ <rect x="440" y="140" width="170" height="140" rx="12" fill="#8b97a0" stroke="#5f6b73" stroke-width="4"/>${[[450,150],[600,150],[450,270],[600,270]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="4" fill="#5f6b73"/>`).join('')}
+ ${R(16,i=>`<rect x="${458+(i%4)*28}" y="${158+Math.floor(i/4)*28}" width="22" height="22" rx="5" fill="${['#d42a3a','#5fd08a','#f2b632','#4fb3e8'][(i+Math.floor(i/4))%4]}" stroke="#fff" stroke-opacity=".5" stroke-width="2"/>`)}
+ <rect x="580" y="170" width="10" height="80" rx="5" fill="#3a3a44"/><circle cx="585" cy="180" r="11" fill="#d42a3a"/>
+ <rect x="470" y="286" width="110" height="20" rx="4" fill="#fff8ec"/><text x="525" y="301" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="12" fill="#2a1d14">Commande</text>
+</g>
+
+<rect x="270" y="440" width="12" height="40" fill="#3a3a44"/><rect x="690" y="440" width="12" height="40" fill="#3a3a44"/><rect x="480" y="440" width="12" height="40" fill="#3a3a44"/>
+<rect x="256" y="404" width="460" height="38" rx="19" fill="#3a3a44"/>${R(12,i=>`<circle cx="${276+i*38}" cy="423" r="12" fill="#5f6b73"/><circle cx="${276+i*38}" cy="423" r="4" fill="#2b2b33"/>`)}
+<line class="belt" x1="266" y1="405" x2="706" y2="405" stroke="#1e1e24" stroke-width="8" stroke-dasharray="20 20"/>
+<clipPath id="beltclip"><rect x="256" y="300" width="460" height="110"/></clipPath><g clip-path="url(#beltclip)"><g class="ride">
+ <g transform="translate(260 0)"><ellipse cx="0" cy="384" rx="14" ry="14" fill="#b97a45"/><circle cx="0" cy="364" r="11" fill="#b97a45"/><circle cx="-9" cy="356" r="5" fill="#a56a38"/><circle cx="9" cy="356" r="5" fill="#a56a38"/></g>
+ <g transform="translate(140 0)"><circle cx="0" cy="386" r="14" fill="#4fb3e8"/><path d="M-14 386h28" stroke="#fff" stroke-width="4"/></g>
+ <g transform="translate(30 0)"><rect x="-20" y="376" width="40" height="22" rx="4" fill="#d42a3a"/><rect x="4" y="364" width="16" height="14" fill="#a51c2a"/><circle cx="-10" cy="400" r="5" fill="#2a2a2a"/><circle cx="12" cy="400" r="5" fill="#2a2a2a"/></g>
+</g></g>
+
+<g class="hot" data-id="caisses" tabindex="0" role="button" aria-label="Les caisses de jouets">
+ ${shadow(350,576,82)}
+ ${[[280,500,74,74],[356,500,74,74],[316,430,74,72]].map(([x,y,w,h])=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#c98a50" stroke="#8a5530" stroke-width="4"/><path d="M${x} ${y}L${x+w} ${y+h}M${x+w} ${y}L${x} ${y+h}" stroke="#8a5530" stroke-width="4"/><rect x="${x+w/2-20}" y="${y+h/2-11}" width="40" height="22" rx="3" fill="#fff8ec"/><text x="${x+w/2}" y="${y+h/2+6}" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="15" fill="#a51c2a">?</text>`).join('')}
+</g>
+<g class="hot" data-id="robot" tabindex="0" role="button" aria-label="Le robot jouet">
+ ${shadow(520,572,34)}<rect x="496" y="512" width="48" height="56" rx="8" fill="#9aa5ab"/><rect x="502" y="476" width="36" height="32" rx="6" fill="#b8c2c8"/><circle cx="512" cy="492" r="5" fill="#5cf08a"/><circle cx="528" cy="492" r="5" fill="#5cf08a"/><line x1="520" y1="476" x2="520" y2="462" stroke="#5f6b73" stroke-width="3"/><circle class="tw" cx="520" cy="460" r="5" fill="#d42a3a"/><rect x="506" y="526" width="28" height="12" rx="3" fill="#4fb3e8"/>
+</g>
+<g class="hot" data-id="bacs" tabindex="0" role="button" aria-label="Les bacs des deux machines">
+ ${shadow(780,578,90)}
+ <path d="M700 470L712 576H782L794 470Z" fill="#d42a3a"/><path d="M800 470L812 576H882L894 470Z" fill="#2f7fc0"/>
+ ${R(4,i=>`<circle cx="${718+i*20}" cy="${464-(i%2)*6}" r="10" fill="#b97a45"/>`)}${R(4,i=>`<rect x="${808+i*20}" y="${452-(i%2)*6}" width="18" height="16" rx="3" fill="${i%2?'#f2b632':'#5fd08a'}"/>`)}
+ <rect x="716" y="510" width="62" height="20" rx="4" fill="#fff8ec"/><text x="747" y="525" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="12" fill="#a51c2a">Rouge</text>
+ <rect x="816" y="510" width="62" height="20" rx="4" fill="#fff8ec"/><text x="847" y="525" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="12" fill="#2f5fb3">Bleue</text>
+</g>
+<g class="hot" data-id="porte3" tabindex="0" role="button" aria-label="La porte de la salle du grand ordinateur">
+ <rect x="852" y="150" width="138" height="324" fill="#3e220e"/><rect x="862" y="160" width="118" height="314" fill="#7a3f22"/>
+ ${R(4,i=>`<rect x="${884+i*24}" y="160" width="3" height="314" fill="#000" opacity=".3"/>`)}<path d="M862 160L980 474M980 160L862 474" stroke="#5a2a14" stroke-width="8"/>
+ <rect x="868" y="220" width="106" height="28" rx="4" fill="#e9d8b8"/><text x="921" y="239" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="14" fill="#5b2a1c">Ordinateur</text>
+ <rect id="light2" x="862" y="468" width="118" height="6" fill="#ffd76a" opacity="0"/>${lock('lock2',906,330)}
+</g>
+<rect width="1000" height="600" fill="url(#vig2)" pointer-events="none"/><g id="badges2" pointer-events="none"></g>
+</svg>`}
+
+/* ---------- décor 4 : la salle du grand ordinateur ---------- */
+function reel(cx,cy,r){return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#2b2b33"/><g class="spin"><circle cx="${cx}" cy="${cy}" r="${r-4}" fill="#5f6b73"/>${[0,120,240].map(a=>`<circle cx="${(cx+Math.cos(a*Math.PI/180)*r*.5).toFixed(1)}" cy="${(cy+Math.sin(a*Math.PI/180)*r*.5).toFixed(1)}" r="${r*.22}" fill="#2b2b33"/>`).join('')}<circle cx="${cx}" cy="${cy}" r="${r*.15}" fill="#c9cfd2"/></g>`}
+function ordinateur(){
+ const sages=[['Léa',1],['Tom',1],['Inès',1],['Noé',1],['Bourrasque',0]];
+ return `
+<svg viewBox="0 0 1000 600" role="img" aria-label="La salle du grand ordinateur" id="sc3">
+<defs>
+ <linearGradient id="owall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16264a"/><stop offset="1" stop-color="#26406e"/></linearGradient>
+ <linearGradient id="ofl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3f58"/><stop offset="1" stop-color="#22253a"/></linearGradient>
+ <linearGradient id="ocab" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e9e3d2"/><stop offset="1" stop-color="#c8bfa8"/></linearGradient>
+ <radialGradient id="oglow" cx="50%" cy="45%" r="60%"><stop offset="0" stop-color="#5cf08a" stop-opacity=".35"/><stop offset="1" stop-color="#5cf08a" stop-opacity="0"/></radialGradient>
+ <pattern id="cork" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12" fill="#c99a62"/><circle cx="3" cy="4" r="1.2" fill="#a97a45"/><circle cx="9" cy="9" r="1" fill="#e0b47a"/></pattern>
+ ${vig('vig5')}
+</defs>
+<rect width="1000" height="480" fill="url(#owall)"/>
+${R(10,i=>`<rect x="${i*100+6}" y="40" width="88" height="420" rx="6" fill="#fff" opacity=".035"/>`)}
+<rect width="1000" height="34" fill="#0d1730"/>
+<rect y="480" width="1000" height="120" fill="url(#ofl)"/>${R(11,i=>`<line x1="${i*100}" y1="482" x2="${(i-5)*160+500}" y2="600" stroke="#000" stroke-opacity=".25" stroke-width="2"/>`)}<rect y="470" width="1000" height="12" fill="#151a2c"/>
+<path d="M0 44Q250 92 500 50Q750 92 1000 44" stroke="#2f7a4f" stroke-width="6" fill="none"/>
+${R(18,i=>{const x=30+i*55,y=48+Math.sin(i*.6)*14+12;return `<ellipse class="tw" style="animation-delay:${(i%4)*.35}s" cx="${x}" cy="${y}" rx="5" ry="7" fill="${COLORS[i%7]}"/>`})}
+<circle cx="500" cy="200" r="330" fill="url(#oglow)"/>
+
+<g class="hot" data-id="panneau" tabindex="0" role="button" aria-label="Le panneau de liège avec une grille de mots croisés">
+ <rect x="30" y="86" width="170" height="160" rx="8" fill="#7a4a28"/><rect x="38" y="94" width="154" height="144" rx="4" fill="url(#cork)"/>
+ <g transform="rotate(-3 112 166)"><rect x="56" y="108" width="112" height="112" fill="#fffaf0"/>
+  ${R(25,i=>{const r=Math.floor(i/5),c=i%5,on=r===0||r===4||c===1||c===4;return `<rect x="${64+c*19}" y="${116+r*19}" width="17" height="17" fill="${on?'#fff':'#2a1d14'}" stroke="#2a1d14" stroke-width="1.2"/>`})}
+ </g><circle cx="112" cy="104" r="5" fill="#d42a3a"/>
+</g>
+<rect x="232" y="56" width="536" height="346" rx="22" fill="#0d1730" opacity=".5"/>
+<rect x="240" y="60" width="520" height="336" rx="20" fill="url(#ocab)" stroke="#9d937a" stroke-width="3"/>
+<rect x="254" y="72" width="64" height="200" rx="8" fill="#d8d0bb"/>${reel(286,120,24)}${reel(286,200,24)}
+<rect x="682" y="72" width="64" height="200" rx="8" fill="#d8d0bb"/>${reel(714,120,24)}${reel(714,200,24)}
+<g class="hot" data-id="ecran" tabindex="0" role="button" aria-label="L'écran avec la liste des enfants sages">
+ <rect x="330" y="76" width="340" height="210" rx="16" fill="#3a3a44"/><rect x="342" y="88" width="316" height="186" rx="10" fill="#06231a"/>
+ <text x="500" y="114" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="17" fill="#5cf08a">★ LISTE DES ENFANTS SAGES ★</text>
+ <line x1="362" y1="124" x2="638" y2="124" stroke="#5cf08a" stroke-opacity=".5" stroke-width="2"/>
+ ${sages.map(([n,ok],i)=>`<text x="370" y="${148+i*24}" font-family="Fredoka" font-weight="600" font-size="16" fill="#5cf08a">${n}</text><text x="560" y="${148+i*24}" font-family="Fredoka" font-size="14" fill="#5cf08a" opacity=".6">· · · · ·</text><text x="626" y="${148+i*24}" font-family="Fredoka" font-weight="700" font-size="17" fill="${ok?'#5cf08a':'#ff6b6b'}">${ok?'✓':'?'}</text>`).join('')}
+ <rect class="tw" x="370" y="258" width="12" height="4" fill="#5cf08a"/>
+</g>
+${R(12,i=>`<circle class="tw" style="animation-delay:${(i%5)*.25}s" cx="${352+i*27}" cy="304" r="6" fill="${['#d42a3a','#f2b632','#5fd08a','#4fb3e8'][i%4]}"/>`)}
+${R(3,i=>`<rect x="${360+i*100}" y="322" width="80" height="12" rx="6" fill="#9d937a"/>`)}
+<rect x="254" y="286" width="64" height="96" rx="8" fill="#d8d0bb"/>${R(4,i=>`<rect x="264" y="${296+i*20}" width="44" height="12" rx="3" fill="#2b2b33"/><circle class="tw" style="animation-delay:${i*.3}s" cx="300" cy="${302+i*20}" r="3" fill="#5fd08a"/>`)}
+<rect x="682" y="286" width="64" height="96" rx="8" fill="#d8d0bb"/>${R(3,i=>`<circle cx="714" cy="${306+i*28}" r="10" fill="#2b2b33"/><line x1="714" y1="${306+i*28}" x2="${714+7}" y2="${306+i*28-6}" stroke="#f2b632" stroke-width="3"/>`)}
+${shadow(500,484,230)}
+<rect x="300" y="410" width="400" height="16" rx="4" fill="#a0693a"/><rect x="316" y="426" width="14" height="52" fill="#7a4a28"/><rect x="670" y="426" width="14" height="52" fill="#7a4a28"/>
+<g class="hot" data-id="clavier" tabindex="0" role="button" aria-label="Le clavier">
+ <path d="M352 410L366 378H634L648 410Z" fill="#3a3a44"/>
+ ${R(30,i=>{const r=Math.floor(i/10),c=i%10;return `<rect x="${376+c*25+r*4}" y="${382+r*9}" width="20" height="7" rx="1.5" fill="${i===14?'#d42a3a':'#c9cfd2'}"/>`})}
+</g>
+<g class="hot" data-id="tasse" tabindex="0" role="button" aria-label="La tasse">
+ <path d="M666 384h26v20q0 8-13 8t-13-8Z" fill="#d42a3a"/><path d="M692 388q10 0 10 7t-10 7" stroke="#d42a3a" stroke-width="3" fill="none"/><circle class="steam" cx="679" cy="372" r="5" fill="#fff"/>
+</g>
+<g class="hot" data-id="imprimante" tabindex="0" role="button" aria-label="L'imprimante et sa longue feuille">
+ ${shadow(130,566,90)}<rect x="56" y="380" width="148" height="12" rx="3" fill="#a0693a"/><rect x="66" y="392" width="12" height="170" fill="#7a4a28"/><rect x="182" y="392" width="12" height="170" fill="#7a4a28"/>
+ <rect x="66" y="330" width="128" height="50" rx="8" fill="#c9cfd2"/><rect x="80" y="322" width="100" height="12" rx="3" fill="#9aa5ab"/><rect x="86" y="356" width="88" height="6" rx="3" fill="#2b2b33"/><circle class="tw" cx="178" cy="344" r="4" fill="#5fd08a"/>
+ ${R(7,i=>`<polygon points="${i%2?'86':'174'},${392+i*28} ${i%2?'174':'86'},${420+i*28} ${i%2?'166':'94'},${420+i*28} ${i%2?'94':'166'},${392+i*28}" fill="${i%2?'#f1ead8':'#fffaf0'}" stroke="#d9c9a8" stroke-width="1"/>`)}
+ <rect x="94" y="360" width="72" height="34" fill="#fffaf0"/>${R(3,i=>`<text x="${100}" y="${372+i*10}" font-family="Fredoka" font-weight="700" font-size="9" letter-spacing="3" fill="#2f5fb3">${['SAPXQ','RENNE','TBLUT'][i]}</text>`)}
+</g>
+${shadow(560,568,60)}
+<g class="hot" data-id="chaise" tabindex="0" role="button" aria-label="Le fauteuil">
+ <rect x="510" y="440" width="100" height="70" rx="22" fill="#c3283a"/><rect x="520" y="506" width="80" height="16" rx="8" fill="#a51c2a"/><rect x="555" y="520" width="10" height="34" fill="#3a3a44"/><path d="M520 560h80" stroke="#3a3a44" stroke-width="7" stroke-linecap="round"/><circle cx="522" cy="566" r="5" fill="#2b2b2b"/><circle cx="598" cy="566" r="5" fill="#2b2b2b"/>
+</g>
+<g class="hot" data-id="globe" tabindex="0" role="button" aria-label="Le globe">
+ ${shadow(790,568,40)}<path d="M770 566h40l-8-14h-24Z" fill="#7a4a28"/><line x1="790" y1="552" x2="790" y2="540" stroke="#7a4a28" stroke-width="5"/>
+ <circle cx="790" cy="500" r="40" fill="#4fb3e8"/><path d="M768 476q14-4 18 10t-10 18q-12-6-8-28ZM796 470q20 4 26 22q-14 10-20-2t-6-20ZM800 512q16 0 12 18q-14 4-12-18Z" fill="#5fd08a"/><path d="M744 500a46 46 0 0 1 92 0" stroke="#c9a24a" stroke-width="4" fill="none"/>
+</g>
+<g class="hot" data-id="porte4" tabindex="0" role="button" aria-label="La porte de l'écurie">
+ <rect x="868" y="170" width="122" height="304" fill="#0d1730"/><rect x="876" y="178" width="106" height="296" rx="4" fill="#5f6b73"/><rect x="886" y="190" width="86" height="270" rx="4" fill="#77838b"/>
+ ${R(5,i=>`<rect x="886" y="${210+i*50}" width="86" height="3" fill="#000" opacity=".2"/>`)}
+ <rect x="884" y="232" width="90" height="28" rx="4" fill="#e9d8b8"/><text x="929" y="251" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="15" fill="#5b2a1c">Écurie</text>
+ <rect x="956" y="300" width="10" height="46" rx="5" fill="#c9cfd2"/>
+ <rect id="light3" x="876" y="468" width="106" height="6" fill="#ffd76a" opacity="0"/>${lock('lock3',914,330)}
+</g>
+<rect width="1000" height="600" fill="url(#vig5)" pointer-events="none"/><g id="badges3" pointer-events="none"></g>
+</svg>`}
+
+/* ---------- décor 5 : l'écurie ---------- */
+function sack(cx,by,w,h,c){return `<path d="M${cx-w/2} ${by}Q${cx-w/2-10} ${by-h*.6} ${cx-w*.2} ${by-h}H${cx+w*.2}Q${cx+w/2+10} ${by-h*.6} ${cx+w/2} ${by}Z" fill="${c}"/><path d="M${cx-12} ${by-h}Q${cx} ${by-h-24} ${cx+12} ${by-h}" fill="${c}"/><rect x="${cx-w*.22}" y="${by-h-2}" width="${w*.44}" height="7" rx="3" fill="#d42a3a"/>`}
+function ecurie(){return `
+<svg viewBox="0 0 1000 600" role="img" aria-label="L'écurie des rennes" id="sc4">
+<defs>
+ <linearGradient id="barn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a2a1a"/><stop offset="1" stop-color="#83402a"/></linearGradient>
+ <linearGradient id="hayf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b8914a"/><stop offset="1" stop-color="#7d5f2c"/></linearGradient>
+ <linearGradient id="sky3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a1d3a"/><stop offset="1" stop-color="#2c6290"/></linearGradient>
+ <linearGradient id="sled" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8414f"/><stop offset="1" stop-color="#9a1724"/></linearGradient>
+ <radialGradient id="lglow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffd76a" stop-opacity=".7"/><stop offset="1" stop-color="#ffd76a" stop-opacity="0"/></radialGradient>
+ ${vig('vig3')}<clipPath id="open"><rect x="400" y="120" width="240" height="352"/></clipPath>
+</defs>
+<rect width="1000" height="480" fill="url(#barn)"/>${R(16,i=>`<rect y="${i*30}" width="1000" height="2.5" fill="#000" opacity=".22"/>`)}
+<rect y="478" width="1000" height="122" fill="url(#hayf)"/>
+${R(70,i=>{const x=(i*137)%1000,y=490+(i*61)%105,a=((i*47)%60)-30;return `<line x1="${x}" y1="${y}" x2="${(x+16*Math.cos(a*Math.PI/180)).toFixed(1)}" y2="${(y+16*Math.sin(a*Math.PI/180)).toFixed(1)}" stroke="${i%2?'#e2c070':'#8f6a2c'}" stroke-width="2.5" stroke-linecap="round"/>`})}
+<rect width="1000" height="26" fill="#3b1a0e"/>
+<g class="hot" data-id="ciel" tabindex="0" role="button" aria-label="Les étoiles derrière les grandes portes">
+ <g clip-path="url(#open)"><rect x="400" y="120" width="240" height="352" fill="url(#sky3)"/><circle cx="590" cy="170" r="18" fill="#fff6d6"/>
+  ${[[430,160],[470,140],[505,175],[455,205],[520,230],[560,205],[600,250],[440,260],[485,290],[540,300],[610,320],[470,330]].map(([x,y],i)=>`<path class="tw" style="animation-delay:${(i%5)*.3}s" d="${starPath(x,y,i%3?5:7)}" fill="#fff6c9"/>`).join('')}
+  <path d="M400 390Q480 350 560 380T640 370V472H400Z" fill="#e8f3f7"/>${[[430,380],[462,368],[612,372]].map(([x,y])=>`<path d="M${x} ${y-44}l16 44h-32Z" fill="#12372b"/>`).join('')}
+ </g>
+ <rect x="392" y="112" width="256" height="368" fill="none" stroke="#3b1a0e" stroke-width="16"/>
+ <path d="M400 120L344 142V462L400 472Z" fill="#9a4630"/><path d="M344 142L400 472M400 120L344 462" stroke="#5a2a1a" stroke-width="7"/>
+ <path d="M640 120L696 142V462L640 472Z" fill="#9a4630"/><path d="M696 142L640 472M640 120L696 462" stroke="#5a2a1a" stroke-width="7"/>
+</g>
+<g class="hot" data-id="lanterne" tabindex="0" role="button" aria-label="La lanterne">
+ <circle class="flick" cx="300" cy="100" r="90" fill="url(#lglow)"/><line x1="300" y1="26" x2="300" y2="60" stroke="#2b2b2b" stroke-width="3"/>
+ <path d="M280 72L300 56 320 72Z" fill="#2b2b2b"/><rect x="284" y="72" width="32" height="44" rx="4" fill="#ffd76a"/><path d="M300 76v36M290 76v36M310 76v36" stroke="#2b2b2b" stroke-width="2"/><rect x="280" y="114" width="40" height="8" rx="2" fill="#2b2b2b"/>
+</g>
+<g class="hot" data-id="partition" tabindex="0" role="button" aria-label="La partition accrochée au mur">
+ <circle cx="96" cy="112" r="4" fill="#2b2b2b"/><g transform="rotate(-4 96 166)"><rect x="56" y="118" width="80" height="98" rx="3" fill="#fffaf0" stroke="#d9c9a8" stroke-width="2"/>
+ <text x="96" y="134" text-anchor="middle" font-family="Fredoka" font-size="11" font-weight="600" fill="#a51c2a">Chanson</text>
+ ${R(2,b=>R(5,l=>`<line x1="64" y1="${144+b*36+l*5}" x2="128" y2="${144+b*36+l*5}" stroke="#9c8f7a" stroke-width="1"/>`))}
+ ${[[72,152],[86,147],[100,157],[114,150],[76,185],[92,180],[108,190],[122,183]].map(([x,y])=>`<ellipse cx="${x}" cy="${y}" rx="4" ry="3" fill="#2a1d14"/><line x1="${x+3.5}" y1="${y}" x2="${x+3.5}" y2="${y-14}" stroke="#2a1d14" stroke-width="1.5"/>`).join('')}</g>
+</g>
+<g class="hot" data-id="renne" tabindex="0" role="button" aria-label="Tornade le renne">
+ <path d="M150 232C140 200 130 190 120 168M138 202L116 196M132 186L140 164" stroke="#e2c48f" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M178 228C184 198 198 184 210 162M190 196L214 190M200 182L194 158" stroke="#e2c48f" stroke-width="7" fill="none" stroke-linecap="round"/>
+ <path d="M118 340Q126 290 156 270L196 284Q180 318 186 340Z" fill="#8a5a34"/><ellipse cx="148" cy="236" rx="13" ry="6" fill="#7a4a28" transform="rotate(-30 148 236)"/>
+ <ellipse cx="172" cy="256" rx="35" ry="27" fill="#9a6a40"/><ellipse cx="204" cy="270" rx="19" ry="15" fill="#c89a6a"/><circle cx="222" cy="265" r="8" fill="#e0302a"/><circle cx="219" cy="262" r="2.5" fill="#fff" opacity=".7"/>
+ <circle cx="172" cy="248" r="4.5" fill="#1a0e08"/><circle cx="173.5" cy="246.5" r="1.4" fill="#fff"/>
+ <path d="M116 318Q154 334 190 316L194 332Q154 350 114 334Z" fill="#d42a3a"/><path d="M178 330l8 34 12-4-8-30Z" fill="#b51f2e"/>
+</g>
+<rect x="30" y="330" width="290" height="150" fill="#6a3420"/>${R(6,i=>`<rect x="${78+i*48}" y="330" width="3" height="150" fill="#000" opacity=".3"/>`)}<rect x="24" y="322" width="302" height="14" rx="3" fill="#4a2414"/>
+<rect x="128" y="380" width="96" height="28" rx="4" fill="#e9d8b8"/><text x="176" y="399" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="15" fill="#5b2a1c">TORNADE</text>
+<g class="hot" data-id="sacs" tabindex="0" role="button" aria-label="Les sacs de cadeaux">
+ ${shadow(410,570,80)}${sack(378,566,96,110,'#c79a5b')}${sack(452,568,80,88,'#b5874a')}<rect x="404" y="540" width="40" height="30" rx="3" fill="#4fb3e8"/><rect x="420" y="540" width="8" height="30" fill="#fff"/>${sack(352,572,58,52,'#a8793f')}
+</g>
+<g class="hot" data-id="tonneau" tabindex="0" role="button" aria-label="Le tonneau">
+ ${shadow(545,566,50)}<path d="M505 444Q494 504 505 564H585Q596 504 585 444Z" fill="#8a5530"/>${R(4,i=>`<rect x="${515+i*20}" y="446" width="3" height="118" fill="#000" opacity=".2"/>`)}
+ <path d="M501 462Q545 472 589 462M500 546Q545 556 590 546" stroke="#3b2a20" stroke-width="6" fill="none"/><ellipse cx="545" cy="444" rx="41" ry="9" fill="#6b3f22"/>
+ <path d="M528 440Q528 420 545 420Q562 420 562 440Z" fill="#f2b632"/><path d="M545 420v-8" stroke="#5fd08a" stroke-width="3"/>
+</g>
+<g class="hot" data-id="foin" tabindex="0" role="button" aria-label="La botte de foin">
+ ${shadow(700,566,58)}<rect x="648" y="486" width="106" height="78" rx="10" fill="#e2bd5c"/>${R(9,i=>`<line x1="${656+i*11}" y1="${490+(i%3)*3}" x2="${652+i*11}" y2="${560-(i%2)*4}" stroke="#b8923a" stroke-width="2"/>`)}
+ <line x1="676" y1="486" x2="676" y2="564" stroke="#8a5530" stroke-width="4"/><line x1="726" y1="486" x2="726" y2="564" stroke="#8a5530" stroke-width="4"/>
+</g>
+<g class="hot" data-id="traineau" tabindex="0" role="button" aria-label="Le traîneau et le coffre">
+ ${shadow(860,560,140)}<path d="M730 532H948C984 532 996 506 978 488" stroke="#f2b632" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M760 474V532M820 474V532M900 474V532" stroke="#f2b632" stroke-width="6"/>
+ <path d="M732 476C722 410 748 368 796 358H950C980 358 990 392 974 412L958 476Z" fill="url(#sled)"/><path d="M740 470C734 420 756 384 798 374H948" stroke="#f2b632" stroke-width="4" fill="none"/><path d="M840 420q20-24 40 0q-20 24-40 0Z" fill="#f2b632"/>
+ <rect x="810" y="292" width="124" height="70" rx="7" fill="#6b3d22"/><path d="M810 300Q872 266 934 300Z" fill="#83502e"/><rect x="810" y="296" width="124" height="9" fill="#f2b632"/><rect x="864" y="276" width="16" height="86" fill="#f2b632"/>
+ ${lock('chestlock',857,316)}
+</g>
+<rect width="1000" height="600" fill="url(#vig3)" pointer-events="none"/><g id="badges4" pointer-events="none"></g>
+</svg>`}
+
+/* ---------- outils pour les énigmes ---------- */
+const words=(id,s)=>`<div class="q words" id="${id}">${s.split(' ').map((w,i)=>`<button type="button" class="w" data-i="${i}" aria-pressed="false">${w}</button>`).join('')}</div>`;
+const picked=id=>[...document.querySelectorAll('#'+id+' .w.sel')].map(b=>+b.dataset.i).sort((a,b)=>a-b).join();
+function val(id){const el=$(id);return el?el.value.trim().toLowerCase().replace(/\s+/g,' '):''}
+const numIn=(id,lbl)=>`<input type="number" class="mini" id="${id}" inputmode="numeric" aria-label="${lbl||'Réponse'}">`;
+const txtIn=id=>`<input type="text" id="${id}" autocomplete="off" spellcheck="false">`;
+const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/[^A-Z]/g,'');
+const ABC='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+function W(intro,id,sentence,ans,hint,found){return {html:`<p>${intro}</p>${words(id,sentence)}`,hint,found,check:()=>picked(id)===ans}}
+function fields(intro,list,hint,found,top,cls){return {html:`<p>${intro}</p>${top||''}<div class="q conj ${cls||''}">${list.map((f,i)=>`<label for="f${i}">${f[0]} ${f[2]==='t'?txtIn('f'+i):numIn('f'+i)}${f[3]||''}</label>`).join('')}</div>`,hint,found,check:()=>list.every((f,i)=>val('f'+i)===String(f[1]))}}
+function quiz(qs,hint,found){return {html:qs.map((q,i)=>`<div class="quizq"><p><b>${i+1}.</b> ${q[0]}</p><div class="choices" data-q="${i}">${q[1].map(c=>`<button class="choice" type="button">${c}</button>`).join('')}</div></div>`).join(''),hint,found,
+  mount(el){el.querySelectorAll('[data-q] .choice').forEach(b=>b.addEventListener('click',()=>{b.parentNode.querySelectorAll('.choice').forEach(x=>x.classList.remove('sel','bad'));b.classList.add('sel')}))},
+  check(){let bad=0,miss=0;qs.forEach((q,i)=>{const s=document.querySelector(`[data-q="${i}"] .sel`);if(!s)miss++;else if(s.textContent!==q[2]){bad++;s.classList.add('bad')}});return miss?'Réponds à toutes les questions.':bad?`${bad} réponse${bad>1?'s':''} à corriger (en rouge).`:true}}}
+function sudoku(blanks,hint,found){const SY=['sapin','etoile','cloche','cadeau'],SOL=[[0, 1, 2, 3],[2,3,0,1],[1,0,3,2],[3,2,1,0]];let g;
+  return {hint,found,get html(){g=SOL.map((r,y)=>r.map((v,x)=>blanks.includes(y*4+x)?-1:v));return `<p>Bourrasque a éteint des boutons du tableau de commande. Chaque ligne, chaque colonne et chaque carré de 4 cases doit avoir <b>un sapin, une étoile, une cloche et un cadeau</b>. Clique sur une case vide pour changer son dessin.</p><div class="sudo">${g.flat().map((v,i)=>`<button type="button" data-i="${i}" class="${v>=0?'giv':''}" aria-label="Case ${i+1}">${v>=0?ic(SY[v]):''}</button>`).join('')}</div>`},
+  mount(el){el.querySelectorAll('.sudo button:not(.giv)').forEach(b=>b.addEventListener('click',()=>{const i=+b.dataset.i,y=Math.floor(i/4),x=i%4;g[y][x]=(g[y][x]+2)%5-1;b.innerHTML=g[y][x]>=0?ic(SY[g[y][x]]):''}))},
+  check(){if(g.flat().includes(-1))return 'Il reste des cases vides.';const ok4=a=>new Set(a).size===4;for(let k=0;k<4;k++){const bx=k%2*2,by=Math.floor(k/2)*2;if(!ok4(g[k])||!ok4(g.map(r=>r[k]))||!ok4([g[by][bx],g[by][bx+1],g[by+1][bx],g[by+1][bx+1]]))return 'Un même dessin apparaît deux fois sur une ligne, une colonne ou un carré.'}return true}}}
+function code(intro,show,help,word,hint,found){return {html:`<p>${intro}</p><div class="q codeline">${show}</div>${help}<input type="text" class="wide" id="cw" autocomplete="off" spellcheck="false" aria-label="Le mot décodé">`,hint,found,check:()=>norm($('cw').value)===word||"Ce n'est pas le bon mot. Décode lettre par lettre !"}}
+const abcNum=`<div class="abc">${ABC.split('').map((c,i)=>`<span><b>${c}</b>${i+1}</span>`).join('')}</div>`;
+const abcStrip=`<div class="abc">${ABC.split('').map(c=>`<span><b>${c}</b></span>`).join('')}</div>`;
+const GRID5=['ABCDE','FGHIJ','KLMNO','PQRST','UVWXY'];
+const grid5=`<div class="grid5"><span class="h"></span>${[1,2,3,4,5].map(n=>`<span class="h">${n}</span>`).join('')}${GRID5.map((r,i)=>`<span class="h">${i+1}</span>${r.split('').map(c=>`<span>${c}</span>`).join('')}`).join('')}</div>`;
+const g5=w=>w.split('').map(c=>{const r=GRID5.findIndex(x=>x.includes(c));return `${r+1}-${GRID5[r].indexOf(c)+1}`}).join('&nbsp;&nbsp;·&nbsp;&nbsp;');
+/* problème de composition : 1) le mot qui réunit 2) le modèle et le calcul */
+function compo(o,hint,found){
+  const v=[o.p1[1]??o.answer,o.p2[1]??o.answer];
+  const model=`<div class="model"><div class="mrow"><div class="mb" style="flex:${v[0]}"><small>une partie</small><b>${o.p1[0]}</b><span>${o.p1[1]??'?'}</span></div><div class="mb" style="flex:${v[1]}"><small>une partie</small><b>${o.p2[0]}</b><span>${o.p2[1]??'?'}</span></div></div><div class="mrow"><div class="mb tot" style="flex:1"><small>le tout</small><b>${o.tout}</b><span>${o.total??'?'}</span></div></div></div>`;
+  return {hint,found,html:`<div class="q">${o.lines.map(l=>`<p>${l}</p>`).join('')}</div><div><p><b>Étape 1 ·</b> Quel mot réunit les deux autres ?</p><div class="choices" id="cwds">${o.words.map(w=>`<button class="choice" type="button">${w}</button>`).join('')}</div></div><div id="st2" hidden style="display:grid;gap:10px">${model}<p><b>Étape 2 ·</b> ${o.q}</p>${numIn('ca')}</div>`,
+   mount(el){el.querySelectorAll('#cwds .choice').forEach(b=>b.addEventListener('click',()=>{if(b.disabled)return;el.querySelectorAll('#cwds .choice').forEach(x=>x.classList.remove('bad'));
+     if(b.textContent===o.tout){b.classList.add('sel');el.querySelectorAll('#cwds .choice').forEach(x=>x.disabled=true);$('st2').hidden=false;$('mFb').textContent='';$('ca').focus()}else{b.classList.add('bad');$('mFb').textContent="Ce mot ne réunit pas les deux autres. Lequel peut désigner les deux à la fois ?"}}))},
+   check(){if($('st2').hidden)return "Commence par l'étape 1 : trouve le mot qui réunit.";return +$('ca').value===o.answer||"Le calcul n'est pas juste. Regarde le modèle : cherches-tu le tout ou une partie ?"}}}
+/* problème de comparaison, méthode de la ludothèque :
+   1) qui a la grande quantité  2) le modèle et le ?  3) je cherche… et je calcule  4) la phrase réponse */
+function compa(o,hint,found){let st;
+  const small=1-o.big,hl=l=>l.replace(/\b(\d+)\b/g,'<b>$1</b>').replace(/(de plus|de moins)/g,'<mark>$1</mark>');
+  const target={g:String(o.vals[o.big]??'?'),p:String(o.vals[small]??'?'),e:String(o.ecart??'?')};
+  const SEEK={ecart:"l'écart",grande:'la grande quantité',petite:'la petite quantité'},op=o.seek==='grande'?'+':'−';
+  const calc=o.seek==='ecart'?`${o.vals[o.big]} − ${o.vals[small]}`:o.seek==='grande'?`${o.vals[small]} + ${o.ecart}`:`${o.vals[o.big]} − ${o.ecart}`;
+  return {hint,found,get html(){st={step:1,sel:null,n:0,done:false};return `<div class="steps" id="csteps">${['Qui a la grande quantité ?','Le modèle et le ?','Le calcul','La phrase réponse'].map((t,i)=>`<span data-s="${i+1}">${i+1} · ${t}</span>`).join('')}</div>
+   <div class="cmpwrap"><div class="stmt">${o.lines.map(l=>`<p>${hl(l)}</p>`).join('')}</div>
+   <div class="cm dim" id="cm"><div class="ccol"><div class="ecart" data-slot="e"><i>·····</i><small>Écart</small></div><div class="cq or" data-slot="p"><i>·····</i></div></div><div class="ccol big"><div class="cq gr" data-slot="g"><i>·····</i></div><span class="dl"></span></div><b id="cnS">·····</b><b id="cnB">·····</b></div></div>
+   <div id="cstep" style="display:grid;gap:8px"></div>`},
+  mount(el){const box=el.querySelector('#cstep'),fb=$('mFb'),slot=k=>el.querySelector(`[data-slot="${k}"] i`);
+   const setStep=n=>{st.step=n;el.querySelectorAll('#csteps span').forEach(s=>{const k=+s.dataset.s;s.className=k<n||st.done?'ok':k===n?'on':''})};
+   const choices=(arr,cb)=>{const d=document.createElement('div');d.className='choices';arr.forEach((t,i)=>{const b=document.createElement('button');b.type='button';b.className='choice';b.textContent=t;b.onclick=()=>{if(b.disabled)return;const r=cb(i,b);if(r===true){d.querySelectorAll('.choice').forEach(x=>{x.disabled=true;x.classList.remove('bad')});b.classList.add('sel');fb.textContent=''}else{b.classList.add('bad');fb.textContent=r}};d.appendChild(b)});return d};
+   const para=h=>{const p=document.createElement('p');p.innerHTML=h;return p};
+   function s1(){setStep(1);box.innerHTML='';box.append(para("<b>Étape 1 · Qui a la grande quantité ?</b> Lis bien l'énoncé, surtout « de plus » et « de moins »."),
+     choices(o.who,i=>{if(i!==o.big)return "Relis bien « de plus » ou « de moins »… Qui en a le plus ?";$('cnB').textContent=o.who[o.big];$('cnS').textContent=o.who[small];$('cm').classList.remove('dim');setTimeout(s2,500);return true}))}
+   function s2(){setStep(2);box.innerHTML='';box.append(para("<b>Étape 2 · Relis l'énoncé et complète le modèle.</b> Touche un nombre, puis touche sa place dans le modèle. Le ? : ce que la question demande."));
+     const d=document.createElement('div');d.className='choices';o.chips.forEach(c=>{const b=document.createElement('button');b.type='button';b.className='choice';b.textContent=c;b.style.minWidth='64px';b.onclick=()=>{if(b.disabled)return;d.querySelectorAll('.choice').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');st.sel=b;el.querySelectorAll('[data-slot]').forEach(s=>s.classList.add('pick'))};d.appendChild(b)});box.append(d)}
+   el.querySelectorAll('[data-slot]').forEach(s=>s.addEventListener('click',()=>{if(st.step!==2||!st.sel)return;const k=s.dataset.slot,v=st.sel.textContent;
+     if(slot(k).dataset.v){fb.textContent='Cette place est déjà remplie.';return}
+     if(target[k]!==v){fb.textContent=v==='?'?"Le ? va à la place de ce que la question demande.":"Ce nombre ne va pas là. Colonne verte : la grande quantité. Colonne orange : la petite. Rond : l'écart.";return}
+     slot(k).textContent=v;slot(k).dataset.v=v;st.sel.disabled=true;st.sel.classList.remove('sel');st.sel=null;fb.textContent='';el.querySelectorAll('[data-slot]').forEach(x=>x.classList.remove('pick'));
+     if(++st.n===3)setTimeout(s3,400)}));
+   function s3(){setStep(3);box.innerHTML='';box.append(para("<b>Étape 3 · Je cherche… et je calcule.</b> Que cherche-t-on : où est le ? dans le modèle ?"),
+     choices(['Je cherche l\'écart','Je cherche la grande quantité','Je cherche la petite quantité'],i=>{if(['ecart','grande','petite'][i]!==o.seek)return "Regarde où est le ? dans le modèle.";s3b();return true}))}
+   function s3b(){box.append(para(`<span class="rule">Si je cherche la grande quantité, je fais une addition.<br>Si je cherche la petite quantité, je fais une soustraction.<br>Si je cherche l'écart, je fais une soustraction.</span>`),para(`Je cherche ${SEEK[o.seek]}. Je dois faire :`),
+     choices(['une addition (+)','une soustraction (−)'],i=>{if(['+','−'][i]!==op)return "Relis la règle juste au-dessus.";s3c();return true}))}
+   function s3c(){const p=para(`<span class="calc">${calc} = </span>`);const inp=document.createElement('input');inp.type='number';inp.className='mini';inp.id='ca';inp.setAttribute('aria-label','Résultat');const ok=document.createElement('button');ok.type='button';ok.className='btn gold';ok.textContent='OK';
+     const go=()=>{if(+inp.value!==o.answer){fb.textContent="Le calcul n'est pas juste. Pose-le sur ton ardoise !";return}inp.disabled=ok.disabled=true;fb.textContent='';const q=Object.keys(target).find(k=>target[k]==='?');slot(q).textContent=o.answer;s4()};
+     ok.onclick=go;inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();go()}});const r=document.createElement('div');r.className='row';r.append(p,inp,ok);box.append(r);inp.focus()}
+   function s4(){setStep(4);box.innerHTML='';box.append(para(`<b>Étape 4 · La phrase réponse.</b> ${o.seek==='ecart'?"Je cherche l'écart : dans ma phrase il y a « de plus » ou « de moins », comme dans la question.":"Je cherche une quantité : ma phrase dit combien en a "+o.who[o.seek==='grande'?o.big:small].toLowerCase()+"."}`),
+     choices(o.phrases,i=>{if(i!==o.ok)return "Relis la question : que demande-t-elle exactement ?";st.done=true;setStep(4);fb.textContent='';setTimeout(()=>{$('mFb').textContent='Bravo ! Clique sur Valider.'},50);return true}))}
+   s1()},
+  check(){return st.done||`Termine les 4 étapes : tu en es à l'étape ${st.step}.`}}}
+const encadre=(n,rows,hint,found,intro)=>({hint,found,html:`<p>${intro}</p><div class="q frame">${rows.map((r,i)=>`<span class="lbl">${r[0]}</span><div class="row">${numIn('e'+i+'a','Nombre avant')} &lt; ${n} &lt; ${numIn('e'+i+'b','Nombre après')}</div>`).join('')}</div>`,check:()=>rows.every((r,i)=>val('e'+i+'a')===String(r[1])&&val('e'+i+'b')===String(r[2]))});
+
+/* mots mêlés : on touche la première lettre puis la dernière */
+const rng=s=>()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+function wordsearch(n,list,dirs,seed,intro,hint,found){
+  const rnd=rng(seed),g=Array.from({length:n},()=>Array(n).fill('')),pos={};
+  for(const w of [...list].sort((a,b)=>b.length-a.length)){for(let t=0;t<5000;t++){const[dr,dc]=dirs[Math.floor(rnd()*dirs.length)],r=Math.floor(rnd()*n),c=Math.floor(rnd()*n),er=r+dr*(w.length-1),ec=c+dc*(w.length-1);
+    if(er<0||er>=n||ec<0||ec>=n)continue;let ok=true;for(let k=0;k<w.length;k++){const x=g[r+dr*k][c+dc*k];if(x&&x!==w[k]){ok=false;break}}if(!ok)continue;
+    pos[w]=[];for(let k=0;k<w.length;k++){g[r+dr*k][c+dc*k]=w[k];pos[w].push((r+dr*k)*n+c+dc*k)}break}}
+  const FILL='ABCDEFGHILMNOPRSTUV';g.forEach(row=>row.forEach((x,i)=>{if(!x)row[i]=FILL[Math.floor(rnd()*FILL.length)]}));
+  let fd,start;
+  return {hint,found,placed:Object.keys(pos).length===list.length,get html(){fd=new Set();start=null;return `<p>${intro}</p><div class="ws" style="grid-template-columns:repeat(${n},minmax(0,1fr))">${g.flat().map((x,i)=>`<button type="button" data-i="${i}">${x}</button>`).join('')}</div><div class="wl">${list.map(w=>`<span data-w="${w}">${w}</span>`).join('')}</div>`},
+   mount(el){const cells=[...el.querySelectorAll('.ws button')];cells.forEach(b=>b.addEventListener('click',()=>{const i=+b.dataset.i;
+     if(start===null){start=i;b.classList.add('st');return}
+     cells[start].classList.remove('st');const a=start;start=null;if(a===i)return;
+     const r0=Math.floor(a/n),c0=a%n,r1=Math.floor(i/n),c1=i%n,dr=Math.sign(r1-r0),dc=Math.sign(c1-c0),len=Math.max(Math.abs(r1-r0),Math.abs(c1-c0))+1;
+     if(!(r0===r1||c0===c1||Math.abs(r1-r0)===Math.abs(c1-c0))){$('mFb').textContent='Les mots sont écrits en ligne droite.';return}
+     const idx=Array.from({length:len},(_,k)=>(r0+dr*k)*n+c0+dc*k),s=idx.map(k=>g[Math.floor(k/n)][k%n]).join('');
+     const w=list.find(x=>!fd.has(x)&&(x===s||x===[...s].reverse().join('')));
+     if(!w){$('mFb').textContent="Ce n'est pas un mot de la liste. Touche la première lettre, puis la dernière.";return}
+     fd.add(w);idx.forEach(k=>cells[k].classList.add('fd'));el.querySelector(`[data-w="${w}"]`).classList.add('ok');$('mFb').textContent=fd.size===list.length?'Tous les mots sont trouvés ! Clique sur Valider.':`Bravo, ${w} ! Encore ${list.length-fd.size}.`}))},
+   check(){return fd.size===list.length||`Il reste ${list.length-fd.size} mot${list.length-fd.size>1?'s':''} à trouver.`}}}
+/* trier : nom commun / nom propre */
+function sortNouns(intro,items,hint,found){let where;
+  return {hint,found,get html(){where={};return `<p>${intro}</p><div class="pool" id="pool">${items.map((it,i)=>`<button type="button" class="choice" data-i="${i}">${it[0]}</button>`).join('')}</div>
+   <div class="bins"><div class="bin" data-b="c"><h3>Noms communs</h3><div class="pool"></div></div><div class="bin" data-b="p"><h3>Noms propres</h3><div class="pool"></div></div></div>`},
+   mount(el){let sel=null;const pool=el.querySelector('#pool');
+     el.querySelectorAll('.choice').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();if(b.parentNode!==pool){pool.appendChild(b);delete where[b.dataset.i];b.classList.remove('bad');return}
+       el.querySelectorAll('.choice').forEach(x=>x.classList.remove('sel'));sel=b;b.classList.add('sel');el.querySelectorAll('.bin').forEach(x=>x.classList.add('pick'))}));
+     el.querySelectorAll('.bin').forEach(bn=>bn.addEventListener('click',()=>{if(!sel)return;bn.querySelector('.pool').appendChild(sel);where[sel.dataset.i]=bn.dataset.b;sel.classList.remove('sel');sel=null;el.querySelectorAll('.bin').forEach(x=>x.classList.remove('pick'))}))},
+   check(){if(Object.keys(where).length<items.length)return 'Range tous les mots dans une boîte.';let bad=0;document.querySelectorAll('.bin .choice').forEach(b=>{const ok=where[b.dataset.i]===items[b.dataset.i][1];b.classList.toggle('bad',!ok);if(!ok)bad++});
+     return bad?`${bad} mot${bad>1?'s sont':' est'} dans la mauvaise boîte (en rouge). Touche un mot pour le reprendre.`:true}}}
+/* mots croisés */
+function crossword(rows,cols,words,hint,found){const L={},N={};
+  words.forEach(w=>{[...w.w].forEach((ch,k)=>{L[(w.r+(w.d==='v'?k:0))+','+(w.c+(w.d==='h'?k:0))]=ch});N[w.r+','+w.c]=w.n});
+  const clues=d=>words.filter(w=>w.d===d).map(w=>`<li><b>${w.n}.</b> ${w.clue} <small>(${w.w.length} lettres)</small></li>`).join('');
+  return {hint,found,html:`<p>Le grand ordinateur a affiché une grille. Écris un mot par définition, une lettre par case.</p><div class="xw" style="grid-template-columns:repeat(${cols},40px)">${R(rows*cols,i=>{const k=Math.floor(i/cols)+','+i%cols;return L[k]?`<div class="xc">${N[k]?`<small>${N[k]}</small>`:''}<input type="text" maxlength="1" data-k="${k}" autocomplete="off" aria-label="Case ${k}"></div>`:'<div class="xb"></div>'})}</div>
+   <div class="clues"><div><h3>Horizontal →</h3><ul>${clues('h')}</ul></div><div><h3>Vertical ↓</h3><ul>${clues('v')}</ul></div></div>`,
+   mount(el){el.querySelectorAll('.xc input').forEach(inp=>inp.addEventListener('input',()=>{inp.value=inp.value.replace(/[^a-zA-ZÀ-ÿ]/g,'').slice(-1).toUpperCase();inp.classList.remove('bad');if(!inp.value)return;
+     const [r,c]=inp.dataset.k.split(',').map(Number);const nx=el.querySelector(`[data-k="${r},${c+1}"]`)||el.querySelector(`[data-k="${r+1},${c}"]`);if(nx)nx.focus()}))},
+   check(){let bad=0,empty=0;document.querySelectorAll('.xc input').forEach(inp=>{if(!inp.value){empty++;return}const ok=norm(inp.value)===L[inp.dataset.k];inp.classList.toggle('bad',!ok);if(!ok)bad++});
+     return empty?`Il reste ${empty} case${empty>1?'s':''} vide${empty>1?'s':''}.`:bad?`${bad} lettre${bad>1?'s':''} à corriger (en rouge).`:true}}}
+
+/* ---------- les 19 parchemins (niveau 1 = CE1, niveau 2 = CE2) ---------- */
+const ROOMS=[
+ {spot:'lettres',scene:0,tag:'Trouver le verbe',title:'La lettre de Bourrasque',lv:[null,
+  W("Dans le sac, une lettre à l'encre violette : « Touche <b>le verbe conjugué</b> de ma phrase ! »",'v0',"Le lutin chante dans l'atelier.",'2',"Change le moment : « Hier, le lutin… ». Le mot qui change, c'est le verbe !","« chante », bravo !"),
+  W("Dans le sac, une lettre à l'encre violette : « Touche <b>le verbe conjugué</b> de ma phrase ! »",'v0',"Chaque soir, les lutins emballent les cadeaux dans l'atelier.",'4',"Change le moment : « Hier soir, les lutins… ». Le mot qui change, c'est le verbe !","« emballent », bravo !")]},
+ {spot:'train',scene:0,tag:'Le groupe sujet',title:"L'étiquette du petit train",lv:[null,
+  W("Sous le wagon, une étiquette : « Touche <b>tous les mots du groupe sujet</b>. »",'s0',"Les rennes tirent le traîneau.",'0,1',"Demande : « Qui est-ce qui tire le traîneau ? »","Oui : « Les rennes » !"),
+  W("Sous le wagon, une étiquette : « Touche <b>tous les mots du groupe sujet</b>. »",'s0',"Le petit renne au nez rouge tire le traîneau.",'0,1,2,3,4,5',"Trouve le verbe (tire), puis demande : « Qui est-ce qui tire le traîneau ? »","Oui : « Le petit renne au nez rouge » !")]},
+ {spot:'hotte',scene:0,tag:'Trouver les noms',title:'Le fond de la hotte',lv:[null,
+  W("Dans la hotte, un papier chiffonné : « Touche <b>tous les noms</b>. »",'n0',"Le lutin a un ballon.",'1,4',"Un nom a un déterminant devant lui : le, la, un, une…","Lutin et ballon !"),
+  W("Dans la hotte, un papier chiffonné : « Touche <b>tous les noms</b>. »",'n0',"Le lutin range les jouets dans la grande hotte.",'1,4,8',"Un nom a un déterminant devant lui. « grande » est un adjectif, « range » est un verbe.","Lutin, jouets, hotte : bravo !")]},
+ {spot:'facture',scene:0,tag:'Écrire en lettres',title:'La facture des poupées',lv:[null,
+  {html:`<p>Le Père Noël doit écrire ce nombre en lettres :</p><p class="q big">46</p><input type="text" class="wide" id="l0" autocomplete="off" spellcheck="false" aria-label="Le nombre en lettres">`,hint:"46 = 40 + 6. Comment dit-on 40 ?",found:"Quarante-six, parfait !",check:()=>val('l0').replace(/[\s-]+/g,' ')==='quarante six'},
+  {html:`<p>Le Père Noël doit écrire ce nombre en lettres :</p><p class="q big">347</p><input type="text" class="wide" id="l0" autocomplete="off" spellcheck="false" aria-label="Le nombre en lettres">`,hint:"347 = 300 + 40 + 7. « cent » ne prend pas de s ici.",found:"Trois-cent-quarante-sept, parfait !",check:()=>val('l0').replace(/[\s-]+/g,' ')==='trois cent quarante sept'}]},
+ {spot:'biscuits',scene:1,tag:'Doubles et moitiés',title:'Les biscuits de la Mère Noël',lv:[null,
+  fields("La Mère Noël : « Calcule de tête, et tu auras un biscuit ! »",[['Le double de 4 =',8],['Le double de 15 =',30],['La moitié de 10 =',5],['6 + 7 =',13]],"6 + 7, c'est le double de 6, plus 1 !","Tout est juste. Miam !"),
+  fields("La Mère Noël : « Calcule de tête, et tu auras un biscuit ! »",[['Le double de 35 =',70],['La moitié de 48 =',24],['25 + 26 =',51],['19 + 20 =',39]],"Moitié de 48 : moitié de 40, puis moitié de 8. 25 + 26 : double de 25, plus 1.","Tout est juste. Miam !")]},
+ {spot:'bocal',scene:1,tag:'Problème de composition',title:'Le bocal de bonbons',lv:[null,
+  compo({lines:["Dans le bocal, il y a 35 bonbons.","Il n'y a que des bonbons rouges et des bonbons verts.","Il y a 20 bonbons rouges.","Combien y a-t-il de bonbons verts ?"],words:['bonbons rouges','bonbons','bonbons verts'],tout:'bonbons',p1:['bonbons rouges',20],p2:['bonbons verts',null],total:35,answer:15,q:'Combien y a-t-il de bonbons verts ?'},"On connaît le tout (35) et une partie (20). Pour trouver l'autre partie : 35 − 20.","15 bonbons verts, bravo !"),
+  compo({lines:["La Mère Noël a fait 86 biscuits.","Elle a fait des sablés et des pains d'épices.","Il y a 48 sablés.","Combien y a-t-il de pains d'épices ?"],words:["sablés","pains d'épices","biscuits"],tout:'biscuits',p1:['sablés',48],p2:["pains d'épices",null],total:86,answer:38,q:"Combien y a-t-il de pains d'épices ?"},"On connaît le tout (86) et une partie (48). L'autre partie : 86 − 48.","38 pains d'épices, bravo !")]},
+ {spot:'recettes',scene:1,tag:'Quiz',title:'Le livre de recettes',lv:[null,
+  quiz([["8 + 7 = ?",["14","15","16"],"15"],["Le double de 20 ?",["22","30","40"],"40"],["La tarte est ___ la cuisine.",["a","à"],"à"],["Au pluriel, « un gâteau » devient…",["des gâteaus","des gâteaux"],"des gâteaux"]],"Pour « a » ou « à » : si on peut dire « avait », on écrit « a ».","Le livre de recettes s'ouvre !"),
+  quiz([["6 × 4 = ?",["10","24","28"],"24"],["Combien de minutes dans une heure ?",["30","60","100"],"60"],["Les lutins ___ fatigués.",["son","sont"],"sont"],["Au féminin, « un boulanger » devient…",["une boulangère","une boulangerie","une boulanger"],"une boulangère"]],"Pour « son » ou « sont » : si on peut dire « étaient », on écrit « sont ».","Le livre de recettes s'ouvre !")]},
+ {spot:'frigo',scene:1,tag:'Message codé',title:'Les aimants du frigo',lv:[null,
+  code("Sur le frigo, Bourrasque a laissé un code. Chaque lettre est remplacée par son numéro dans l'alphabet, mais il faut d'abord faire le calcul ! Quel est le mot ?","3+4 &nbsp;·&nbsp; 2−1 &nbsp;·&nbsp; 10+10 &nbsp;·&nbsp; 2+3 &nbsp;·&nbsp; 5−4 &nbsp;·&nbsp; 20+1",abcNum,'GATEAU',"Calcule : 3 + 4 = 7. La 7e lettre est G.","GÂTEAU ! La Mère Noël éclate de rire."),
+  code("Sur le frigo, Bourrasque a laissé un code. Il a avancé chaque lettre de <b>3 rangs</b> dans l'alphabet : A est devenu D, B est devenu E… Recule de 3 pour trouver le mot !","J &nbsp; D &nbsp; W &nbsp; H &nbsp; D &nbsp; X",abcStrip,'GATEAU',"Pour J, recule de 3 : I, H, G. La première lettre est G.","GÂTEAU ! La Mère Noël éclate de rire.")]},
+ {spot:'machine',scene:2,tag:'Le chiffre des… et le nombre de… en tout',title:'Le compteur de la machine',lv:[null,
+  fields("Le compteur de la grande machine affiche le nombre de jouets fabriqués. Pour la redémarrer, réponds :",[['Le chiffre des centaines :',4],['Le chiffre des dizaines :',6],['Le nombre de dizaines en tout :',46],['Le chiffre des unités :',3],["Le nombre d'unités en tout :",463]],"Le chiffre des dizaines, c'est celui qu'on voit à la place des dizaines. Le nombre de dizaines en tout : cache le chiffre des unités et lis ce qui reste.","La machine redémarre !",'<p class="screen">463</p>'),
+  fields("Le compteur de la grande machine affiche le nombre de jouets fabriqués. Pour la redémarrer, réponds :",[['Le chiffre des centaines :',7],['Le nombre de centaines en tout :',27],['Le chiffre des dizaines :',4],['Le nombre de dizaines en tout :',274],["Le nombre d'unités en tout :",2745]],"Le nombre de centaines en tout : cache les deux derniers chiffres (dizaines et unités) et lis ce qui reste.","La machine redémarre !",'<p class="screen">2745</p>')]},
+ {spot:'bacs',scene:2,tag:'Problème de comparaison',title:'Les bacs des deux machines',lv:[null,
+  compa({lines:["La machine rouge a fabriqué 43 ours.","La machine bleue a fabriqué 28 ours.","Combien d'ours la machine rouge a-t-elle fabriqués de plus que la machine bleue ?"],who:['Machine rouge','Machine bleue'],big:0,vals:[43,28],ecart:null,chips:[43,28,'?'],seek:'ecart',answer:15,
+   phrases:["La machine rouge a fabriqué 15 ours.","La machine rouge a fabriqué 15 ours de plus que la machine bleue.","La machine rouge a fabriqué 28 ours de plus que la machine bleue."],ok:1},"43 est plus grand que 28 : la machine rouge a la grande quantité. On cherche l'écart, c'est une soustraction : 43 − 28.","15 ours de plus, bravo !"),
+  compa({lines:["La machine rouge a fabriqué 134 trains.","La machine bleue a fabriqué 58 trains de moins que la machine rouge.","Combien de trains la machine bleue a-t-elle fabriqués ?"],who:['Machine rouge','Machine bleue'],big:0,vals:[134,null],ecart:58,chips:[134,58,'?'],seek:'petite',answer:76,
+   phrases:["La machine bleue a fabriqué 192 trains.","La machine bleue a fabriqué 76 trains de moins.","La machine bleue a fabriqué 76 trains."],ok:2},"« 58 de moins » : la machine bleue a la petite quantité. 58, c'est l'écart. On cherche la petite quantité : 134 − 58.","76 trains, bravo !")]},
+ {spot:'tableau',scene:2,tag:'Sudoku',title:'Le tableau de commande',lv:[null,
+  sudoku([1,4,7,10,13,14],"Regarde d'abord les lignes où il ne manque qu'un seul dessin.","Le tableau de commande se rallume !"),
+  sudoku([1,3,4,6,9,10,12,15,7],"Commence par la ligne ou la colonne qui a déjà le plus de dessins.","Le tableau de commande se rallume !")]},
+ {spot:'caisses',scene:2,tag:'Encadrer un nombre',title:'Les caisses de jouets',lv:[null,
+  encadre(47,[['À la dizaine près',40,50]],"Les dizaines finissent par 0. Laquelle est juste avant 47 ? Juste après ?","40 < 47 < 50, bravo !","Sur l'étiquette d'une caisse : 47 jouets. Encadre ce nombre."),
+  encadre(586,[['À la dizaine près',580,590],['À la centaine près',500,600]],"À la dizaine près, les nombres finissent par 0. À la centaine près, par 00.","580 < 586 < 590 et 500 < 586 < 600, bravo !","Sur l'étiquette d'une caisse : 586 jouets. Encadre ce nombre.")]},
+ {spot:'ecran',scene:3,tag:'Noms communs et noms propres',title:'La liste des enfants sages',lv:[null,
+  sortNouns("Bourrasque a mélangé la liste du grand ordinateur ! Range chaque mot dans la bonne boîte : touche un mot, puis touche sa boîte.",[['Léa','p'],['sapin','c'],['Tom','p'],['lutin','c'],['Paris','p'],['cadeau','c'],['Bourrasque','p'],['renne','c']],"Un nom propre commence par une majuscule : c'est le nom d'une personne, d'un animal, d'une ville, d'un pays…","La liste est rangée ! Le grand ordinateur dit merci."),
+  sortNouns("Bourrasque a mélangé la liste du grand ordinateur ! Range chaque mot dans la bonne boîte : touche un mot, puis touche sa boîte.",[['Inès','p'],['ville','c'],['Marseille','p'],['garçon','c'],['Grelot','p'],['pays','c'],['France','p'],['étoile','c'],['Noé','p'],['traîneau','c']],"Attention : « ville » et « pays » sont des noms communs. « Marseille » et « France », eux, sont des noms propres : ils ont une majuscule.","La liste est rangée ! Le grand ordinateur dit merci.")]},
+ {spot:'clavier',scene:3,tag:'Tables de multiplication',title:'Le mot de passe du clavier',lv:[null,
+  fields("Pour déverrouiller le clavier, le grand ordinateur demande les résultats de ces multiplications.",[['2 × 4 =',8],['2 × 7 =',14],['5 × 3 =',15],['5 × 6 =',30],['10 × 4 =',40],['3 × 3 =',9]],"5 × 3, c'est 5 + 5 + 5. 10 × 4, c'est 4 dizaines.","Accès autorisé ! Le clavier s'allume.",'<p class="screen">MOT DE PASSE ?</p>','two'),
+  fields("Pour déverrouiller le clavier, le grand ordinateur demande les résultats de ces multiplications (tables de 2, 3, 4, 5, 6 et 8).",[['2 × 7 =',14],['3 × 8 =',24],['4 × 6 =',24],['5 × 9 =',45],['6 × 6 =',36],['8 × 5 =',40],['4 × 9 =',36],['8 × 7 =',56]],"La table de 4, c'est le double de la table de 2. La table de 8, le double de la table de 4 : 8 × 7 = 2 × (4 × 7) = 2 × 28. 6 × 6 = 2 × (3 × 6).","Accès autorisé ! Le clavier s'allume.",'<p class="screen">MOT DE PASSE ?</p>','two')]},
+ {spot:'imprimante',scene:3,tag:'Mots mêlés',title:"La feuille de l'imprimante",lv:[null,
+  wordsearch(8,['SAPIN','RENNE','NEIGE','LUTIN','ETOILE','HOTTE'],[[0,1],[1,0]],7,"L'imprimante a sorti une grille de mots mêlés. Trouve les 6 mots de Noël : touche la première lettre, puis la dernière. Les mots sont écrits de gauche à droite ou de haut en bas.","Regarde ligne par ligne : cherche d'abord la première lettre du mot.","Tous les mots sont trouvés !"),
+  wordsearch(10,['SAPIN','RENNE','NEIGE','LUTIN','ETOILE','CADEAU','TRAINEAU','BOUGIE','GUIRLANDE'],[[0,1],[1,0],[1,1]],11,"L'imprimante a sorti une grille de mots mêlés. Trouve les 9 mots de Noël : touche la première lettre, puis la dernière. Les mots sont écrits de gauche à droite, de haut en bas ou en diagonale.","Commence par les mots les plus longs (GUIRLANDE, TRAINEAU) : ils sont plus faciles à repérer.","Tous les mots sont trouvés !")]},
+ {spot:'panneau',scene:3,tag:'Mots croisés',title:'La grille du panneau',lv:[null,
+  crossword(5,5,[{n:1,w:'SAPIN',r:0,c:0,d:'h',clue:'On le décore avec des boules et des guirlandes.'},{n:2,w:'ARBRE',r:0,c:1,d:'v',clue:'Le sapin en est un.'},{n:3,w:'NEIGE',r:0,c:4,d:'v',clue:'Elle tombe en flocons blancs.'},{n:4,w:'RENNE',r:4,c:0,d:'h',clue:'Il tire le traîneau du Père Noël.'}],"Commence par le 1 horizontal : son 2e lettre est aussi la 1re lettre du 2 vertical.","Grille complète, bravo !"),
+  crossword(6,7,[{n:1,w:'CADEAU',r:0,c:0,d:'h',clue:'On le trouve au pied du sapin, avec un joli ruban.'},{n:1,w:'CLOCHE',r:0,c:0,d:'v',clue:'Elle sonne : ding, dong !'},{n:2,w:'ETOILE',r:0,c:3,d:'v',clue:'Elle brille tout en haut du sapin.'},{n:3,w:'COLIS',r:3,c:0,d:'h',clue:'Un paquet envoyé par la poste.'},{n:4,w:'ELFE',r:5,c:3,d:'h',clue:'Un autre nom pour un lutin.'}],"Le 1 horizontal et le 1 vertical commencent par la même lettre. Le 4 horizontal commence par la dernière lettre du 2 vertical.","Grille complète, bravo !")]},
+ {spot:'partition',scene:4,tag:'Présent des verbes en -er',title:'La chanson des lutins',lv:[null,
+  fields("Bourrasque a effacé les verbes de la chanson. Conjugue-les <b>au présent</b>.",[['Je (chanter)','chante','t',' sous le sapin.'],['Tu (danser)','danses','t',' avec les lutins.'],['Nous (jouer)','jouons','t',' dans la neige.']],"Avec je : -e. Avec tu : -es. Avec nous : -ons.","Quelle belle chanson !"),
+  fields("Bourrasque a effacé les verbes de la chanson. Conjugue-les <b>au présent</b>.",[['Nous (chanter)','chantons','t',' sous le sapin.'],['Tu (décorer)','décores','t',' la maison.'],['Les rennes (voler)','volent','t',' dans le ciel.'],['Vous (préparer)','préparez','t',' les cadeaux.']],"Je -e, tu -es, il -e, nous -ons, vous -ez, ils -ent.","Quelle belle chanson !")]},
+ {spot:'ciel',scene:4,tag:'Message codé',title:'Le code des étoiles',lv:[null,
+  code("Les étoiles forment un code ! Chaque paire donne une lettre : le premier nombre est la <b>ligne</b>, le second la <b>colonne</b> de la grille.",g5('RENNE'),grid5,'RENNE',"4-3 : ligne 4, colonne 3. C'est la lettre R.","RENNE ! Tornade est très fier."),
+  code("Les étoiles forment un code ! Chaque paire donne une lettre : le premier nombre est la <b>ligne</b>, le second la <b>colonne</b> de la grille.",g5('TRAINEAU'),grid5,'TRAINEAU',"4-5 : ligne 4, colonne 5. C'est la lettre T.","TRAÎNEAU ! Le chemin du ciel est tracé.")]},
+ {spot:'sacs',scene:4,tag:'Problème de composition',title:'Les sacs du traîneau',lv:[null,
+  compo({lines:["Sur le traîneau, il y a 24 sacs rouges et 32 sacs bleus.","Combien y a-t-il de sacs en tout ?"],words:['sacs rouges','sacs bleus','sacs'],tout:'sacs',p1:['sacs rouges',24],p2:['sacs bleus',32],total:null,answer:56,q:'Combien y a-t-il de sacs en tout ?'},"On connaît les deux parties. Pour trouver le tout : 24 + 32.","56 sacs, bravo !"),
+  compo({lines:["Le traîneau transporte 586 sacs.","Il y a des sacs de jouets et des sacs de livres.","Il y a 247 sacs de jouets.","Combien y a-t-il de sacs de livres ?"],words:['sacs','sacs de livres','sacs de jouets'],tout:'sacs',p1:['sacs de jouets',247],p2:['sacs de livres',null],total:586,answer:339,q:'Combien y a-t-il de sacs de livres ?'},"On connaît le tout (586) et une partie (247). L'autre partie : 586 − 247.","339 sacs de livres, bravo !")]}
+];
+const N=ROOMS.length;const SPOT={};ROOMS.forEach((r,i)=>SPOT[r.spot]=i);
+const inScene=s=>ROOMS.map((r,i)=>r.scene===s?i:-1).filter(i=>i>=0);
+const BADGE={lettres:[528,470],train:[375,300],hotte:[286,425],facture:[516,330],biscuits:[852,365],bocal:[368,282],recettes:[948,355],frigo:[620,175],machine:[150,110],bacs:[797,445],tableau:[525,132],caisses:[350,425],ecran:[352,100],clavier:[500,372],imprimante:[130,316],panneau:[115,86],partition:[96,110],ciel:[520,130],sacs:[400,430]};
+const FLAVOR={fenetre:"Il neige à gros flocons. La lune éclaire le chemin du traîneau.",sapin:"Les boules brillent… mais Bourrasque n'a rien caché dans le sapin.",nounours:"Le nounours te fait un clin d'œil. Rien ici !",chaussettes:"Une chaussette trouée… Rien dedans, à part un vieux bonbon collant !",horloge:"Il est 23 h 12 ! Il faut se dépêcher !",
+ fenetre2:"Sur le rebord, un petit pot de houx. Dehors, il neige toujours.",fourneau:"Mmm… ça sent le chocolat chaud ! La Mère Noël le prépare pour les lutins.",maisonpain:"Une maison en pain d'épices ! Interdit de grignoter le toit.",saladier:"La pâte à crêpes est prête. Rien de caché dedans.",horloge2:"La pendule de la cuisine avance de cinq minutes. Ça ne nous aide pas !",casseroles:"Bong ! Les casseroles s'entrechoquent. Rien ici.",
+ lampe:"Les lampes éclairent l'atelier toute la nuit.",robot:"Bip bip ! Le robot jouet tourne en rond. Il n'a rien vu.",
+ lanterne:"La lanterne éclaire l'écurie d'une lumière dorée.",renne:"Tornade le renne te fait un bisou baveux. Il a hâte de partir !",foin:"Atchoum ! Que de la paille.",tonneau:"Le tonneau sent la pomme. Tornade adore ça."};
+const DOORS={porte:0,porte2:1,porte3:2,porte4:3};
+const SCENEFN=[maison,cuisine,fabrication,ordinateur,ecurie];
+Object.assign(FLAVOR,{tasse:"« Meilleur Père Noël du monde » est écrit sur la tasse. Le chocolat est encore chaud.",chaise:"Le fauteuil du Père Noël tourne… Wouiiii ! Rien de caché dessous.",globe:"Le globe montre tous les pays où le traîneau va passer cette nuit."});
+
+/* ---------- état ---------- */
+const STORE='noel-escape-v6';
+const fresh=()=>({solved:new Array(N).fill(false),scene:0,intro:false,seen:SC.map(i=>i===0),elapsed:0,level:0});
+let S=fresh();
+try{const s=JSON.parse(localStorage.getItem(STORE)||'null');if(s&&Array.isArray(s.solved)&&s.solved.length===N)S=Object.assign(S,s)}catch(e){}
+let start=Date.now()-S.elapsed*1000,done=false,queue=[],current=null,P=null;
+function save(){try{localStorage.setItem(STORE,JSON.stringify(S))}catch(e){}}
+const sceneDone=s=>inScene(s).every(i=>S.solved[i]);
+const cntScene=s=>inScene(s).filter(i=>S.solved[i]).length;
+const unlocked=s=>s===0||sceneDone(s-1);
+
+/* ---------- affichage ---------- */
+const stage=$('stage');stage.insertAdjacentHTML('beforeend',SCENEFN.map(f=>f()).join(''));
+const sc=SC.map(i=>$('sc'+i));
+/* la boule-clé gagnée apparaît en grand au centre, puis s'envole vers sa place en haut */
+const FLY=new Set();
+function flyKey(s){if(!$('key'+s))return;FLY.add(s);render();const orbNow=()=>$('key'+s).querySelector('.orb');
+  const el=document.createElement('div');el.className='bigkey';el.setAttribute('aria-hidden','true');
+  el.innerHTML=`<div class="bk-orb">${keySvg(KEYCOL[s],true)}<b>${KEYS[s]}</b></div><p>Boule-clé ${['de la maison','de la cuisine','de la fabrication',"de l'ordinateur",'de l\'écurie'][s]} : ${KEYS[s]}</p>`;
+  document.body.appendChild(el);
+  let ended=false;const finish=()=>{if(ended)return;ended=true;el.remove();FLY.delete(s);render();const k=$('key'+s);k.classList.add('pop')};
+  setTimeout(finish,4200);
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches||!el.animate){setTimeout(finish,1500);return}
+  const o=el.querySelector('.bk-orb');
+  o.animate([{transform:'scale(0) rotate(-40deg)',opacity:0},{transform:'scale(1.2) rotate(10deg)',opacity:1,offset:.65},{transform:'scale(1) rotate(0)',opacity:1}],{duration:800,easing:'ease-out'});
+  setTimeout(()=>{el.classList.add('go');window.scrollTo({top:0,behavior:'smooth'});
+    setTimeout(()=>{const a=o.getBoundingClientRect(),b=orbNow().getBoundingClientRect();
+      o.animate([{transform:'translate(0,0) scale(1)'},{transform:`translate(${b.left+b.width/2-(a.left+a.width/2)}px,${b.top+b.height/2-(a.top+a.height/2)}px) scale(${b.width/a.width})`}],{duration:900,easing:'cubic-bezier(.55,0,.3,1)',fill:'forwards'}).onfinish=finish},250)},2300)}
+function keySvg(c,on){return `<svg viewBox="0 0 40 48"><rect x="16" y="1" width="8" height="6" rx="1" fill="#c9a24a"/><circle cx="20" cy="27" r="18" fill="${on?c:'#24453a'}" stroke="${on?'#fff':'#3e6a5b'}" stroke-opacity=".5" stroke-width="2"/>${on?'<circle cx="14" cy="21" r="4.5" fill="#fff" opacity=".5"/>':''}</svg>`}
+function render(){
+  sc.forEach((s,i)=>{if(i===S.scene)s.removeAttribute('hidden');else s.setAttribute('hidden','')});
+  $('roomName').textContent=ROOMNAMES[S.scene];
+  $('keys').innerHTML=SC.map(s=>{const on=sceneDone(s);return `<span class="key ${on?'on':''}" id="key${s}"><span class="orb" style="${FLY.has(s)?'visibility:hidden':''}">${keySvg(KEYCOL[s],on)}<b>${on?KEYS[s]:'?'}</b></span>${['Maison','Cuisine','Fabrication','Ordinateur','Écurie'][s]} ${cntScene(s)}/${inScene(s).length}</span>`}).join('');
+  SC.forEach(n=>{$('badges'+n).innerHTML=ROOMS.map((r,i)=>S.solved[i]&&r.scene===n?`<g transform="translate(${BADGE[r.spot][0]} ${BADGE[r.spot][1]})"><circle r="15" fill="#1f8a4c" stroke="#fff" stroke-width="3"/><path d="M-7 0l5 5 9-10" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>`:'').join('')});
+  SC.slice(0,LAST).forEach(d=>{const open=sceneDone(d);$('lock'+d).style.display=open?'none':'';$('light'+d).setAttribute('opacity',open?'.9':'0')});
+  $('chestlock').style.opacity=SC.every(sceneDone)?'.5':'1';
+  const lv=$('lvl');lv.textContent=S.level?'Niveau '+['','CE1','CE2'][S.level]:'';lv.hidden=!S.level;
+  $('prev').hidden=S.scene===0;$('fwd').hidden=S.scene===LAST||!unlocked(S.scene+1);
+  showTalk();
+}
+const NAMES={grelot:'Grelot',bourrasque:'Mot de Bourrasque',pere:'Le Père Noël',mere:'La Mère Noël'};
+function say(who,text){queue.push({who,text})}
+function tip(){
+  if(SC.every(sceneDone))return "On a les 5 boules-clés ! Vite, clique sur le coffre posé sur le traîneau, dans l'écurie !";
+  const s=S.scene,n=inScene(s).length,c=cntScene(s);
+  if(sceneDone(s))return s<LAST?`Cette pièce est terminée ! La porte vers ${ROOMNAMES[s+1].replace(/^La |^L'/,m=>m.toLowerCase())} est ouverte.`:"L'écurie est fouillée !";
+  return `Fouille ${ROOMNAMES[s].replace(/^La |^L'/,m=>m.toLowerCase())} : clique sur les objets bizarres. Parchemins trouvés ici : ${c} sur ${n}.`;
+}
+function showTalk(){const l=queue[0]||{who:'grelot',text:tip()};$('face').innerHTML=face(l.who);$('who').textContent=NAMES[l.who];const s=$('say');s.textContent=l.text;s.className='say'+(l.who==='bourrasque'?' note':'');$('next').hidden=queue.length===0}
+$('next').addEventListener('click',()=>{queue.shift();showTalk()});
+
+/* ---------- clics dans le décor ---------- */
+function act(id){
+  if(id in SPOT){const i=SPOT[id];if(S.solved[i]){queue=[{who:'grelot',text:"On a déjà résolu le parchemin caché ici."}];showTalk()}else openRoom(i);return}
+  if(id in DOORS){const d=DOORS[id];if(sceneDone(d))goScene(d+1);else{queue=[{who:'grelot',text:`La porte est fermée à clé ! Elle s'ouvrira quand tous les parchemins de cette pièce seront résolus (${cntScene(d)} sur ${inScene(d).length}).`}];showTalk()}return}
+  if(id==='traineau'){if(SC.every(sceneDone))openFinal();else{queue=[{who:'grelot',text:`Le coffre est là ! Mais il nous faut d'abord les 5 boules-clés (${SC.filter(sceneDone).length} sur 5).`}];showTalk()}return}
+  if(FLAVOR[id]){queue=[{who:'grelot',text:FLAVOR[id]}];showTalk()}
+}
+stage.addEventListener('click',e=>{const h=e.target.closest('.hot');if(h)act(h.dataset.id)});
+stage.addEventListener('keydown',e=>{const h=e.target.closest('.hot');if(h&&(e.key==='Enter'||e.key===' ')){e.preventDefault();act(h.dataset.id)}});
+const ARRIVE=[[],
+ [['mere',"Bonsoir mon petit ! Je suis la Mère Noël. Bourrasque est passé dans ma cuisine… et il a semé ses parchemins partout !"],['mere',"Regarde bien le bocal, le frigo, la table… Et ne touche pas à ma maison en pain d'épices !"]],
+ [['grelot',"Voici l'atelier de fabrication ! Les machines fabriquent des jouets jour et nuit."],['bourrasque',"Hi hi ! J'ai déréglé le compteur, mélangé le tableau de commande et caché des énigmes dans les bacs et les caisses !"]],
+ [['grelot',"Waouh ! La salle du grand ordinateur ! C'est ici que le Père Noël garde la liste des enfants sages."],['bourrasque',"Hi hi ! J'ai mélangé la liste, bloqué le clavier et caché des grilles partout. Bon courage !"]],
+ [['grelot',"Voici l'écurie ! Tornade le renne est déjà attelé… presque."],['bourrasque',"Les derniers parchemins sont ici. Et le coffre ? Je l'ai mis sur le traîneau ! Hi hi !"]]];
+function goScene(n){if(!unlocked(n))return;S.scene=n;queue=[];if(!S.seen[n]){S.seen[n]=true;ARRIVE[n].forEach(([w,t])=>say(w,t))}save();render();sc[n].classList.remove('show');sc[n].getBoundingClientRect();sc[n].classList.add('show')}
+$('prev').addEventListener('click',()=>goScene(S.scene-1));
+$('fwd').addEventListener('click',()=>goScene(S.scene+1));
+$('loupe').addEventListener('click',()=>{stage.classList.remove('reveal');void stage.offsetWidth;stage.classList.add('reveal');setTimeout(()=>stage.classList.remove('reveal'),2600)});
+
+/* ---------- fenêtre parchemin ---------- */
+const modal=$('modal'),mBody=$('mBody'),mFb=$('mFb'),mHintTxt=$('mHintTxt');
+const tries=new Array(N).fill(0);
+const oops=["Pas encore… Grelot se gratte la tête. Réessaie !","Presque ! Relis bien la consigne.","Hmm, ce n'est pas ça. Un indice peut t'aider !"];
+function openModal(tag,title,p){P=p;$('mTag').textContent=tag;$('mTitle').textContent=title;mBody.innerHTML=p.html;mFb.textContent='';mHintTxt.textContent=p.hint||'';mHintTxt.hidden=true;$('mHint').hidden=!p.hint;modal.hidden=false;if(p.mount)p.mount(mBody);const f=mBody.querySelector('input,button');if(f)f.focus()}
+function openRoom(i){current=i;const r=ROOMS[i];openModal(`Parchemin n°${i+1} · ${r.tag}`,r.title,r.lv[S.level||2])}
+function openFinal(){current='final';openModal('Le grand coffre','Le cadenas à 5 chiffres',{html:`<p>Entre les chiffres des 5 boules-clés, dans l'ordre des pièces : maison, cuisine, fabrication, ordinateur, écurie.</p><div class="digits" id="digits">${KEYS.map((_,i)=>`<input id="k${i}" inputmode="numeric" maxlength="1" aria-label="Chiffre ${i+1}">`).join('')}</div>`,hint:"Regarde les boules en haut de l'écran : elles gardent les chiffres dans l'ordre.",check:()=>KEYS.map((_,i)=>$('k'+i).value).join('')===KEYS.join('')||'Clac ! Le cadenas reste fermé. Vérifie l\'ordre des chiffres.'})}
+function closeModal(){modal.hidden=true;current=null}
+$('mClose').addEventListener('click',closeModal);
+modal.addEventListener('click',e=>{if(e.target===modal)closeModal();const w=e.target.closest('.w');if(w){w.classList.toggle('sel');w.setAttribute('aria-pressed',w.classList.contains('sel'))}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)closeModal()});
+mBody.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('input')){e.preventDefault();validate()}if(current==='final'&&e.key==='Backspace'&&!e.target.value&&e.target.previousElementSibling)e.target.previousElementSibling.focus()});
+mBody.addEventListener('input',e=>{if(current!=='final')return;const t=e.target;t.value=t.value.replace(/\D/g,'').slice(-1);if(t.value&&t.nextElementSibling)t.nextElementSibling.focus()});
+$('mHint').addEventListener('click',()=>{mHintTxt.hidden=false});
+$('mOk').addEventListener('click',validate);
+function validate(){
+  const r=P.check();
+  if(current==='final'){if(r===true){closeModal();win()}else mFb.textContent=r;return}
+  const i=current;
+  if(r===true){const s=ROOMS[i].scene,before=sceneDone(s);S.solved[i]=true;save();closeModal();queue=[{who:'grelot',text:P.found||'Bravo !'}];
+    if(!before&&sceneDone(s)){say('grelot',`Tous les parchemins de ${ROOMNAMES[s].replace(/^La |^L'/,m=>m.toLowerCase())} sont résolus ! Une boule-clé apparaît… avec le chiffre ${KEYS[s]} !`);if(s<LAST)say('grelot',`Clic ! La porte vers ${ROOMNAMES[s+1].replace(/^La |^L'/,m=>m.toLowerCase())} vient de s'ouvrir.`);else say('grelot',"On a les 5 boules-clés ! Vite, le coffre sur le traîneau !")}
+    render();if(!before&&sceneDone(s)){flyKey(s);confetti(80)}}
+  else mFb.textContent=typeof r==='string'?r:oops[tries[i]++%oops.length];
+}
+
+/* ---------- niveau, début, fin ---------- */
+function fmt(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+function win(){done=true;$('winTime').textContent='Mission réussie en '+fmt(S.elapsed)+' !';$('win').hidden=false;confetti(180)}
+function intro(){queue=[];
+  say('grelot',"Oh non, oh non ! Il est 23 heures. Le Père Noël part à minuit… et le coffre des cadeaux est fermé à clé !");
+  say('grelot',"C'est encore un coup de Bourrasque, le lutin farceur. Il a changé le code du cadenas et il a laissé ce mot :");
+  say('bourrasque',"Hi hi hi ! J'ai caché 19 parchemins dans la maison, la cuisine, l'atelier de fabrication, la salle du grand ordinateur et l'écurie. Quand une pièce est terminée, une boule-clé apparaît avec un chiffre du code. Bonne chance !");
+  say('grelot',"Aide-moi ! Clique sur les objets du décor. Si tu es perdu, utilise la loupe magique.");
+  S.intro=true;save()}
+const lvBox=$('levels');
+function pickLevel(){lvBox.hidden=false}
+lvBox.addEventListener('click',e=>{const b=e.target.closest('[data-lv]');if(!b)return;S.level=+b.dataset.lv;$('cnt').textContent=S.level===1?'463':'2745';lvBox.hidden=true;if(!S.intro)intro();save();render()});
+function resetAll(){S=fresh();start=Date.now();done=false;tries.fill(0);save();$('win').hidden=true;closeModal();queue=[];render();pickLevel();window.scrollTo({top:0,behavior:'smooth'})}
+$('again').addEventListener('click',resetAll);
+$('reset').addEventListener('click',()=>{const b=$('reset');if(b.dataset.c){delete b.dataset.c;b.textContent='Recommencer';resetAll()}else{b.dataset.c='1';b.textContent='Sûr ? Clique encore';setTimeout(()=>{delete b.dataset.c;b.textContent='Recommencer'},3000)}});
+if(!(S.level===1||S.level===2)){S.level=0;pickLevel()}else{$('cnt').textContent=S.level===1?'463':'2745';if(!S.intro)intro()}
+setInterval(()=>{if(done)return;S.elapsed=Math.floor((Date.now()-start)/1000);$('timer').textContent='⏱ '+fmt(S.elapsed);if(S.elapsed%5===0)save()},1000);
+
+/* ---------- confettis ---------- */
+const cv=$('confetti'),cx=cv.getContext('2d');let bits=[],running=false;
+function size(){cv.width=innerWidth*devicePixelRatio;cv.height=innerHeight*devicePixelRatio;cx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)}
+size();addEventListener('resize',size);
+function confetti(k){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;for(let i=0;i<k;i++)bits.push({x:innerWidth/2,y:innerHeight/2,vx:(Math.random()-.5)*15,vy:-Math.random()*15-2,c:COLORS[i%7],r:4+Math.random()*4,l:170});if(!running){running=true;tick()}}
+function tick(){cx.clearRect(0,0,innerWidth,innerHeight);bits=bits.filter(b=>b.l-->0);for(const b of bits){b.vy+=.35;b.x+=b.vx;b.y+=b.vy;cx.fillStyle=b.c;cx.fillRect(b.x,b.y,b.r,b.r*1.6)}if(bits.length)requestAnimationFrame(tick);else{running=false;cx.clearRect(0,0,innerWidth,innerHeight)}}
+
+render();
+}
+</script>
+</body>
+</html>
