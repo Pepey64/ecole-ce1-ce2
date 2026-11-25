@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Les figures planes (CE1-CE2)</title>
+<style>
+:root { --paper:#FAF6EA; --line:rgba(46,111,149,0.16); --ink:#243B2C; --red:#D6483D; --blue:#2E6F95; --yellow:#F2B33D; --green:#4C9A5B; --purple:#7C5CA6; --card-border:#E4DCC4; }
+* { box-sizing: border-box; }
+body { margin:0; min-height:100vh; color:var(--ink); background-color:var(--paper);
+  background-image: repeating-linear-gradient(var(--line) 0px, var(--line) 1px, transparent 1px, transparent 28px);
+  font-family:'Nunito','Segoe UI',Verdana,sans-serif; -webkit-tap-highlight-color: transparent; }
+.hand { font-family:'Patrick Hand','Segoe Print','Comic Sans MS','Bradley Hand',cursive; }
+.wrap { max-width:68rem; margin:0 auto; padding:1.2rem 1rem 3rem; }
+.top { display:flex; align-items:center; justify-content:space-between; gap:.75rem; flex-wrap:wrap; }
+h1 { margin:0; font-size:2.8rem; line-height:1; font-weight:400; }
+.sub { margin:.25rem 0 0; font-weight:600; color:var(--blue); }
+.retour { color:var(--blue); font-weight:700; text-decoration:none; font-size:.95rem; }
+button { font-family:inherit; cursor:pointer; border:0; font-weight:700; border-radius:9999px; transition:transform .15s; touch-action:manipulation; }
+button:active { transform:scale(.95); }
+button:focus-visible { outline:4px solid var(--yellow); outline-offset:2px; }
+button:disabled { cursor:default; }
+.niveaux { display:flex; gap:.4rem; }
+.niveaux button { padding:.45rem 1rem; font-size:1rem; background:white; color:var(--ink); border:2px solid var(--card-border); }
+.niveaux button[aria-pressed="true"] { background:var(--ink); color:white; border-color:var(--ink); }
+.onglets { display:flex; flex-wrap:wrap; gap:.45rem; margin:1rem 0; }
+.onglets button { padding:.6rem 1.05rem; font-size:1.02rem; background:white; color:var(--blue); border:2px solid var(--card-border); }
+.onglets button[aria-selected="true"] { background:var(--blue); color:white; border-color:var(--blue); }
+.carte { background:white; border:2px solid var(--card-border); border-left:8px solid var(--blue); border-radius:1rem; padding:1rem 1.1rem; }
+.scene { width:100%; max-width:620px; height:auto; display:block; margin:0 auto; background:#fffdf6; border:2px dashed #E4DCC4; border-radius:1rem; user-select:none; touch-action:none; }
+.progress { display:flex; align-items:center; gap:.35rem; flex-wrap:wrap; margin-bottom:.7rem; }
+.dot { width:1.6rem; height:1.6rem; border-radius:9999px; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:800; background:white; color:#B7AF92; border:2px solid #E4DCC4; }
+.dot.ok { background:var(--green); color:white; border-color:var(--green); }
+.dot.ko { background:var(--red); color:white; border-color:var(--red); }
+.dot.cur { border-color:var(--blue); color:var(--blue); }
+.question { font-size:1.6rem; margin:.2rem 0 .6rem; }
+.msg { min-height:2.2rem; font-weight:800; font-size:1.15rem; margin-top:.6rem; text-align:center; }
+.msg.good { color:var(--green); } .msg.bad { color:var(--red); }
+.reponses { display:flex; flex-wrap:wrap; gap:.55rem; justify-content:center; margin-top:.8rem; }
+.reponses button { background:#F4EFE2; color:var(--ink); padding:.6rem 1.2rem; border-radius:1rem; font-size:1.25rem; border:3px solid transparent; display:flex; flex-direction:column; align-items:center; gap:.2rem; min-width:6rem; }
+.reponses button svg { width:5.5rem; height:4.6rem; }
+.reponses button.bon { border-color:var(--green); background:#E7F5E8; }
+.reponses button.faux { border-color:var(--red); background:#FBEAE8; }
+.outil { background:#5b7d97; color:white; padding:.55rem 1.1rem; font-size:1.05rem; }
+.suivant { background:var(--blue); color:white; padding:.65rem 1.4rem; font-size:1.1rem; }
+.ligne { display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; margin-top:.7rem; }
+.devinette { font-family:'Patrick Hand',cursive; font-size:1.9rem; background:#FFF6D8; border-radius:1rem; padding:.7rem 1rem; margin-bottom:.8rem; }
+.bilan { text-align:center; padding:1.5rem 1rem; }
+.etoiles { font-size:3.4rem; letter-spacing:.3rem; color:var(--yellow); }
+.etoiles .vide { color:#E4DCC4; }
+.record { color:#7A7458; font-size:.95rem; }
+.deux { display:grid; grid-template-columns:1fr; gap:1rem; }
+@media (min-width:860px) { .deux { grid-template-columns:1fr 1fr; } }
+.legende { text-align:center; font-weight:700; color:var(--blue); margin:.3rem 0 0; }
+.astuce { font-size:.9rem; color:#7A7458; text-align:center; margin:.4rem 0 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <a class="retour" href="index.html">← Ludothèque</a>
+      <h1 class="hand">📐 Les figures planes</h1>
+      <p class="sub">Empreintes, polygones, angle droit, carré, rectangle, losange… et reproduire sur quadrillage.</p>
+    </div>
+    <div class="niveaux" role="group" aria-label="Niveau">
+      <button data-niv="CE1" aria-pressed="true">CE1</button>
+      <button data-niv="CE2" aria-pressed="false">CE2</button>
+    </div>
+  </div>
+  <div class="onglets" role="tablist">
+    <button role="tab" data-onglet="empreintes" aria-selected="true">🧊 Empreintes</button>
+    <button role="tab" data-onglet="polygones" aria-selected="false">🔺 Combien de côtés ?</button>
+    <button role="tab" data-onglet="angles" aria-selected="false">📐 L'angle droit</button>
+    <button role="tab" data-onglet="quadri" aria-selected="false">⬜ Carré ou rectangle ?</button>
+    <button role="tab" data-onglet="reproduire" aria-selected="false">✏️ Reproduire</button>
+    <button role="tab" data-onglet="devine" aria-selected="false">❓ Qui suis-je ?</button>
+  </div>
+  <div class="carte">
+    <div class="progress" id="prog"></div>
+    <div id="corps"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var NS = "http://www.w3.org/2000/svg";
+  var niveau = "CE1";
+  try { var n0 = localStorage.getItem("figures-niveau"); if (n0) niveau = n0; } catch (e) {}
+  function el(tag, att, parent) { var e = document.createElementNS(NS, tag); for (var k in att) e.setAttribute(k, att[k]); if (parent) parent.appendChild(e); return e; }
+  function melange(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function hasard(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function entre(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+  function pts(p) { return p.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" "); }
+  var JAUNE = "#fdf0c4", TRAIT = "#24302a";
+
+  /* ---------- dessins de figures ---------- */
+  function regulier(cx, cy, r, n, rot) { var o = []; for (var k = 0; k < n; k++) { var a = (rot || -90) + 360 * k / n; o.push([cx + r * Math.cos(a * Math.PI / 180), cy + r * Math.sin(a * Math.PI / 180)]); } return o; }
+  function figure(svg, nom, cx, cy, r, fill) {
+    var f = fill || JAUNE, o = { fill: f, stroke: TRAIT, "stroke-width": 3, "stroke-linejoin": "round" };
+    if (nom === "carre") { o.points = pts([[cx - r, cy - r], [cx + r, cy - r], [cx + r, cy + r], [cx - r, cy + r]]); el("polygon", o, svg); }
+    else if (nom === "rectangle") { o.points = pts([[cx - r * 1.5, cy - r * 0.7], [cx + r * 1.5, cy - r * 0.7], [cx + r * 1.5, cy + r * 0.7], [cx - r * 1.5, cy + r * 0.7]]); el("polygon", o, svg); }
+    else if (nom === "triangle") { o.points = pts(regulier(cx, cy + r * 0.2, r * 1.2, 3)); el("polygon", o, svg); }
+    else if (nom === "disque") { o.cx = cx; o.cy = cy; o.r = r; el("circle", o, svg); }
+    else if (nom === "pentagone") { o.points = pts(regulier(cx, cy, r * 1.1, 5)); el("polygon", o, svg); }
+    else if (nom === "losange") { o.points = pts([[cx, cy - r * 1.2], [cx + r * 0.8, cy], [cx, cy + r * 1.2], [cx - r * 0.8, cy]]); el("polygon", o, svg); }
+    else if (nom === "trirect") { o.points = pts([[cx - r, cy + r * 0.8], [cx + r * 1.2, cy + r * 0.8], [cx - r, cy - r]]); el("polygon", o, svg); }
+    else if (nom === "hexagone") { o.points = pts(regulier(cx, cy, r * 1.1, 6, 0)); el("polygon", o, svg); }
+    else if (nom === "rien") { var t = el("text", { x: cx, y: cy + 16, "text-anchor": "middle", "font-size": 46, "font-weight": 800, fill: "#D6483D" }, svg); t.textContent = "✕"; }
+  }
+  function miniFig(nom, w, h) { var s = el("svg", { viewBox: "0 0 " + (w || 110) + " " + (h || 90) }); figure(s, nom, (w || 110) / 2, (h || 90) / 2, 26); return s; }
+
+  /* solides en perspective cavalière (2D) */
+  function solide(svg, nom, cx, cy, s) {
+    var d = [0.45 * s, -0.32 * s], st = { stroke: TRAIT, "stroke-width": 3, "stroke-linejoin": "round" };
+    function quad(p, c) { var o = Object.assign({ points: pts(p), fill: c }, st); el("polygon", o, svg); }
+    if (nom === "cube" || nom === "pave") {
+      var w = nom === "cube" ? s : 1.8 * s, h = nom === "cube" ? s : 0.8 * s, c = nom === "cube" ? ["#f6c35b", "#fadb94", "#d8a843"] : ["#8ec3ea", "#bfdcf3", "#6fa7cf"];
+      var x0 = cx - (w + d[0]) / 2, y0 = cy + (h - d[1]) / 2;
+      var A = [x0, y0], B = [x0 + w, y0], C = [x0 + w, y0 - h], D = [x0, y0 - h];
+      var add = function (p) { return [p[0] + d[0], p[1] + d[1]]; };
+      quad([A, B, C, D], c[0]); quad([D, C, add(C), add(D)], c[1]); quad([B, add(B), add(C), C], c[2]);
+    } else if (nom === "pyramide") {
+      var b = 1.4 * s, A2 = [cx - b / 2 - d[0] / 2, cy + s * 0.55], B2 = [A2[0] + b, A2[1]], C2 = [B2[0] + d[0], B2[1] + d[1]], S = [cx, cy - s * 0.75];
+      quad([A2, B2, S], "#a9d98f"); quad([B2, C2, S], "#86bf6a");
+      el("line", { x1: A2[0], y1: A2[1], x2: A2[0] + d[0], y2: A2[1] + d[1], stroke: TRAIT, "stroke-width": 2, "stroke-dasharray": "6 5" }, svg);
+      el("line", { x1: A2[0] + d[0], y1: A2[1] + d[1], x2: C2[0], y2: C2[1], stroke: TRAIT, "stroke-width": 2, "stroke-dasharray": "6 5" }, svg);
+      el("line", { x1: A2[0] + d[0], y1: A2[1] + d[1], x2: S[0], y2: S[1], stroke: TRAIT, "stroke-width": 2, "stroke-dasharray": "6 5" }, svg);
+    } else if (nom === "cylindre") {
+      var rx = 0.6 * s, ry = 0.2 * s, hh = 1.2 * s, t = cy - hh / 2, bo = cy + hh / 2;
+      el("path", Object.assign({ d: "M" + (cx - rx) + "," + t + " L" + (cx - rx) + "," + bo + " A" + rx + "," + ry + " 0 0 0 " + (cx + rx) + "," + bo + " L" + (cx + rx) + "," + t + " Z", fill: "#f3a9bd" }, st), svg);
+      el("ellipse", Object.assign({ cx: cx, cy: t, rx: rx, ry: ry, fill: "#f8cbd8" }, st), svg);
+    } else if (nom === "cone") {
+      var rx2 = 0.65 * s, ry2 = 0.2 * s, base = cy + 0.6 * s;
+      el("path", Object.assign({ d: "M" + cx + "," + (cy - 0.8 * s) + " L" + (cx + rx2) + "," + base + " A" + rx2 + "," + ry2 + " 0 0 1 " + (cx - rx2) + "," + base + " Z", fill: "#c7b0ea" }, st), svg);
+    } else if (nom === "boule") {
+      el("circle", Object.assign({ cx: cx, cy: cy, r: 0.75 * s, fill: "#f9dd7a" }, st), svg);
+      el("ellipse", { cx: cx - 0.25 * s, cy: cy - 0.3 * s, rx: 0.14 * s, ry: 0.09 * s, fill: "#fffbe8" }, svg);
+    }
+  }
+  var NOMSOL = { cube: "le cube", pave: "le pavé droit", pyramide: "la pyramide", cylindre: "le cylindre", cone: "le cône", boule: "la boule" };
+  var NOMFIG = { carre: "carré", rectangle: "rectangle", triangle: "triangle", disque: "disque", pentagone: "pentagone", losange: "losange", trirect: "triangle rectangle", hexagone: "hexagone", rien: "pas de face plate" };
+  var DU = { cube: "du cube", pave: "du pavé droit", pyramide: "de la pyramide", cylindre: "du cylindre", cone: "du cône", boule: "de la boule" };
+
+  /* ---------- moteur d'exercices ---------- */
+  var E = null, corps = document.getElementById("corps"), prog = document.getElementById("prog");
+  function demarrer(type) { E = { type: type, n: 0, res: [], qs: GEN[type]() }; E.total = E.qs.length; question(); }
+  function progression() {
+    prog.innerHTML = "";
+    for (var i = 0; i < E.total; i++) { var d = document.createElement("div"); d.className = "dot" + (E.res[i] === true ? " ok" : E.res[i] === false ? " ko" : i === E.n ? " cur" : ""); d.textContent = i + 1; prog.appendChild(d); }
+  }
+  function question() { progression(); if (E.n >= E.total) return bilan(); RENDU[E.type](E.qs[E.n]); }
+  function noter(ok, html) { if (E.res[E.n] === undefined) E.res[E.n] = ok; var m = document.getElementById("msg"); m.className = "msg " + (ok ? "good" : "bad"); m.innerHTML = html; progression(); }
+  function suivant(cont) {
+    var b = document.createElement("button"); b.className = "suivant"; b.textContent = E.n + 1 < E.total ? "Question suivante →" : "Voir mes étoiles ★";
+    b.addEventListener("click", function () { E.n++; question(); });
+    var l = document.createElement("div"); l.className = "ligne"; l.appendChild(b); (cont || corps).appendChild(l); b.focus();
+  }
+  function msgZone() { var m = document.createElement("div"); m.id = "msg"; m.className = "msg"; corps.appendChild(m); }
+  function bilan() {
+    var err = E.res.filter(function (r) { return r === false; }).length, et = err <= 1 ? 3 : err <= 3 ? 2 : 1, cle = "figures-" + E.type + "-" + niveau, rec = 0;
+    try { rec = +localStorage.getItem(cle) || 0; if (et > rec) localStorage.setItem(cle, et); } catch (e) {}
+    corps.innerHTML = '<div class="bilan"><div class="etoiles">' + "★★★".slice(0, et) + '<span class="vide">' + "★★★".slice(0, 3 - et) + '</span></div>' +
+      '<p class="hand" style="font-size:2rem;margin:.3rem 0">' + (et === 3 ? "Bravo, as de la géométrie !" : et === 2 ? "Très bien ! Encore un petit effort." : "Continue, tu vas y arriver !") + '</p>' +
+      '<p>' + (E.total - err) + ' bonnes réponses du premier coup sur ' + E.total + '.</p><p class="record">Meilleur score sur cet appareil : ' + "★".repeat(Math.max(et, rec)) + '</p></div>';
+    var b = document.createElement("button"); b.className = "suivant"; b.textContent = "🔄 Recommencer"; b.addEventListener("click", function () { demarrer(E.type); });
+    corps.firstChild.appendChild(b);
+  }
+  function boutons(liste, bonne, rendu, apres) {
+    var r = document.createElement("div"); r.className = "reponses";
+    liste.forEach(function (v) {
+      var b = document.createElement("button"); rendu(b, v);
+      b.addEventListener("click", function () {
+        var ok = typeof bonne === "function" ? bonne(v) : v === bonne;
+        if (ok) { b.classList.add("bon"); r.querySelectorAll("button").forEach(function (x) { x.disabled = true; }); apres(true, v); suivant(); }
+        else { b.classList.add("faux"); b.disabled = true; apres(false, v); }
+      });
+      r.appendChild(b);
+    });
+    corps.appendChild(r);
+  }
+
+  /* ---------- générateurs ---------- */
+  var EMPREINTES = { cube: ["carre"], pave: ["rectangle"], pyramide: ["triangle", "carre"], cylindre: ["disque"], cone: ["disque"], boule: ["rien"] };
+  var GEN = {
+    empreintes: function () {
+      var q = [];
+      melange(["cube", "pave", "pyramide", "cylindre", "cone", "boule", "pave", "pyramide", "cylindre", "cube"]).forEach(function (s) {
+        var bonne = hasard(EMPREINTES[s]);
+        var autres = melange(["carre", "rectangle", "triangle", "disque", "pentagone", "rien"].filter(function (f) { return EMPREINTES[s].indexOf(f) < 0; })).slice(0, 3);
+        q.push({ s: s, bonne: bonne, choix: melange(autres.concat([bonne])) });
+      });
+      return q;
+    },
+    polygones: function () {
+      var q = [], ns = melange([3, 4, 5, 6, 3, 4, 5, 6, 4, 3]);
+      ns.forEach(function (n) {
+        var p = [], r0 = 95;
+        for (var k = 0; k < n; k++) { var a = -90 + 360 * k / n + (Math.random() - 0.5) * (260 / n); var r = r0 * (0.75 + Math.random() * 0.35); p.push([210 + r * Math.cos(a * Math.PI / 180), 140 + r * Math.sin(a * Math.PI / 180)]); }
+        q.push({ n: n, p: p });
+      });
+      return q;
+    },
+    angles: function () {
+      var types = niveau === "CE1" ? melange(["droit", "droit", "droit", "droit", "droit", "aigu", "obtus", "aigu", "obtus", "aigu"]) : melange(["droit", "droit", "droit", "aigu", "aigu", "aigu", "obtus", "obtus", "obtus", "droit"]);
+      return types.map(function (t) { return { t: t, ouv: t === "droit" ? 90 : t === "aigu" ? entre(35, 72) : entre(108, 150), a0: entre(-40, 40) }; });
+    },
+    quadri: function () {
+      var kinds = niveau === "CE1" ? ["carre", "carre", "carre", "rectangle", "rectangle", "rectangle", "autre", "autre", "autre", "carre"]
+                                   : ["carre", "carre", "rectangle", "rectangle", "rectangle", "losange", "losange", "autre", "autre", "carre"];
+      function placer(P) {
+        var mx = Math.min.apply(null, P.map(function (p) { return p[0]; })), my = Math.min.apply(null, P.map(function (p) { return p[1]; }));
+        var Mx = Math.max.apply(null, P.map(function (p) { return p[0]; })), My = Math.max.apply(null, P.map(function (p) { return p[1]; }));
+        var dx = Math.floor((14 - (Mx - mx)) / 2) - mx, dy = Math.floor((10 - (My - my)) / 2) - my;
+        return P.map(function (p) { return [p[0] + dx, p[1] + dy]; });
+      }
+      function vec(u, v) { return [[0, 0], [u[0], -u[1]], [u[0] + v[0], -u[1] - v[1]], [v[0], -v[1]]]; }
+      return melange(kinds).map(function (k) {
+        var pench = niveau === "CE2" ? Math.random() < 0.5 : Math.random() < 0.25, u, v;
+        if (k === "carre") { u = pench ? hasard([[2, 1], [3, 1], [1, 2], [3, 2]]) : [entre(3, 5), 0]; v = [-u[1], u[0]]; return { k: k, p: placer(vec(u, v)) }; }
+        if (k === "rectangle") {
+          if (pench) { var a = hasard([[2, 1], [1, 2]]); u = [a[0] * 2, a[1] * 2]; v = [-a[1], a[0]]; }
+          else { var m = entre(5, 8), n = entre(2, 4); u = [m, 0]; v = [0, n]; }
+          return { k: k, p: placer(vec(u, v)) };
+        }
+        if (k === "losange") { var L = hasard([[[2, 1], [1, 2]], [[3, 1], [1, 3]], [[4, 3], [0, 5]], [[3, 4], [5, 0]]]); return { k: k, p: placer(vec(L[0], L[1])) }; }
+        var t = hasard(["para", "trap", "quelc"]);
+        if (t === "para") return { k: k, p: placer([[0, 4], [5, 4], [7, 0], [2, 0]]) };
+        if (t === "trap") return { k: k, p: placer([[0, 4], [7, 4], [5, 0], [2, 0]]) };
+        return { k: k, p: placer([[0, 4], [6, 5], [5, 0], [1, 1]]) };
+      });
+    },
+    reproduire: function () {
+      var CE1 = [[[1, 1], [6, 1], [6, 4], [1, 4]], [[1, 1], [4, 1], [4, 4], [1, 4]], [[1, 1], [6, 1], [6, 3], [3, 3], [3, 6], [1, 6]],
+                 [[1, 1], [3, 1], [3, 3], [5, 3], [5, 5], [1, 5]], [[2, 1], [5, 1], [5, 3], [7, 3], [7, 6], [2, 6]]];
+      var CE2 = [[[1, 5], [4, 1], [7, 5]], [[1, 5], [3, 1], [7, 1], [5, 5]], [[4, 1], [7, 4], [4, 7], [1, 4]],
+                 [[1, 6], [1, 1], [6, 6]], [[2, 6], [3, 2], [6, 2], [7, 6]]];
+      return niveau === "CE1" ? CE1 : melange(CE1).slice(0, 2).concat(melange(CE2).slice(0, 3));
+    },
+    devine: function () {
+      var D1 = [["J'ai 3 côtés et 3 sommets.", "triangle"], ["J'ai 4 angles droits et 4 côtés de même longueur.", "carre"],
+        ["J'ai 4 angles droits. Mes côtés opposés ont la même longueur, mais je suis plus long que large.", "rectangle"],
+        ["Mon bord est courbe. Je ne suis pas un polygone.", "disque"], ["J'ai 3 côtés et un angle droit.", "trirect"],
+        ["Je suis l'empreinte d'un cube.", "carre"], ["Je suis l'empreinte d'un cylindre.", "disque"], ["J'ai 5 côtés.", "pentagone"],
+        ["Je suis l'empreinte de la face longue d'une boîte à chaussures.", "rectangle"], ["J'ai 6 sommets.", "hexagone"]];
+      var D2 = [["Je suis un quadrilatère avec 4 côtés égaux, mais je n'ai pas d'angle droit.", "losange"], ["Je suis un polygone à 6 côtés.", "hexagone"],
+        ["Je suis un quadrilatère avec 4 angles droits et 4 côtés égaux.", "carre"], ["J'ai une longueur et une largeur, et 4 angles droits.", "rectangle"],
+        ["Je suis un triangle qui a un angle droit.", "trirect"], ["Je suis un polygone à 5 sommets.", "pentagone"],
+        ["J'ai un centre, et tous les points de mon bord sont à la même distance du centre.", "disque"],
+        ["Je suis un losange qui a 4 angles droits.", "carre"], ["Je suis un polygone à 3 côtés sans angle droit.", "triangle"],
+        ["Je suis l'empreinte d'une face de côté d'une pyramide.", "triangle"]];
+      return melange(niveau === "CE1" ? D1 : D2);
+    }
+  };
+
+  /* ---------- rendus ---------- */
+  var RENDU = {
+    empreintes: function (q) {
+      corps.innerHTML = '<p class="question hand">Quelle empreinte peut laisser ' + NOMSOL[q.s] + ' ?</p>';
+      var s = el("svg", { "class": "scene", viewBox: "0 0 420 260" }); s.style.maxWidth = "420px"; solide(s, q.s, 210, 130, 110); corps.appendChild(s);
+      var a = document.createElement("p"); a.className = "astuce"; a.textContent = "Imagine : tu poses le solide sur une face et tu traces le contour."; corps.appendChild(a);
+      boutons(q.choix, function (v) { return EMPREINTES[q.s].indexOf(v) >= 0; }, function (b, v) { b.appendChild(miniFig(v)); var t = document.createElement("span"); t.textContent = NOMFIG[v]; b.appendChild(t); },
+        function (ok, v) { noter(ok, ok ? (v === "rien" ? "✓ Oui : la boule n'a pas de face plate, elle ne laisse qu'un point." : "✓ Oui, une face " + DU[q.s] + " est un " + NOMFIG[v] + ".") : "✗ Non, " + NOMSOL[q.s] + " n'a pas de face en forme de " + NOMFIG[v] + "."); });
+      msgZone();
+    },
+    polygones: function (q) {
+      corps.innerHTML = '<p class="question hand">' + (niveau === "CE1" ? "Combien de côtés a ce polygone ?" : "Comment s'appelle ce polygone ?") + '</p>';
+      var s = el("svg", { "class": "scene", viewBox: "0 0 420 280" }); s.style.maxWidth = "460px";
+      el("polygon", { points: pts(q.p), fill: JAUNE, stroke: TRAIT, "stroke-width": 4, "stroke-linejoin": "round" }, s);
+      var marques = [];
+      q.p.forEach(function (p) { var c = el("circle", { cx: p[0], cy: p[1], r: 9, fill: "white", stroke: "#2E6F95", "stroke-width": 3, style: "cursor:pointer" }, s);
+        c.addEventListener("click", function () { c.setAttribute("fill", c.getAttribute("fill") === "white" ? "#2E6F95" : "white"); }); marques.push(c); });
+      corps.appendChild(s);
+      var a = document.createElement("p"); a.className = "astuce"; a.textContent = "Touche chaque sommet pour le marquer pendant que tu comptes."; corps.appendChild(a);
+      var noms = { 3: "triangle", 4: "quadrilatère", 5: "pentagone", 6: "hexagone" };
+      if (niveau === "CE1") boutons([3, 4, 5, 6], q.n, function (b, v) { b.innerHTML = '<span class="hand" style="font-size:2rem">' + v + '</span><span>côtés</span>'; },
+        function (ok, v) { noter(ok, ok ? "✓ Oui : " + q.n + " côtés et " + q.n + " sommets." : "✗ Pas " + v + ". Marque chaque sommet en le touchant."); });
+      else boutons([3, 4, 5, 6], q.n, function (b, v) { b.innerHTML = '<span class="hand" style="font-size:1.6rem">' + noms[v] + '</span>'; },
+        function (ok, v) { noter(ok, ok ? "✓ Oui : " + q.n + " côtés, c'est un " + noms[q.n] + "." : "✗ Un " + noms[v] + " a " + v + " côtés. Recompte."); });
+      msgZone();
+    },
+    angles: function (q) {
+      corps.innerHTML = '<p class="question hand">' + (niveau === "CE1" ? "Cet angle est-il droit ?" : "Cet angle est-il droit, aigu ou obtus ?") + '</p>';
+      var s = el("svg", { "class": "scene", viewBox: "0 0 460 300" }); s.style.maxWidth = "520px"; corps.appendChild(s);
+      var V = [150, 230], L = 210, r = Math.PI / 180;
+      var A = [V[0] + L * Math.cos(-q.a0 * r), V[1] + L * Math.sin(-q.a0 * r)], B = [V[0] + L * Math.cos(-(q.a0 + q.ouv) * r), V[1] + L * Math.sin(-(q.a0 + q.ouv) * r)];
+      var gEq = el("g", {}, s);
+      el("line", { x1: V[0], y1: V[1], x2: A[0], y2: A[1], stroke: TRAIT, "stroke-width": 5, "stroke-linecap": "round" }, s);
+      el("line", { x1: V[0], y1: V[1], x2: B[0], y2: B[1], stroke: TRAIT, "stroke-width": 5, "stroke-linecap": "round" }, s);
+      el("circle", { cx: V[0], cy: V[1], r: 6, fill: "#D6483D" }, s);
+      var ligne = document.createElement("div"); ligne.className = "ligne";
+      var be = document.createElement("button"); be.className = "outil"; be.textContent = "📐 Poser l'équerre";
+      be.addEventListener("click", function () { poserEquerre(); be.disabled = true; });
+      ligne.appendChild(be); corps.appendChild(ligne);
+      function poserEquerre() {
+        var a = 170, b = 125, ang = -q.a0, d0 = performance.now();
+        (function pas(now) {
+          var k = Math.min(1, (now - d0) / 900), off = (1 - k) * 120;
+          while (gEq.firstChild) gEq.removeChild(gEq.firstChild);
+          var g = el("g", { transform: "translate(" + (V[0] + off) + "," + (V[1] + off * 0.4) + ") rotate(" + ang + ")" }, gEq);
+          el("polygon", { points: "0,0 " + a + ",0 0," + (-b), fill: "#c9d6e2", "fill-opacity": 0.85, stroke: "#4d6478", "stroke-width": 2 }, g);
+          el("polygon", { points: "18,-18 " + (a * 0.55) + ",-18 18," + (-b * 0.55), fill: "#fffdf6", stroke: "#4d6478", "stroke-width": 1 }, g);
+          if (k < 1) requestAnimationFrame(pas);
+        })(d0);
+      }
+      var choix = niveau === "CE1" ? ["droit", "pasdroit"] : ["droit", "aigu", "obtus"];
+      var lib = { droit: "angle droit", pasdroit: "pas droit", aigu: "angle aigu", obtus: "angle obtus" };
+      boutons(choix, function (v) { return v === q.t || (v === "pasdroit" && q.t !== "droit"); }, function (b, v) { b.innerHTML = '<span class="hand" style="font-size:1.6rem">' + lib[v] + '</span>'; },
+        function (ok) {
+          var expl = q.t === "droit" ? "il suit exactement l'équerre." : q.t === "aigu" ? "il est plus fermé que l'angle droit : il est aigu." : "il est plus ouvert que l'angle droit : il est obtus.";
+          noter(ok, (ok ? "✓ Bravo : " : "✗ Non : ") + expl + (ok ? "" : " Pose l'équerre pour vérifier."));
+          if (ok && q.t === "droit") { var u = [Math.cos(-q.a0 * r), Math.sin(-q.a0 * r)], w = [Math.cos(-(q.a0 + 90) * r), Math.sin(-(q.a0 + 90) * r)], c = 20;
+            el("polyline", { points: pts([[V[0] + u[0] * c, V[1] + u[1] * c], [V[0] + u[0] * c + w[0] * c, V[1] + u[1] * c + w[1] * c], [V[0] + w[0] * c, V[1] + w[1] * c]]), fill: "none", stroke: "#D6483D", "stroke-width": 3 }, s); }
+        });
+      msgZone();
+    },
+    quadri: function (q) {
+      corps.innerHTML = '<p class="question hand">Quelle est cette figure ?</p>';
+      var c = 34, s = el("svg", { "class": "scene", viewBox: "0 0 " + (14 * c) + " " + (10 * c) }); s.style.maxWidth = "560px";
+      for (var i = 0; i <= 14; i++) el("line", { x1: i * c, y1: 0, x2: i * c, y2: 10 * c, stroke: "#c7dcef", "stroke-width": 1 }, s);
+      for (var j = 0; j <= 10; j++) el("line", { x1: 0, y1: j * c, x2: 14 * c, y2: j * c, stroke: "#c7dcef", "stroke-width": 1 }, s);
+      var P = q.p.map(function (p) { return [p[0] * c, p[1] * c]; });
+      el("polygon", { points: pts(P), fill: JAUNE, stroke: TRAIT, "stroke-width": 4, "stroke-linejoin": "round" }, s);
+      corps.appendChild(s);
+      var a = document.createElement("p"); a.className = "astuce"; a.textContent = "Compte les carreaux, regarde les angles. Le bouton « Coder » montre les angles droits."; corps.appendChild(a);
+      var ligne = document.createElement("div"); ligne.className = "ligne";
+      var bc = document.createElement("button"); bc.className = "outil"; bc.textContent = "📐 Coder les angles droits";
+      bc.addEventListener("click", function () { coder(); bc.disabled = true; }); ligne.appendChild(bc); corps.appendChild(ligne);
+      function droit(i) { var V = P[i], A = P[(i + 1) % 4], B = P[(i + 3) % 4]; var u = [A[0] - V[0], A[1] - V[1]], w = [B[0] - V[0], B[1] - V[1]]; return Math.abs(u[0] * w[0] + u[1] * w[1]) < 1; }
+      function coder() {
+        for (var i = 0; i < 4; i++) {
+          if (!droit(i)) continue;
+          var V = P[i], A = P[(i + 1) % 4], B = P[(i + 3) % 4];
+          var nu = Math.hypot(A[0] - V[0], A[1] - V[1]), nw = Math.hypot(B[0] - V[0], B[1] - V[1]), k = 16;
+          var u = [(A[0] - V[0]) / nu * k, (A[1] - V[1]) / nu * k], w = [(B[0] - V[0]) / nw * k, (B[1] - V[1]) / nw * k];
+          el("polyline", { points: pts([[V[0] + u[0], V[1] + u[1]], [V[0] + u[0] + w[0], V[1] + u[1] + w[1]], [V[0] + w[0], V[1] + w[1]]]), fill: "none", stroke: "#D6483D", "stroke-width": 3 }, s);
+        }
+      }
+      var nbDroits = [0, 1, 2, 3].filter(droit).length;
+      var choix = niveau === "CE1" ? ["carre", "rectangle", "autre"] : ["carre", "rectangle", "losange", "autre"];
+      var lib = { carre: "carré", rectangle: "rectangle", losange: "losange", autre: "ni l'un ni l'autre" };
+      boutons(choix, function (v) { return v === q.k || (v === "rectangle" && q.k === "carre") || (v === "losange" && q.k === "carre" && niveau === "CE2"); },
+        function (b, v) { b.innerHTML = '<span class="hand" style="font-size:1.5rem">' + lib[v] + '</span>'; },
+        function (ok, v) {
+          var m;
+          if (ok) {
+            if (v !== q.k) m = "✓ C'est vrai… et c'est même un carré : 4 angles droits et 4 côtés égaux !";
+            else if (q.k === "carre") m = "✓ Oui : 4 angles droits et 4 côtés de même longueur.";
+            else if (q.k === "rectangle") m = "✓ Oui : 4 angles droits, les côtés opposés ont la même longueur.";
+            else if (q.k === "losange") m = "✓ Oui : 4 côtés de même longueur, mais pas d'angle droit.";
+            else m = "✓ Oui : il n'a pas 4 angles droits" + (niveau === "CE2" ? " et pas 4 côtés égaux." : ".");
+            coder(); bc.disabled = true;
+          } else {
+            if (v === "carre") m = q.k === "rectangle" ? "✗ Ses 4 côtés ne sont pas tous égaux : ce n'est pas un carré." : "✗ Ce n'est pas un carré : il n'a pas 4 angles droits.";
+            else if (v === "rectangle") m = "✗ Ce n'est pas un rectangle : il n'a que " + nbDroits + " angle" + (nbDroits > 1 ? "s" : "") + " droit" + (nbDroits > 1 ? "s" : "") + ".";
+            else if (v === "losange") m = "✗ Ce n'est pas un losange : ses 4 côtés ne sont pas tous égaux.";
+            else m = "✗ Regarde mieux : vérifie les angles avec le bouton « Coder ».";
+          }
+          noter(ok, m);
+        });
+      msgZone();
+    },
+    reproduire: function (M) {
+      corps.innerHTML = '<p class="question hand">Reproduis la figure sur le quadrillage de droite.</p>';
+      var c = 40, n = 8, z = document.createElement("div"); z.className = "deux"; corps.appendChild(z);
+      function grille() { var s = el("svg", { "class": "scene", viewBox: "-10 -10 " + (n * c + 20) + " " + (n * c + 20) });
+        for (var i = 0; i <= n; i++) { el("line", { x1: i * c, y1: 0, x2: i * c, y2: n * c, stroke: "#c7dcef", "stroke-width": 1.5 }, s); el("line", { x1: 0, y1: i * c, x2: n * c, y2: i * c, stroke: "#c7dcef", "stroke-width": 1.5 }, s); }
+        return s; }
+      var g1 = document.createElement("div"), g2 = document.createElement("div"); z.appendChild(g1); z.appendChild(g2);
+      var s1 = grille(), s2 = grille(); g1.appendChild(s1); g2.appendChild(s2);
+      g1.insertAdjacentHTML("beforeend", '<p class="legende">le modèle</p>'); g2.insertAdjacentHTML("beforeend", '<p class="legende">ma reproduction : touche les nœuds du quadrillage</p>');
+      el("polygon", { points: pts(M.map(function (p) { return [p[0] * c, p[1] * c]; })), fill: JAUNE, stroke: TRAIT, "stroke-width": 4, "stroke-linejoin": "round" }, s1);
+      el("circle", { cx: M[0][0] * c, cy: M[0][1] * c, r: 8, fill: "#D6483D" }, s1);
+      var trace = [M[0]], gT = el("g", {}, s2), fini = false;
+      function dessiner(ferme) {
+        while (gT.firstChild) gT.removeChild(gT.firstChild);
+        var P = trace.map(function (p) { return [p[0] * c, p[1] * c]; });
+        if (ferme) el("polygon", { points: pts(P), fill: JAUNE, stroke: TRAIT, "stroke-width": 4, "stroke-linejoin": "round" }, gT);
+        else el("polyline", { points: pts(P), fill: "none", stroke: TRAIT, "stroke-width": 4, "stroke-linejoin": "round", "stroke-linecap": "round" }, gT);
+        el("circle", { cx: P[0][0], cy: P[0][1], r: 8, fill: "#D6483D" }, gT);
+        P.slice(1).forEach(function (q) { el("circle", { cx: q[0], cy: q[1], r: 5, fill: TRAIT }, gT); });
+      }
+      dessiner(false);
+      s2.addEventListener("pointerdown", function (e) {
+        if (fini) return;
+        var pt = s2.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; var l = pt.matrixTransform(s2.getScreenCTM().inverse());
+        var gx = Math.round(l.x / c), gy = Math.round(l.y / c);
+        if (gx < 0 || gy < 0 || gx > n || gy > n) return;
+        var der = trace[trace.length - 1]; if (gx === der[0] && gy === der[1]) return;
+        if (gx === trace[0][0] && gy === trace[0][1] && trace.length >= 3) { fini = true; dessiner(true); verifier(); return; }
+        trace.push([gx, gy]); dessiner(false);
+      });
+      var ligne = document.createElement("div"); ligne.className = "ligne";
+      var bu = document.createElement("button"); bu.className = "outil"; bu.textContent = "↩ Effacer le dernier trait";
+      bu.addEventListener("click", function () { if (!fini && trace.length > 1) { trace.pop(); dessiner(false); } });
+      var br = document.createElement("button"); br.className = "outil"; br.textContent = "🗑 Recommencer";
+      br.addEventListener("click", function () { fini = false; trace = [M[0]]; dessiner(false); document.getElementById("msg").textContent = ""; });
+      ligne.appendChild(bu); ligne.appendChild(br); corps.appendChild(ligne);
+      var a = document.createElement("p"); a.className = "astuce"; a.textContent = "Pars du point rouge, compte les carreaux jusqu'au sommet suivant. Pour fermer la figure, touche à nouveau le point rouge."; corps.appendChild(a);
+      msgZone();
+      function cles(T) { var s = {}; for (var i = 0; i < T.length; i++) { var a = T[i], b = T[(i + 1) % T.length]; var k = [a.join(","), b.join(",")].sort().join("|"); s[k] = 1; } return s; }
+      function simplifier(T) { // enlève les sommets alignés (un côté tracé en deux fois)
+        var o = T.slice(), ch = true;
+        while (ch && o.length > 3) { ch = false; for (var i = 0; i < o.length; i++) { var a = o[(i + o.length - 1) % o.length], b = o[i], d = o[(i + 1) % o.length];
+          if ((b[0] - a[0]) * (d[1] - b[1]) - (b[1] - a[1]) * (d[0] - b[0]) === 0) { o.splice(i, 1); ch = true; break; } } }
+        return o; }
+      function verifier() {
+        var A = cles(simplifier(trace)), B = cles(M), ok = Object.keys(A).length === Object.keys(B).length && Object.keys(B).every(function (k) { return A[k]; });
+        if (ok) { noter(true, "✓ Bravo, ta figure est exactement pareille au modèle !"); suivant(); }
+        else { noter(false, "✗ Ce n'est pas tout à fait pareil. Compare chaque côté avec le modèle, puis appuie sur « Recommencer »."); fini = true; }
+      }
+    },
+    devine: function (d) {
+      corps.innerHTML = '<p class="question hand">Qui suis-je ?</p><div class="devinette">« ' + d[0] + ' »</div>';
+      var liste = niveau === "CE1" ? ["triangle", "trirect", "carre", "rectangle", "pentagone", "hexagone", "disque"] : ["triangle", "trirect", "carre", "rectangle", "losange", "pentagone", "hexagone", "disque"];
+      boutons(melange(liste), d[1], function (b, v) { b.appendChild(miniFig(v)); var t = document.createElement("span"); t.textContent = NOMFIG[v]; b.appendChild(t); },
+        function (ok, v) { noter(ok, ok ? "✓ C'est le " + NOMFIG[d[1]] + " !" : "✗ Ce n'est pas le " + NOMFIG[v] + ". Relis chaque indice."); });
+      msgZone();
+    }
+  };
+
+  /* ---------- navigation ---------- */
+  var actuel = "empreintes";
+  function ouvrir(o) { actuel = o; document.querySelectorAll(".onglets button").forEach(function (b) { b.setAttribute("aria-selected", String(b.dataset.onglet === o)); }); demarrer(o); }
+  document.querySelectorAll(".onglets button").forEach(function (b) { b.addEventListener("click", function () { ouvrir(b.dataset.onglet); }); });
+  document.querySelectorAll(".niveaux button").forEach(function (b) {
+    b.setAttribute("aria-pressed", String(b.dataset.niv === niveau));
+    b.addEventListener("click", function () { niveau = b.dataset.niv; try { localStorage.setItem("figures-niveau", niveau); } catch (e) {}
+      document.querySelectorAll(".niveaux button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); ouvrir(actuel); });
+  });
+  ouvrir("empreintes");
+})();
+</script>
+</body>
+</html>
