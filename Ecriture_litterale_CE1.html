@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Écrire les nombres en lettres – CE1</title>
+<style>
+:root{
+  --paper:#FAF6EA; --line:rgba(46,111,149,.16); --ink:#243B2C;
+  --red:#D6483D; --blue:#2E6F95; --yellow:#F2B33D; --green:#4C9A5B;
+  --purple:#7C5CA6; --orange:#E8843C; --border:#E4DCC4;
+  --u:#e0201b; --ze:#1a3fd6; --chef:#111; --cent:#13a833;
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);background-color:var(--paper);
+  background-image:repeating-linear-gradient(var(--line) 0px,var(--line) 1px,transparent 1px,transparent 28px);
+  font-family:'Nunito','Segoe UI',Verdana,sans-serif;-webkit-tap-highlight-color:transparent}
+.hand{font-family:'Patrick Hand','Segoe Print','Comic Sans MS','Bradley Hand',cursive}
+#app{max-width:1100px;margin:0 auto;padding:16px 16px 60px}
+button{font-family:inherit;cursor:pointer;touch-action:manipulation}
+h1{margin:4px 0 0;font-size:3rem;font-weight:400;line-height:1;text-align:center}
+.sub{margin:.3rem 0 1rem;font-weight:700;color:var(--blue);text-align:center;font-size:1.15rem}
+
+/* onglets */
+.tabs{display:flex;justify-content:center;gap:10px;margin:0 0 16px;flex-wrap:wrap}
+.tab{font-size:1.35rem;padding:10px 22px;border-radius:16px;border:3px solid var(--ink);background:#fff;box-shadow:0 4px 0 var(--ink);font-weight:800;color:var(--ink)}
+.tab small{display:block;font-size:.95rem;font-weight:700;color:#777}
+.tab.on{background:var(--blue);color:#fff;border-color:var(--ink)}
+.tab.on small{color:#e6f0f7}
+.tab:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+
+/* menu */
+.settings{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:0 0 18px}
+.grp{background:#fff;border:2px solid var(--border);border-radius:14px;padding:10px 14px;font-size:1.1rem;text-align:center}
+.grp b{display:block;margin-bottom:6px;color:var(--blue)}
+.tog{font-size:1.1rem;padding:8px 14px;margin:2px;border-radius:12px;border:2px solid #9aa5ad;background:#f3f1ea;color:var(--ink);font-weight:700}
+.tog.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.mode{background:#fff;border:3px solid var(--ink);border-left:12px solid var(--c,var(--blue));border-radius:18px;padding:16px;text-align:left;font-size:1.05rem;box-shadow:0 4px 0 var(--ink);color:var(--ink)}
+.mode b{display:block;font-family:'Patrick Hand','Segoe Print','Comic Sans MS',cursive;font-size:1.8rem;font-weight:400;margin-bottom:4px}
+.mode span{color:#555}
+.mode small{display:block;margin-top:6px;color:var(--green);font-weight:800}
+.mode:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.memo{background:#fff8e1;border:3px dashed var(--yellow);border-radius:16px;padding:12px 16px;margin:0 0 18px;font-size:1.2rem;text-align:center;line-height:1.6}
+.memo b{color:var(--red)}
+
+/* barre du haut */
+.top{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;margin-bottom:8px}
+.top .ttl{text-align:center;font-size:2rem}
+.back{font-size:1.05rem;padding:8px 14px;border-radius:12px;border:2px solid var(--ink);background:#fff;font-weight:700;color:var(--ink)}
+.score{font-size:1.4rem;font-weight:800;white-space:nowrap}
+.progress{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin:4px 0 12px}
+.dot{width:1.9rem;height:1.9rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;background:#fff;color:#B7AF92;border:2px solid var(--border)}
+.dot.cur{border-color:var(--blue);color:var(--blue)}
+.dot.ok{background:var(--green);color:#fff;border-color:var(--green)}
+.dot.ko{background:var(--orange);color:#fff;border-color:var(--orange)}
+
+.stage{background:#fff;border:2px solid var(--border);border-radius:20px;padding:18px 14px 20px;text-align:center}
+.consigne{font-size:1.45rem;font-weight:800;margin:0 0 6px}
+.nombre{font-family:'Patrick Hand','Segoe Print','Comic Sans MS',cursive;font-size:5.5rem;line-height:1.1;color:var(--blue);display:inline-flex;align-items:center;gap:14px}
+.ecoute{font-size:1.6rem;border:2px solid var(--border);background:#fff;border-radius:50%;width:3rem;height:3rem;vertical-align:middle}
+.rep{display:inline-block;min-width:110px;min-height:5rem;font-family:'Patrick Hand','Segoe Print','Comic Sans MS',cursive;font-size:3.6rem;border:4px solid var(--blue);border-radius:14px;background:#eaf2fb;color:var(--blue);padding:0 14px;margin-top:6px}
+.saisie{display:inline-block;min-width:60%;max-width:100%;min-height:4.4rem;font-family:'Patrick Hand','Segoe Print','Comic Sans MS',cursive;font-size:clamp(2rem,5vw,3.2rem);border:4px solid var(--blue);border-radius:14px;background:#eaf2fb;color:var(--ink);padding:2px 16px;margin-top:6px;word-break:break-word}
+.saisie.ok,.rep.ok{border-color:var(--green);background:#E7F5E8;color:#1d6b2e}
+.saisie.ko,.rep.ko{border-color:var(--red);background:#FBEAE8}
+.caret{display:inline-block;width:3px;height:.9em;background:var(--blue);margin-left:2px;vertical-align:-.08em;animation:bl 1s steps(1) infinite}
+@keyframes bl{50%{opacity:0}}
+.shake{animation:sh .35s}
+@keyframes sh{0%,100%{transform:translateX(0)}25%{transform:translateX(-9px)}75%{transform:translateX(9px)}}
+.pop{animation:pp .4s}
+@keyframes pp{50%{transform:scale(1.08)}}
+
+.msg{text-align:center;font-size:1.45rem;font-weight:800;min-height:2.2rem;margin:12px 0 4px}
+.msg.good{color:var(--green)}.msg.bad{color:var(--red)}.msg.info{color:var(--purple)}
+.reveal{margin:8px 0 0}
+.mot{font-family:'Patrick Hand','Segoe Print','Comic Sans MS',cursive;font-size:clamp(2rem,5vw,3rem);margin:6px 0}
+.mot.rouge{color:var(--red)}
+.tools{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:10px 0 0}
+.btn{font-size:1.2rem;padding:10px 20px;border-radius:14px;border:3px solid var(--ink);background:#fff;box-shadow:0 4px 0 var(--ink);font-weight:800;color:var(--ink)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.main{background:var(--blue);color:#fff}
+.btn.help{background:#fff8e1}
+.btn:disabled{opacity:.35}
+
+/* étiquettes (comme l'affiche) */
+.eti{position:relative;display:inline-flex;align-items:center;justify-content:center;min-width:3.4em;padding:.05em .45em;background:#c9c9c9;border:2px solid #9a9a9a;border-radius:3px;font-family:'Patrick Hand','Segoe Print','Comic Sans MS',cursive;font-size:2rem;line-height:1.25;box-shadow:0 3px 0 #8d8d8d;color:var(--chef);margin:4px 2px;vertical-align:middle}
+.eti.u{color:var(--u)} .eti.ze{color:var(--ze)} .eti.chef{color:var(--chef)}
+.eti.cent{color:var(--cent);background:repeating-linear-gradient(45deg,#d2d2d2 0 3px,#e4e4e4 3px 6px)}
+.eti.et{color:var(--purple);background:#efe8f7;border-color:#b9a6d6;box-shadow:0 3px 0 #b9a6d6;min-width:2.2em}
+.eti .s,.mot .s{color:var(--red);text-decoration:underline;text-decoration-thickness:3px}
+.eti .num{position:absolute;top:-.75em;right:-.55em;width:1.5em;height:1.5em;border-radius:50%;background:var(--orange);color:#fff;font:800 .55em/1.5em 'Nunito',sans-serif;font-style:normal}
+button.eti{cursor:pointer}
+button.eti:active{transform:translateY(2px);box-shadow:0 1px 0 #8d8d8d}
+.tiret{font-size:2.2rem;font-weight:900;margin:0 .1em;vertical-align:middle}
+.ligne{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:2px;margin:6px 0}
+.construit{min-height:5.2rem;border:3px dashed #9aa5ad;border-radius:16px;background:#fbfaf6;padding:8px;margin:10px auto 4px;max-width:900px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center}
+.construit.vide::after{content:"Touche les étiquettes dans l'ordre";color:#aaa;font-size:1.2rem;font-weight:700}
+.banque{margin:8px auto 0;max-width:980px}
+.banque .rang{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin:2px 0}
+.banque .eti{font-size:1.7rem}
+.btn-s{font-size:1.6rem;font-weight:900;color:var(--red);background:#fff;border:3px solid var(--red);border-radius:12px;padding:2px 14px;margin:4px;box-shadow:0 3px 0 var(--red)}
+
+/* clavier */
+.pad{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;max-width:720px;margin:14px auto 0}
+.pad button{font-size:2.3rem;padding:8px 0;border-radius:14px;border:3px solid var(--ink);background:#fff;box-shadow:0 4px 0 var(--ink);font-weight:800;color:var(--ink)}
+.pad button:active,.kb button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.pad .ok,.kb .ok{background:var(--green);color:#fff}.pad .del,.kb .del{background:var(--yellow)}
+.kb{display:grid;grid-template-columns:repeat(10,1fr);gap:7px;max-width:900px;margin:14px auto 0}
+.kb button{font-family:'Patrick Hand','Segoe Print','Comic Sans MS',cursive;font-size:2rem;padding:4px 0;border-radius:12px;border:3px solid var(--ink);background:#fff;box-shadow:0 4px 0 var(--ink);color:var(--ink)}
+.kb .tr{font-weight:900;color:var(--red)}
+.kb .ok,.kb .del{font-family:'Nunito',sans-serif;font-size:1.5rem;font-weight:800}
+
+/* leçon */
+.affiche{background:#fff;border:3px solid var(--ink);border-radius:12px;padding:12px 16px;text-align:left;font-size:1.25rem}
+.affiche h3{margin:12px 0 2px;font-size:1.25rem;font-weight:700}
+.affiche .rang{display:flex;flex-wrap:wrap;gap:6px}
+.affiche .regle{text-align:center;font-size:1.35rem;margin:14px 0 4px}
+.attention{background:#FBEAE8;border:2px solid var(--red);border-radius:12px;padding:8px 12px;margin:10px 0 0;font-size:1.2rem;font-style:italic;text-align:left}
+.attention b{color:var(--red);font-style:normal}
+.etape{font-size:1.5rem;font-weight:800;color:var(--purple);margin:4px 0 10px}
+.decomp{font-family:'Patrick Hand','Segoe Print','Comic Sans MS',cursive;font-size:3rem;margin:4px 0}
+.decomp .part{color:var(--orange)}
+.colonnes{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin:8px 0}
+.col{border:2px solid var(--border);border-radius:14px;padding:6px 10px;background:#fffdf6}
+.col .v{font-family:'Patrick Hand','Segoe Print','Comic Sans MS',cursive;font-size:2.2rem;color:var(--orange)}
+.col .x{font-size:1rem;color:#6b6650;font-weight:700}
+.etapes-dots{display:flex;justify-content:center;gap:8px;margin:0 0 6px}
+.etapes-dots span{width:14px;height:14px;border-radius:50%;background:var(--border)}
+.etapes-dots span.on{background:var(--purple)}
+.choix{background:#fff8e1;border:3px dashed var(--yellow);border-radius:16px;padding:12px;margin-top:12px}
+
+.end{text-align:center;background:#fff;border:2px solid var(--border);border-radius:20px;padding:30px;font-size:1.4rem}
+.end .big{font-size:5rem;font-weight:800;line-height:1.1}
+.end .stars{font-size:3.6rem;min-height:4.2rem}
+.fs{position:fixed;right:10px;bottom:10px;font-size:1rem;padding:6px 10px;border-radius:8px;border:2px solid #999;background:#fff;opacity:.75}
+@media (max-width:700px){
+  h1{font-size:2.2rem}.top .ttl{font-size:1.4rem}.pad button{font-size:1.8rem}.consigne{font-size:1.2rem}
+  .nombre{font-size:4rem}.eti{font-size:1.5rem}.banque .eti{font-size:1.3rem}.kb button{font-size:1.4rem}.kb .ok,.kb .del{font-size:1rem}
+  .decomp{font-size:2.2rem}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<button class="fs" onclick="pleinEcran()">⛶ plein écran</button>
+<script>
+/* =========================================================
+   Écrire les nombres en lettres — CE1
+   Orthographe rectifiée (1990) : tous les mots-nombres sont reliés par un tiret,
+   comme sur l'affiche de la classe : trois-cent-vingt-cinq.
+   ========================================================= */
+const UNITS = ["zéro","un","deux","trois","quatre","cinq","six","sept","huit","neuf"];
+const ZE    = {11:"onze",12:"douze",13:"treize",14:"quatorze",15:"quinze",16:"seize"};
+const CHEFS = {10:"dix",20:"vingt",30:"trente",40:"quarante",50:"cinquante",60:"soixante"};
+const BASE_WORDS = [...UNITS, ...Object.values(ZE), ...Object.values(CHEFS), "cent"];
+const CONNUS = new Set([...BASE_WORDS, "vingts", "cents", "et"]);
+const NB_Q = 10;
+const KEY = "ecriture_litterale_CE1";
+
+/* ---------- décomposition d'un nombre en groupes d'étiquettes ---------- */
+function tok99(n){
+  if(n < 10) return [UNITS[n]];
+  if(n === 10) return ["dix"];
+  if(n <= 16) return [ZE[n]];
+  if(n < 20) return ["dix", UNITS[n-10]];
+  if(n < 70){ const d = n - n%10, u = n%10; if(!u) return [CHEFS[d]]; return u === 1 ? [CHEFS[d],"et","un"] : [CHEFS[d], UNITS[u]]; }
+  if(n < 80){ const r = n-60; return r === 11 ? ["soixante","et","onze"] : ["soixante", ...tok99(r)]; }
+  if(n === 80) return ["quatre","vingts"];
+  return ["quatre","vingt", ...tok99(n-80)];
+}
+function grp99(n){
+  if(n <= 16 || (n < 70 && n%10 === 0)) return [{v:n, t:tok99(n)}];
+  if(n < 20) return [{v:10, t:["dix"]}, {v:n-10, t:[UNITS[n-10]]}];
+  if(n < 70){ const d = n - n%10, u = n%10; return [{v:d, t:[CHEFS[d]]}, {v:u, t: u === 1 ? ["et","un"] : [UNITS[u]]}]; }
+  if(n < 80){ const r = n-60; return [{v:60, t:["soixante"]}, {v:r, t: r === 11 ? ["et","onze"] : tok99(r)}]; }
+  if(n === 80) return [{v:80, t:["quatre","vingts"], x:"4 × 20"}];
+  return [{v:80, t:["quatre","vingt"], x:"4 × 20"}, {v:n-80, t:tok99(n-80)}];
+}
+function groupes(n){
+  if(n < 100) return grp99(n);
+  const c = Math.floor(n/100), r = n%100;
+  const g = [{v:c*100, t: c > 1 ? [UNITS[c], r ? "cent" : "cents"] : ["cent"], x: c > 1 ? c + " × 100" : ""}];
+  if(r) g.push(...grp99(r));
+  return g;
+}
+const tokens = n => groupes(n).flatMap(g => g.t);
+const enLettres = n => tokens(n).join("-");
+const nbMots = n => tokens(n).filter(w => w !== "et").length;
+
+/* ---------- étiquettes ---------- */
+function classe(w){
+  if(UNITS.includes(w)) return "u";
+  if(Object.values(ZE).includes(w)) return "ze";
+  if(w === "cent") return "cent";
+  if(w === "et") return "et";
+  return "chef";
+}
+function eti(w, num){
+  let base = w, s = false;
+  if(w === "vingts" || w === "cents"){ base = w.slice(0,-1); s = true; }
+  return '<span class="eti ' + classe(base) + '">' + base + (s ? '<b class="s">s</b>' : '') + (num ? '<i class="num">' + num + '</i>' : '') + '</span>';
+}
+function ligneEti(n, numeroter){
+  let k = 0;
+  return '<div class="ligne">' + tokens(n).map((w,i) => (i ? '<span class="tiret">-</span>' : '') + eti(w, numeroter && w !== "et" ? ++k : 0)).join("") + '</div>';
+}
+const motHTML = txt => txt.replace(/(vingt|cent)s/g, '$1<b class="s">s</b>');
+
+/* ---------- état ---------- */
+const PLAGES = {
+  p: [["a","0 à 69"],["b","70 à 99"],["t","0 à 99"]],
+  g: [["u","100 à 199"],["s","Le s de cent et vingt"],["t","100 à 999"]]
+};
+let S = { tab:"p", ecran:"menu", plage:{p:"t", g:"t"} };
+let G = null;   // partie en cours
+let L = null;   // leçon en cours
+try { const sv = JSON.parse(localStorage.getItem(KEY)); if(sv){ S.tab = sv.tab || "p"; S.plage = Object.assign(S.plage, sv.plage || {}); } } catch(e){}
+function sauver(){ try { localStorage.setItem(KEY, JSON.stringify({tab:S.tab, plage:S.plage})); } catch(e){} }
+function getRec(m){ try { return +(localStorage.getItem(KEY+"_rec_"+S.tab+"_"+m+"_"+(m==="base"?"":S.plage[S.tab])) || 0); } catch(e){ return 0; } }
+function setRec(m,v){ try { localStorage.setItem(KEY+"_rec_"+S.tab+"_"+m+"_"+(m==="base"?"":S.plage[S.tab]), v); } catch(e){} }
+const etoiles = sc => sc >= NB_Q ? "⭐⭐⭐" : sc >= NB_Q*0.75 ? "⭐⭐" : sc >= NB_Q*0.5 ? "⭐" : "";
+
+function reservoir(tab, plage){
+  const a = [];
+  if(tab === "p"){
+    const [lo,hi] = plage === "a" ? [0,69] : plage === "b" ? [70,99] : [0,99];
+    for(let i = lo; i <= hi; i++) a.push(i);
+  } else if(plage === "u"){
+    for(let i = 100; i <= 199; i++) a.push(i);
+  } else if(plage === "s"){
+    for(let c = 1; c <= 9; c++){ a.push(c*100, c*100+80, c*100+80+1+Math.floor(Math.random()*9), c*100+20+Math.floor(Math.random()*40)); }
+  } else {
+    for(let i = 100; i <= 999; i++) a.push(i);
+  }
+  return a;
+}
+function reservoirBase(tab){
+  const a = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,20,30,40,50,60];
+  return tab === "g" ? a.concat([100,100]) : a;
+}
+function tirer(arr, k){
+  const out = []; let pool = [];
+  while(out.length < k){
+    if(!pool.length) pool = arr.slice().sort(() => Math.random() - .5);
+    const v = pool.pop();
+    if(out[out.length-1] !== v) out.push(v);
+  }
+  return out;
+}
+
+/* ---------- synthèse vocale (si disponible) ---------- */
+const VOIX = "speechSynthesis" in window;
+function dire(n){ try { const u = new SpeechSynthesisUtterance(String(n)); u.lang = "fr-FR"; u.rate = .85; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch(e){} }
+const btnEcoute = n => VOIX ? '<button class="ecoute" onclick="dire(' + n + ')" aria-label="Écouter">🔊</button>' : '';
+
+/* ---------- rendu ---------- */
+const $app = document.getElementById("app");
+function rendre(){
+  if(S.ecran === "menu") return rendreMenu();
+  if(S.ecran === "lecon") return rendreLecon();
+  if(S.ecran === "jeu") return rendreJeu();
+  if(S.ecran === "fin") return rendreFin();
+}
+
+const MODES = [
+  {id:"lecon", c:"var(--purple)", t:"👀 Je regarde", d:"L'affiche et un exemple pas à pas : je décompose, je cherche les étiquettes, je relie."},
+  {id:"compte", c:"var(--orange)", t:"1. Combien de mots-nombres ?", d:"Je compte les étiquettes qu'il faut pour écrire le nombre."},
+  {id:"base", c:"var(--red)", t:"2. Les mots-nombres de base", d:"J'écris zéro, un, deux… onze, douze… dix, vingt, trente…"},
+  {id:"etiq", c:"var(--green)", t:"3. Je fabrique le nombre", d:"J'associe les étiquettes dans l'ordre pour fabriquer le nombre."},
+  {id:"ecrit", c:"var(--blue)", t:"4. J'écris en lettres", d:"J'écris le nombre tout seul, avec les tirets."}
+];
+
+function rendreMenu(){
+  const t = S.tab;
+  let h = '<h1 class="hand">Écrire les nombres en lettres</h1><p class="sub">CE1 · Numération</p>';
+  h += '<div class="tabs">' +
+    '<button class="tab' + (t==="p"?" on":"") + '" onclick="onglet(\'p\')">Nombres &lt; 100<small>de 0 à 99</small></button>' +
+    '<button class="tab' + (t==="g"?" on":"") + '" onclick="onglet(\'g\')">Nombres &gt; 100<small>de 100 à 999</small></button></div>';
+  h += t === "p"
+    ? '<div class="memo">Pour écrire un nombre, j\'<b>associe les mots-nombres</b> et je les <b>relie par un tiret</b>.<br>74 = 60 + 14 → <span class="hand" style="font-size:1.5rem">soixante-quatorze</span></div>'
+    : '<div class="memo">Je commence par les centaines : 325 → <span class="hand" style="font-size:1.5rem">trois-cent-vingt-cinq</span><br><b>cent</b> prend un <b>s</b> s\'il y a plusieurs centaines et <b>aucun mot-nombre après</b> : 400 → quatre-cents</div>';
+  h += '<div class="settings"><div class="grp"><b>Les nombres</b>' +
+    PLAGES[t].map(([k,lab]) => '<button class="tog' + (S.plage[t]===k?" on":"") + '" onclick="choixPlage(\'' + k + '\')">' + lab + '</button>').join("") + '</div></div>';
+  h += '<div class="modes">' + MODES.map(m => {
+    const rec = m.id === "lecon" ? 0 : getRec(m.id);
+    let d = m.d;
+    if(m.id === "base" && t === "g") d += " et cent.";
+    return '<button class="mode" style="--c:' + m.c + '" onclick="lancer(\'' + m.id + '\')"><b>' + m.t + '</b><span>' + d + '</span>' +
+      (rec ? '<small>Record : ' + rec + ' / ' + NB_Q + ' ' + etoiles(rec) + '</small>' : '') + '</button>';
+  }).join("") + '</div>';
+  $app.innerHTML = h;
+}
+function onglet(t){ S.tab = t; sauver(); rendre(); }
+function choixPlage(k){ S.plage[S.tab] = k; sauver(); rendre(); }
+function menu(){ S.ecran = "menu"; G = null; L = null; rendre(); }
+
+function lancer(id){
+  if(id === "lecon"){ L = {vue:"ex", n:nouvelExemple(), etape:0, choix:false, inp:""}; S.ecran = "lecon"; return rendre(); }
+  const pool = id === "base" ? reservoirBase(S.tab) : reservoir(S.tab, S.plage[S.tab]);
+  let qs = tirer(pool, NB_Q);
+  if(id === "base" && S.tab === "g" && !qs.includes(100)) qs[Math.floor(Math.random()*NB_Q)] = 100;
+  G = {mode:id, qs, i:0, att:0, inp:"", pose:[], score:0, res:[], fini:false, aide:0, aideUtil:false, msg:"", mcl:"", rev:""};
+  S.ecran = "jeu"; rendre();
+}
+
+/* ---------- leçon ---------- */
+function nouvelExemple(){
+  const pool = reservoir(S.tab, S.plage[S.tab]).filter(n => groupes(n).length > 1 || S.tab === "g");
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+const ETAPES = ["Je lis le nombre.", "Je décompose le nombre avec ce que je connais.", "Je cherche les étiquettes.", "Je relie les mots-nombres avec des tirets.", "Je compte les mots-nombres."];
+
+function affiche(){
+  const rang = arr => '<div class="rang">' + arr.map(w => eti(w)).join("") + '</div>';
+  let h = '<div class="affiche"><div>Pour pouvoir écrire tous ces nombres en lettres, il faut savoir écrire les mots-nombres suivants.</div>' +
+    rang(UNITS) + '<h3>La famille des « ze »</h3>' + rang(Object.values(ZE)) +
+    '<h3>Les chefs de famille</h3>' + rang(Object.values(CHEFS));
+  if(S.tab === "g") h += '<h3>et le mot</h3>' + rang(["cent"]);
+  h += '<div class="regle">Pour écrire un nombre, il suffit d\'<b>associer les mots-nombres</b><br>et de les <b>relier par un tiret</b>.</div>';
+  h += S.tab === "p"
+    ? '<div class="regle">ex : 74 : ' + ligneEti(74) + '</div><div class="regle">ex : 21 : ' + ligneEti(21) + '</div>'
+    : '<div class="regle">ex : 325 : ' + ligneEti(325) + '</div>';
+  h += '<div class="attention"><b>⚠</b> Pour l\'écriture de 80, il faut rajouter un <b>s</b> à vingt : 80 quatre-vingt<b>s</b>.';
+  if(S.tab === "p") h += '<br><b>⚠</b> Avec <b>un</b> et <b>onze</b> après vingt, trente… soixante, on ajoute <b>et</b> : vingt-et-un, soixante-et-onze. Mais on écrit quatre-vingt-un.';
+  else h += '<br><b>⚠</b> Il faut ajouter un <b>s</b> à cent quand il y a plusieurs centaines et aucun mot-nombre qui suit : 400 quatre-cent<b>s</b>, mais 425 quatre-cent-vingt-cinq.';
+  return h + '</div></div>';
+}
+
+function rendreLecon(){
+  let h = '<div class="top"><button class="back" onclick="menu()">◀ Menu</button><div class="ttl hand">Je regarde</div><div></div></div>';
+  h += '<div class="tools" style="margin:0 0 12px">' +
+    '<button class="tog' + (L.vue==="ex"?" on":"") + '" onclick="L.vue=\'ex\';rendre()">👀 Un exemple pas à pas</button>' +
+    '<button class="tog' + (L.vue==="af"?" on":"") + '" onclick="L.vue=\'af\';rendre()">📋 L\'affiche</button></div>';
+  if(L.vue === "af"){ $app.innerHTML = h + affiche(); return; }
+  const n = L.n, g = groupes(n), e = L.etape;
+  h += '<div class="stage"><div class="etapes-dots">' + ETAPES.map((x,i) => '<span class="' + (i<=e?"on":"") + '"></span>').join("") + '</div>';
+  h += '<div class="etape">' + (e+1) + '. ' + ETAPES[e] + '</div>';
+  h += '<div class="nombre">' + n + btnEcoute(n) + '</div>';
+  if(e >= 1){
+    h += g.length > 1
+      ? '<div class="decomp">' + n + ' = ' + g.map(x => '<span class="part">' + x.v + '</span>').join(' + ') + '</div>'
+      : '<div class="decomp"><span class="part">' + n + '</span> : c\'est un mot-nombre que je connais.</div>';
+  }
+  if(e >= 2){
+    h += '<div class="colonnes">' + g.map(x => '<div class="col"><div class="v">' + x.v + '</div>' + (x.x ? '<div class="x">' + x.x + '</div>' : '') +
+      '<div>' + x.t.map(w => eti(w)).join(" ") + '</div></div>').join("") + '</div>';
+  }
+  if(e >= 3){
+    h += ligneEti(n, e >= 4) + '<div class="mot">' + motHTML(enLettres(n)) + '</div>';
+  }
+  if(e >= 4){
+    const k = nbMots(n);
+    h += '<div class="consigne">Il faut <span style="color:var(--orange)">' + k + '</span> mot' + (k>1?"s":"") + '-nombre' + (k>1?"s":"") + '.</div>';
+    const notes = remarques(n);
+    if(notes.length) h += '<div class="attention">' + notes.map(x => '<b>⚠</b> ' + x).join("<br>") + '</div>';
+  }
+  h += '<div class="tools">' +
+    '<button class="btn" onclick="etape(-1)"' + (e===0?" disabled":"") + '>◀</button>' +
+    '<button class="btn main" onclick="etape(1)"' + (e===4?" disabled":"") + '>Suivant ▶</button>' +
+    '<button class="btn help" onclick="L.n=nouvelExemple();L.etape=0;rendre()">🎲 Nouvel exemple</button>' +
+    '<button class="btn" onclick="L.choix=!L.choix;L.inp=\'\';rendre()">🔢 Choisir un nombre</button></div>';
+  if(L.choix){
+    h += '<div class="choix"><div class="consigne">Tape un nombre ' + (S.tab==="p" ? "de 0 à 99" : "de 100 à 999") + '</div>' +
+      '<div class="rep">' + (L.inp || '<span class="caret"></span>') + '</div><div class="msg bad" id="cmsg"></div>' + pad("toucheChoix") + '</div>';
+  }
+  $app.innerHTML = h + '</div>';
+}
+function etape(d){ L.etape = Math.max(0, Math.min(4, L.etape + d)); rendre(); }
+function toucheChoix(k){
+  if(k === "del"){ L.inp = L.inp.slice(0,-1); return rendre(); }
+  if(k === "ok"){
+    const v = parseInt(L.inp, 10);
+    const ok = !isNaN(v) && (S.tab === "p" ? v <= 99 : v >= 100 && v <= 999);
+    if(!ok){ L.inp = ""; rendre(); document.getElementById("cmsg").textContent = S.tab==="p" ? "Un nombre de 0 à 99 !" : "Un nombre de 100 à 999 !"; return; }
+    L.n = v; L.etape = 0; L.choix = false; return rendre();
+  }
+  if(L.inp.length < 3) L.inp += k;
+  rendre();
+}
+function remarques(n){
+  const t = tokens(n), out = [];
+  if(t.includes("et")) out.push("On ajoute <b>et</b> entre la dizaine et un (ou onze). « et » n'est pas un mot-nombre.");
+  if(t.includes("vingts")) out.push("80 : on ajoute un <b>s</b> à vingt car aucun mot-nombre ne suit.");
+  if(t.includes("quatre") && t.includes("vingt") && t[t.length-1] !== "vingt") out.push("Pas de <b>s</b> à vingt : un autre mot-nombre suit.");
+  if(t.includes("cents")) out.push("Plusieurs centaines et aucun mot-nombre après : <b>cent</b> prend un <b>s</b>.");
+  if(n >= 200 && t.includes("cent")) out.push("Pas de <b>s</b> à cent : un autre mot-nombre suit.");
+  if(n >= 100 && n < 200) out.push("Pour une seule centaine, on écrit seulement <b>cent</b> (pas « un-cent »).");
+  return out;
+}
+
+/* ---------- claviers ---------- */
+function pad(fn){
+  const b = (k,lab,cl) => '<button class="' + (cl||"") + '" onclick="' + fn + '(\'' + k + '\')">' + lab + '</button>';
+  return '<div class="pad">' + [1,2,3,4,5].map(d => b(d,d)).join("") + b("del","⌫","del") +
+    [6,7,8,9,0].map(d => b(d,d)).join("") + b("ok","OK","ok") + '</div>';
+}
+const LETTRES = "abcdefghijklmnopqrstuvwxyz".split("").concat(["é","-"]);
+function clavier(){
+  return '<div class="kb">' + LETTRES.map(l => '<button class="' + (l==="-"?"tr":"") + '" onclick="toucheLettre(\'' + l + '\')">' + l + '</button>').join("") +
+    '<button class="del" onclick="toucheLettre(\'del\')">⌫</button><button class="ok" onclick="toucheLettre(\'ok\')">OK</button></div>';
+}
+
+/* ---------- partie ---------- */
+const TITRES = {compte:"Combien de mots-nombres ?", base:"Les mots-nombres de base", etiq:"Je fabrique le nombre", ecrit:"J'écris en lettres"};
+const CONSIGNES = {
+  compte:"Combien de mots-nombres faut-il pour écrire ce nombre en lettres ?",
+  base:"Écris ce nombre en lettres.",
+  etiq:"Fabrique ce nombre avec les étiquettes.",
+  ecrit:"Écris ce nombre en lettres. N'oublie pas les tirets !"
+};
+function rendreJeu(){
+  const n = G.qs[G.i], m = G.mode;
+  let h = '<div class="top"><button class="back" onclick="menu()">◀ Menu</button><div class="ttl hand">' + TITRES[m] + '</div><div class="score">⭐ ' + G.score + '</div></div>';
+  h += '<div class="progress">' + G.qs.map((q,i) => '<div class="dot ' + (G.res[i] || (i===G.i?"cur":"")) + '">' + (i+1) + '</div>').join("") + '</div>';
+  h += '<div class="stage" id="stage"><div class="consigne">' + CONSIGNES[m] + '</div>';
+  h += '<div class="nombre">' + n + (m !== "base" ? btnEcoute(n) : "") + '</div>';
+
+  if(m === "compte"){
+    h += '<div><div class="rep ' + (G.etat||"") + '">' + (G.inp || (G.fini ? "" : '<span class="caret"></span>')) + '</div></div>';
+  }
+  if(m === "base" || m === "ecrit"){
+    h += '<div><div class="saisie ' + (G.etat||"") + '">' + G.inp.replace(/ /g,"&nbsp;") + (G.fini ? "" : '<span class="caret"></span>') + '</div></div>';
+  }
+  if(m === "ecrit" && G.aide && !G.fini){
+    const g = groupes(n);
+    h += '<div class="decomp" style="font-size:2.2rem">' + (g.length>1 ? n + ' = ' + g.map(x => '<span class="part">' + x.v + '</span>').join(' + ') : '<span class="part">' + n + '</span> est un mot-nombre de base') + '</div>';
+    if(G.aide >= 2) h += '<div class="colonnes">' + g.map(x => '<div class="col"><div class="v">' + x.v + '</div><div>' + x.t.map(w => eti(w)).join(" ") + '</div></div>').join("") + '</div>';
+  }
+  if(m === "etiq"){
+    h += '<div class="construit' + (G.pose.length ? "" : " vide") + ' ' + (G.etat||"") + '">' +
+      G.pose.map((p,i) => (i ? '<span class="tiret">-</span>' : '') + '<button class="eti ' + classe(p.w) + '" onclick="retirer(' + i + ')">' + p.w + (p.s ? '<b class="s">s</b>' : '') + '</button>').join("") + '</div>';
+  }
+  h += '<div class="msg ' + G.mcl + '">' + G.msg + '</div><div class="reveal">' + G.rev + '</div>';
+
+  if(G.fini){
+    h += '<div class="tools"><button class="btn main" onclick="suivant()">Suivant ▶</button></div>';
+  } else {
+    if(m === "compte") h += pad("toucheChiffre");
+    if(m === "base") h += clavier();
+    if(m === "ecrit") h += '<div class="tools"><button class="btn help" onclick="aider()"' + (G.aide>=2?" disabled":"") + '>💡 Aide</button></div>' + clavier();
+    if(m === "etiq"){
+      const rang = arr => '<div class="rang">' + arr.map(w => '<button class="eti ' + classe(w) + '" onclick="poser(\'' + w + '\')">' + w + '</button>').join("") + '</div>';
+      h += '<div class="banque">' + rang(UNITS) + rang(Object.values(ZE)) + rang(Object.values(CHEFS)) +
+        '<div class="rang">' + (S.tab === "g" ? '<button class="eti cent" onclick="poser(\'cent\')">cent</button>' : '') +
+        '<button class="eti et" onclick="poser(\'et\')">et</button>' +
+        '<button class="btn-s" onclick="ajouterS()" title="Ajouter un s au dernier mot">+ s</button></div></div>' +
+        '<div class="tools"><button class="btn" onclick="retirer(G.pose.length-1)">⌫ Enlever</button><button class="btn" onclick="G.pose=[];G.etat=\'\';rendre()">Tout effacer</button><button class="btn main" onclick="validerEtiq()">Valider ✔</button></div>';
+    }
+  }
+  $app.innerHTML = h + '</div>';
+}
+
+function secouer(){ const s = document.getElementById("stage"); if(s){ s.classList.remove("shake"); void s.offsetWidth; s.classList.add("shake"); } }
+const BRAVO = ["Bravo !","Exact !","Super !","Bien joué !","Parfait !"];
+
+function reussite(extra){
+  const n = G.qs[G.i];
+  const premier = G.att === 0 && !G.aideUtil;
+  if(premier) G.score++;
+  G.res[G.i] = premier ? "ok" : "ko";
+  G.etat = "ok"; G.fini = true;
+  G.msg = BRAVO[Math.floor(Math.random()*BRAVO.length)] + (extra || ""); G.mcl = "good";
+  G.rev = ligneEti(n, G.mode === "compte") + (G.mode === "compte" ? '<div class="mot">' + motHTML(enLettres(n)) + '</div>' : '');
+  rendre();
+  const s = document.getElementById("stage"); if(s) s.classList.add("pop");
+}
+function echecFinal(texte){
+  const n = G.qs[G.i];
+  G.res[G.i] = "ko"; G.etat = "ko"; G.fini = true;
+  G.msg = texte; G.mcl = "bad";
+  G.rev = ligneEti(n, G.mode === "compte") + '<div class="mot rouge">' + motHTML(enLettres(n)) + '</div>';
+  const notes = remarques(n);
+  if(notes.length && G.mode !== "base") G.rev += '<div class="attention">' + notes.map(x => '<b>⚠</b> ' + x).join("<br>") + '</div>';
+  rendre(); secouer();
+}
+function suivant(){
+  G.i++;
+  if(G.i >= G.qs.length){ S.ecran = "fin"; if(G.score > getRec(G.mode)) setRec(G.mode, G.score); return rendre(); }
+  Object.assign(G, {att:0, inp:"", pose:[], fini:false, aide:0, aideUtil:false, msg:"", mcl:"", rev:"", etat:""});
+  rendre();
+}
+
+/* mode 1 : compter */
+function toucheChiffre(k){
+  if(G.fini) return;
+  if(k === "del"){ G.inp = G.inp.slice(0,-1); G.etat = ""; return rendre(); }
+  if(k === "ok") return validerCompte();
+  if(G.inp.length < 1) G.inp += k; else G.inp = String(k);
+  G.etat = ""; rendre();
+}
+function validerCompte(){
+  if(!G.inp) return;
+  const n = G.qs[G.i], k = nbMots(n), v = parseInt(G.inp, 10);
+  const noteEt = tokens(n).includes("et") ? " (« et » n'est pas un mot-nombre)" : "";
+  if(v === k) return reussite(" Il faut " + k + " mot" + (k>1?"s":"") + "-nombre" + (k>1?"s":"") + "." + noteEt);
+  G.att++;
+  if(G.att < 2){
+    const g = groupes(n);
+    G.msg = "Pas tout à fait. " + (g.length > 1 ? "Décompose : " + n + " = " + g.map(x => x.v).join(" + ") : "Est-ce un mot-nombre de base ?");
+    G.mcl = "bad"; G.inp = ""; G.etat = "ko"; rendre(); secouer(); return;
+  }
+  echecFinal("Il faut " + k + " mot" + (k>1?"s":"") + "-nombre" + (k>1?"s":"") + "." + noteEt);
+}
+
+/* diagnostic d'une écriture en lettres */
+const sansAccent = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "");
+function diagnostic(ans, n){
+  const exp = enLettres(n);
+  ans = ans.trim().toLowerCase().replace(/\s*-\s*/g, "-");
+  if(ans === exp) return {ok:true};
+  if(!ans) return {libre:true, msg:"Écris le nombre avant de valider."};
+  if(ans.replace(/\s+/g, "-") === exp) return {libre:true, msg:"Presque ! Relie les mots-nombres avec des <b>tirets</b>."};
+  if(sansAccent(ans) === sansAccent(exp)) return {msg:"Attention à l'accent : zéro s'écrit avec <b>é</b>."};
+  if(exp.replace(/vingts/g,"vingt") === ans) return {msg:"Il manque le <b>s</b> à vingt : rien ne suit quatre-vingts."};
+  if(exp.replace(/cents/g,"cent") === ans) return {msg:"Il manque le <b>s</b> à cent : plusieurs centaines et aucun mot-nombre après."};
+  if(ans.replace(/vingts/g,"vingt").replace(/cents/g,"cent") === exp.replace(/vingts/g,"vingt").replace(/cents/g,"cent"))
+    return {msg:"Attention au <b>s</b> : on ne l'ajoute que si aucun mot-nombre ne suit."};
+  if(exp.replace(/-et-/g,"-") === ans) return {msg:"Il manque le petit mot <b>et</b>."};
+  if(n >= 100 && n < 200 && ans === "un-" + exp) return {msg:"Pour une seule centaine, on écrit seulement <b>cent</b>."};
+  const inconnu = ans.split(/[-\s]+/).find(w => w && !CONNUS.has(w));
+  if(inconnu) return {msg:"« " + inconnu + " » : vérifie l'orthographe de ce mot-nombre."};
+  return {msg:"Ce n'est pas encore ça. Décompose le nombre."};
+}
+
+/* modes 2 et 4 : écrire */
+function toucheLettre(k){
+  if(G.fini) return;
+  if(k === "del"){ G.inp = G.inp.slice(0,-1); G.etat = ""; return rendre(); }
+  if(k === "ok") return validerTexte(G.inp);
+  if(G.inp.length < 40) G.inp += k;
+  G.etat = ""; rendre();
+}
+function validerTexte(ans){
+  const n = G.qs[G.i], d = diagnostic(ans, n);
+  if(d.ok) return reussite();
+  if(d.libre){ G.msg = d.msg; G.mcl = "info"; return rendre(); }
+  G.att++;
+  if(G.att < 2){ G.msg = d.msg + " Corrige."; G.mcl = "bad"; G.etat = "ko"; rendre(); secouer(); return; }
+  echecFinal("Voici la bonne écriture :");
+}
+function aider(){ if(G.aide < 2){ G.aide++; G.aideUtil = true; rendre(); } }
+
+/* mode 3 : étiquettes */
+function poser(w){ if(G.fini || G.pose.length >= 8) return; G.pose.push({w, s:false}); G.etat = ""; G.msg = ""; rendre(); }
+function retirer(i){ if(G.fini || i < 0) return; G.pose.splice(i,1); G.etat = ""; rendre(); }
+function ajouterS(){
+  if(G.fini) return;
+  const p = G.pose[G.pose.length-1];
+  if(!p){ G.msg = "Pose d'abord une étiquette."; G.mcl = "info"; return rendre(); }
+  if(p.w !== "vingt" && p.w !== "cent"){ G.msg = "Le <b>s</b> ne va qu'avec <b>vingt</b> ou <b>cent</b>."; G.mcl = "info"; return rendre(); }
+  p.s = !p.s; G.msg = ""; rendre();
+}
+function validerEtiq(){
+  if(!G.pose.length) return;
+  validerTexte(G.pose.map(p => p.w + (p.s ? "s" : "")).join("-"));
+}
+
+/* ---------- fin ---------- */
+function rendreFin(){
+  const sc = G.score, rec = getRec(G.mode);
+  $app.innerHTML = '<div class="top"><button class="back" onclick="menu()">◀ Menu</button><div class="ttl hand">' + TITRES[G.mode] + '</div><div></div></div>' +
+    '<div class="end"><div>Tu as trouvé du premier coup :</div><div class="big">' + sc + ' / ' + NB_Q + '</div><div class="stars">' + etoiles(sc) + '</div>' +
+    '<div>' + (sc >= NB_Q ? "Champion des nombres en lettres !" : sc >= NB_Q*0.75 ? "Très bien !" : sc >= NB_Q*0.5 ? "C'est bien, continue !" : "Regarde encore l'affiche et réessaie.") + '</div>' +
+    (rec ? '<div style="margin-top:8px;color:var(--green);font-weight:800">Record : ' + rec + ' / ' + NB_Q + '</div>' : '') +
+    '<div class="tools" style="margin-top:18px"><button class="btn main" onclick="lancer(\'' + G.mode + '\')">🔄 Rejouer</button><button class="btn" onclick="menu()">Menu</button></div></div>';
+}
+
+/* ---------- clavier de l'ordinateur ---------- */
+document.addEventListener("keydown", e => {
+  if(e.ctrlKey || e.metaKey || e.altKey) return;
+  const k = e.key;
+  if(S.ecran === "lecon"){
+    if(L.choix){ if(/^[0-9]$/.test(k)) toucheChoix(k); else if(k === "Backspace") toucheChoix("del"); else if(k === "Enter") toucheChoix("ok"); return; }
+    if(k === "ArrowRight" || k === " "){ e.preventDefault(); etape(1); } else if(k === "ArrowLeft") etape(-1);
+    return;
+  }
+  if(S.ecran !== "jeu" || !G) return;
+  if(G.fini){ if(k === "Enter" || k === " "){ e.preventDefault(); suivant(); } return; }
+  if(G.mode === "compte"){ if(/^[0-9]$/.test(k)) toucheChiffre(k); else if(k === "Backspace") toucheChiffre("del"); else if(k === "Enter") toucheChiffre("ok"); }
+  else if(G.mode === "base" || G.mode === "ecrit"){
+    if(k === "Backspace"){ e.preventDefault(); toucheLettre("del"); }
+    else if(k === "Enter") toucheLettre("ok");
+    else if(k.length === 1 && /[a-zéèêàç\- ]/i.test(k)){ e.preventDefault(); G.inp += k.toLowerCase(); G.etat = ""; rendre(); }
+  }
+  else if(G.mode === "etiq"){ if(k === "Enter") validerEtiq(); else if(k === "Backspace"){ e.preventDefault(); retirer(G.pose.length-1); } }
+});
+
+function pleinEcran(){ try { if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); } catch(e){} }
+rendre();
+</script>
+</body>
+</html>
