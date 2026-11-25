@@ -97,6 +97,23 @@ input.mini{width:5.6em;text-align:center;padding:8px 6px}
 .conj label{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:700}
 .conj input{width:8em}
 .conj input.mini{width:5.6em}
+.wsent{display:grid;gap:8px}
+.wsent>div{display:flex;gap:8px;align-items:flex-start}
+.wsent>div>b{font:700 18px Fredoka,sans-serif;color:var(--red2);padding-top:12px;min-width:1.4em}
+.wsent .words{flex:1}
+.nl{display:grid;gap:8px}
+.nl label{display:grid;grid-template-columns:4.2em 1fr;align-items:center;gap:10px;font:700 26px Fredoka,sans-serif}
+.suite{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font:700 22px Fredoka,sans-serif;justify-content:center}
+.suite span{background:#fff;border-radius:10px;padding:6px 12px;min-width:3em;text-align:center}
+.suite input.mini{width:4.6em}
+.slots{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.slot{font:700 18px Nunito,sans-serif;color:var(--ink);min-width:112px;min-height:62px;border:3px dashed #c9a24a;border-radius:14px;background:#fffaf0;cursor:pointer;display:grid;place-items:center;padding:4px 8px}
+.slot small{display:block;font:600 13px Fredoka,sans-serif;color:var(--muted)}
+.slot.on{border-style:solid;background:#fff3cf}
+.sols{display:flex;flex-wrap:wrap;gap:6px}
+.sols span{background:#e3f4e9;border:2px solid #9fd6b3;border-radius:10px;padding:4px 10px;font-weight:700;font-size:16px}
+.lineup{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;counter-reset:n}
+.lineup .slot{min-width:96px;min-height:52px}
 .abc{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:4px}
 .abc span{background:#fff;border-radius:8px;text-align:center;padding:2px 0;font-size:14px;line-height:1.2}
 .abc b{display:block;font:700 17px Fredoka,sans-serif;color:var(--red2)}
@@ -206,7 +223,7 @@ body.fs .ov{overflow-y:auto}
 <div class="wrap">
   <header class="top">
     <h1>Le Coffre du <span>Père Noël</span></h1>
-    <div class="keys" id="keys" aria-label="Les 5 boules-clés"></div>
+    <div class="keys" id="keys" aria-label="Les 6 boules-clés"></div>
     <div class="chips"><span class="chip" id="lvl"></span><span class="chip" id="timer">⏱ 00:00</span></div>
   </header>
 
@@ -264,9 +281,9 @@ body.fs .ov{overflow-y:auto}
 const $=id=>document.getElementById(id);
 const R=(n,f)=>Array.from({length:n},(_,i)=>f(i)).join('');
 const COLORS=['#d42a3a','#f2b632','#4fb3e8','#e46fb0','#5fd08a','#9b7be0','#ff8a3d'];
-const ROOMNAMES=['La maison du Père Noël','La cuisine de la Mère Noël',"L'atelier de fabrication",'La salle du grand ordinateur',"L'écurie des rennes"];
-const SC=[0,1,2,3,4],LAST=SC.length-1;
-const KEYS=[3,8,5,7,2],KEYCOL=['#d42a3a','#4fb3e8','#f2b632','#9b7be0','#5fd08a'];
+const ROOMNAMES=['La maison du Père Noël','La cuisine de la Mère Noël',"L'atelier de fabrication",'La salle du grand ordinateur','Le dortoir des lutins',"L'écurie des rennes"];
+const SC=[0,1,2,3,4,5],LAST=SC.length-1;
+const KEYS=[3,8,5,7,4,2],KEYCOL=['#d42a3a','#4fb3e8','#f2b632','#9b7be0','#e46fb0','#5fd08a'];
 
 /* ---------- personnages ---------- */
 function face(who){
@@ -428,9 +445,14 @@ ${R(20,i=>`<circle cx="${25+i*50}" cy="${44+Math.sin(i*.63)*18+16}" r="5" fill="
  <rect x="80" y="384" width="140" height="94" rx="8" fill="#1a1a20" stroke="#c9a24a" stroke-width="4"/><rect class="flick" x="100" y="404" width="100" height="52" rx="6" fill="url(#ovn)"/>
  <rect x="95" y="372" width="110" height="8" rx="4" fill="#c9a24a"/>${R(4,i=>`<circle cx="${85+i*44}" cy="${346}" r="8" fill="#c9a24a"/><circle cx="${85+i*44}" cy="${346}" r="3" fill="#2b2b33"/>`)}
  <rect x="60" y="510" width="16" height="14" fill="#2b2b33"/><rect x="224" y="510" width="16" height="14" fill="#2b2b33"/>
+ <path d="M176 306Q170 276 196 272Q222 276 216 306Z" fill="#c98a50"/><path d="M216 290q16-6 18-18" stroke="#c98a50" stroke-width="6" fill="none"/><path d="M180 276q16-16 32 0" stroke="#8a5530" stroke-width="4" fill="none"/>
+</g>
+<g class="hot" data-id="soupe" tabindex="0" role="button" aria-label="La marmite de soupe et les légumes">
  <path d="M66 306V268Q66 256 78 256H142Q154 256 154 268V306Z" fill="#c3283a"/><rect x="60" y="250" width="100" height="10" rx="5" fill="#a51c2a"/><circle cx="110" cy="244" r="6" fill="#a51c2a"/>
  <circle class="steam" cx="96" cy="236" r="9" fill="#fff"/><circle class="steam" style="animation-delay:1s" cx="118" cy="228" r="8" fill="#fff"/><circle class="steam" style="animation-delay:2s" cx="106" cy="220" r="7" fill="#fff"/>
- <path d="M176 306Q170 276 196 272Q222 276 216 306Z" fill="#c98a50"/><path d="M216 290q16-6 18-18" stroke="#c98a50" stroke-width="6" fill="none"/><path d="M180 276q16-16 32 0" stroke="#8a5530" stroke-width="4" fill="none"/>
+ <path d="M70 252L58 214" stroke="#ff8a3d" stroke-width="9" stroke-linecap="round"/><path d="M58 214l-6-12M58 214l4-13M58 214l-10-6" stroke="#3f9a4f" stroke-width="3" stroke-linecap="round"/>
+ <path d="M150 252L164 200" stroke="#eef3d6" stroke-width="10" stroke-linecap="round"/><path d="M164 200l-4-22M164 200l8-20" stroke="#3f9a4f" stroke-width="5" stroke-linecap="round"/>
+ <text x="110" y="290" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="14" fill="#fff">SOUPE</text>
 </g>
 
 <rect x="300" y="160" width="250" height="10" rx="2" fill="#a0693a"/><rect x="300" y="250" width="250" height="10" rx="2" fill="#a0693a"/>
@@ -631,20 +653,84 @@ ${shadow(560,568,60)}
  ${shadow(790,568,40)}<path d="M770 566h40l-8-14h-24Z" fill="#7a4a28"/><line x1="790" y1="552" x2="790" y2="540" stroke="#7a4a28" stroke-width="5"/>
  <circle cx="790" cy="500" r="40" fill="#4fb3e8"/><path d="M768 476q14-4 18 10t-10 18q-12-6-8-28ZM796 470q20 4 26 22q-14 10-20-2t-6-20ZM800 512q16 0 12 18q-14 4-12-18Z" fill="#5fd08a"/><path d="M744 500a46 46 0 0 1 92 0" stroke="#c9a24a" stroke-width="4" fill="none"/>
 </g>
-<g class="hot" data-id="porte4" tabindex="0" role="button" aria-label="La porte de l'écurie">
+<g class="hot" data-id="porte4" tabindex="0" role="button" aria-label="La porte du dortoir des lutins">
  <rect x="868" y="170" width="122" height="304" fill="#0d1730"/><rect x="876" y="178" width="106" height="296" rx="4" fill="#5f6b73"/><rect x="886" y="190" width="86" height="270" rx="4" fill="#77838b"/>
  ${R(5,i=>`<rect x="886" y="${210+i*50}" width="86" height="3" fill="#000" opacity=".2"/>`)}
- <rect x="884" y="232" width="90" height="28" rx="4" fill="#e9d8b8"/><text x="929" y="251" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="15" fill="#5b2a1c">Écurie</text>
+ <rect x="884" y="232" width="90" height="28" rx="4" fill="#e9d8b8"/><text x="929" y="251" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="15" fill="#5b2a1c">Dortoir</text>
  <rect x="956" y="300" width="10" height="46" rx="5" fill="#c9cfd2"/>
  <rect id="light3" x="876" y="468" width="106" height="6" fill="#ffd76a" opacity="0"/>${lock('lock3',914,330)}
 </g>
 <rect width="1000" height="600" fill="url(#vig5)" pointer-events="none"/><g id="badges3" pointer-events="none"></g>
 </svg>`}
 
-/* ---------- décor 5 : l'écurie ---------- */
+/* ---------- décor 5 : le dortoir des lutins ---------- */
+function sleeper(x,y,hat,blanket){return `<rect x="${x}" y="${y}" width="220" height="30" rx="10" fill="#f3ead8"/><ellipse cx="${x+34}" cy="${y+4}" rx="30" ry="14" fill="#fff"/>
+ <path d="M${x+60} ${y-6}H${x+214}Q${x+224} ${y-6} ${x+224} ${y+6}V${y+26}H${x+56}Z" fill="${blanket}"/>${R(4,i=>`<rect x="${x+76+i*36}" y="${y-6}" width="14" height="32" fill="#fff" opacity=".18"/>`)}
+ <circle cx="${x+40}" cy="${y-8}" r="16" fill="#f6c9a4"/><path d="M${x+30} ${y-8}q4 4 8 0M${x+44} ${y-8}q4 4 8 0" stroke="#2a1a12" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="${x+34}" cy="${y-1}" r="3.5" fill="#f59a9a" opacity=".6"/>
+ <path d="M${x+22} ${y-14}C${x+22} ${y-36} ${x+50} ${y-42} ${x+70} ${y-26}C${x+60} ${y-26} ${x+58} ${y-20} ${x+58} ${y-14}Z" fill="${hat}"/><rect x="${x+20}" y="${y-18}" width="40" height="7" rx="3.5" fill="#fff"/><circle cx="${x+72}" cy="${y-26}" r="5" fill="#fff"/>
+ <text class="tw" x="${x+64}" y="${y-38}" font-family="Fredoka" font-weight="700" font-size="18" fill="#fff" opacity=".8">z</text><text class="tw" style="animation-delay:.6s" x="${x+76}" y="${y-54}" font-family="Fredoka" font-weight="700" font-size="24" fill="#fff" opacity=".8">Z</text>`}
+function bear(x,y,c,tag){return `<circle cx="${x-14}" cy="${y-40}" r="9" fill="${c}"/><circle cx="${x+14}" cy="${y-40}" r="9" fill="${c}"/><ellipse cx="${x}" cy="${y-10}" rx="20" ry="22" fill="${c}"/><circle cx="${x}" cy="${y-30}" r="17" fill="${c}"/><ellipse cx="${x}" cy="${y-25}" rx="8" ry="6" fill="#f3e2bb"/><circle cx="${x}" cy="${y-27}" r="2.5" fill="#2a1a12"/><circle cx="${x-6}" cy="${y-34}" r="2.2" fill="#2a1a12"/><circle cx="${x+6}" cy="${y-34}" r="2.2" fill="#2a1a12"/>
+ <rect x="${x-14}" y="${y-4}" width="28" height="16" rx="3" fill="#fffaf0" stroke="#c9a24a" stroke-width="1.5"/><text x="${x}" y="${y+8}" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="12" fill="#5b2a1c">${tag}</text>`}
+function dortoir(){
+ const flags=[5,10,15,'?','?',30,40,50,'?','?',80];
+ return `
+<svg viewBox="0 0 1000 600" role="img" aria-label="Le dortoir des lutins" id="sc4">
+<defs>
+ <linearGradient id="dwall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e2452"/><stop offset="1" stop-color="#4b3a7a"/></linearGradient>
+ <linearGradient id="dfl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a5a34"/><stop offset="1" stop-color="#55331b"/></linearGradient>
+ <linearGradient id="dsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1f3d"/><stop offset="1" stop-color="#2a5a86"/></linearGradient>
+ <radialGradient id="nglow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffd76a" stop-opacity=".55"/><stop offset="1" stop-color="#ffd76a" stop-opacity="0"/></radialGradient>
+ ${vig('vig6')}
+</defs>
+<rect width="1000" height="480" fill="url(#dwall)"/>
+${R(36,i=>{const x=40+(i%9)*110+(Math.floor(i/9)%2?55:0),y=110+Math.floor(i/9)*92;return `<path d="${starPath(x,y,7)}" fill="#fff" opacity=".08"/>`})}
+<rect width="1000" height="26" fill="#1d1638"/>
+<rect y="480" width="1000" height="120" fill="url(#dfl)"/>${R(9,i=>`<rect x="${i*120-10}" y="480" width="4" height="120" fill="#000" opacity=".2"/>`)}<rect y="470" width="1000" height="12" fill="#3b2a1a"/>
+<g class="hot" data-id="guirlande" tabindex="0" role="button" aria-label="La guirlande de fanions numérotés">
+ <path d="M20 46Q430 112 850 46" stroke="#e9d8b8" stroke-width="3" fill="none"/>
+ ${flags.map((n,i)=>{const t=(i+.5)/flags.length,x=20+830*t,y=46+4*66*t*(1-t);return `<path d="M${(x-26).toFixed(1)} ${(y-3).toFixed(1)}H${(x+26).toFixed(1)}L${x.toFixed(1)} ${(y+52).toFixed(1)}Z" fill="${COLORS[i%7]}"/><text x="${x.toFixed(1)}" y="${(y+22).toFixed(1)}" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="17" fill="#fff">${n}</text>`}).join('')}
+</g>
+<g class="hot" data-id="fenetre3" tabindex="0" role="button" aria-label="La fenêtre ronde">
+ <circle cx="470" cy="200" r="66" fill="#3b2a1a"/><circle cx="470" cy="200" r="56" fill="url(#dsky)"/><circle cx="492" cy="178" r="16" fill="#fff6d6"/><circle cx="500" cy="172" r="14" fill="#2a4f7a" opacity=".9"/>
+ ${[[440,170],[452,222],[488,230],[430,200]].map(([x,y],i)=>`<path class="tw" style="animation-delay:${i*.4}s" d="${starPath(x,y,4)}" fill="#fff6c9"/>`).join('')}
+ <path d="M414 200H526M470 144V256" stroke="#3b2a1a" stroke-width="6"/>
+</g>
+<g class="hot" data-id="lits" tabindex="0" role="button" aria-label="Le lit superposé des lutins">
+ ${shadow(185,568,160)}
+ <rect x="52" y="96" width="16" height="470" rx="5" fill="#a0693a"/><rect x="302" y="96" width="16" height="470" rx="5" fill="#a0693a"/>
+ ${[0,1,2].map(k=>`<rect x="52" y="${206+k*130}" width="266" height="16" rx="5" fill="#7a4a28"/>`).join('')}
+ ${sleeper(72,190,'#1f8a4c','#d42a3a')}${sleeper(72,320,'#d42a3a','#4fb3e8')}${sleeper(72,450,'#9b7be0','#f2b632')}
+ <path d="M318 120h14v320h-14" stroke="#c9a24a" stroke-width="5" fill="none"/>${R(6,i=>`<line x1="318" y1="${150+i*50}" x2="332" y2="${150+i*50}" stroke="#c9a24a" stroke-width="5"/>`)}
+</g>
+<g class="hot" data-id="veilleuse" tabindex="0" role="button" aria-label="La veilleuse">
+ <circle class="flick" cx="392" cy="420" r="70" fill="url(#nglow)"/>${shadow(392,566,34)}
+ <rect x="364" y="460" width="56" height="104" rx="6" fill="#7a4a28"/><rect x="370" y="470" width="44" height="30" rx="4" fill="#5a361c"/>
+ <path d="M378 456L384 420H400L406 456Z" fill="#fff3c4"/><path d="M372 424L392 396 412 424Z" fill="#f2b632"/>
+</g>
+<g class="hot" data-id="doudous" tabindex="0" role="button" aria-label="L'étagère des doudous">
+ <rect x="610" y="296" width="230" height="14" rx="4" fill="#a0693a"/><path d="M626 310l10 24h8l-6-24ZM824 310l-10 24h-8l6-24Z" fill="#7a4a28"/>
+ ${bear(642,284,'#c98a50','?')}${bear(694,284,'#e8b07a','?')}${bear(746,284,'#9a6a40','?')}${bear(798,284,'#d9a35a','?')}
+ <rect x="610" y="196" width="230" height="14" rx="4" fill="#a0693a"/>
+ ${bear(668,184,'#f0c89a','?')}${bear(772,184,'#b5874a','?')}<path d="M708 196l14-34 14 34Z" fill="#5fd08a"/><circle cx="722" cy="158" r="5" fill="#f2b632"/>
+</g>
+<g class="hot" data-id="chaussons" tabindex="0" role="button" aria-label="Les chaussons">
+ ${shadow(560,572,70)}${[500,560,620].map((x,i)=>`<path d="M${x-18} 568Q${x-22} 548 ${x} 546Q${x+22} 548 ${x+18} 568Z" fill="${['#d42a3a','#4fb3e8','#5fd08a'][i]}"/><circle cx="${x}" cy="546" r="6" fill="#fff"/>`).join('')}
+</g>
+<ellipse cx="620" cy="530" rx="170" ry="34" fill="#c3283a" opacity=".55"/><ellipse cx="620" cy="530" rx="140" ry="24" fill="none" stroke="#f2b632" stroke-width="3" stroke-dasharray="10 8" opacity=".7"/>
+<g class="hot" data-id="porte5" tabindex="0" role="button" aria-label="La porte de l'écurie">
+ <rect x="868" y="170" width="122" height="304" fill="#1d1638"/><rect x="876" y="178" width="106" height="296" rx="4" fill="#7a3f22"/><rect x="886" y="190" width="86" height="270" rx="4" fill="#8f4c2a"/>
+ ${R(4,i=>`<rect x="${902+i*20}" y="190" width="3" height="270" fill="#000" opacity=".2"/>`)}
+ <rect x="884" y="232" width="90" height="28" rx="4" fill="#e9d8b8"/><text x="929" y="251" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="15" fill="#5b2a1c">Écurie</text>
+ <circle cx="962" cy="330" r="7" fill="#c9a24a"/>
+ <rect id="light4" x="876" y="468" width="106" height="6" fill="#ffd76a" opacity="0"/>${lock('lock4',914,330)}
+</g>
+<rect width="1000" height="600" fill="url(#vig6)" pointer-events="none"/><g id="badges4" pointer-events="none"></g>
+</svg>`}
+
+/* ---------- décor 6 : l'écurie ---------- */
 function sack(cx,by,w,h,c){return `<path d="M${cx-w/2} ${by}Q${cx-w/2-10} ${by-h*.6} ${cx-w*.2} ${by-h}H${cx+w*.2}Q${cx+w/2+10} ${by-h*.6} ${cx+w/2} ${by}Z" fill="${c}"/><path d="M${cx-12} ${by-h}Q${cx} ${by-h-24} ${cx+12} ${by-h}" fill="${c}"/><rect x="${cx-w*.22}" y="${by-h-2}" width="${w*.44}" height="7" rx="3" fill="#d42a3a"/>`}
 function ecurie(){return `
-<svg viewBox="0 0 1000 600" role="img" aria-label="L'écurie des rennes" id="sc4">
+<svg viewBox="0 0 1000 600" role="img" aria-label="L'écurie des rennes" id="sc5">
 <defs>
  <linearGradient id="barn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a2a1a"/><stop offset="1" stop-color="#83402a"/></linearGradient>
  <linearGradient id="hayf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b8914a"/><stop offset="1" stop-color="#7d5f2c"/></linearGradient>
@@ -703,7 +789,7 @@ ${R(70,i=>{const x=(i*137)%1000,y=490+(i*61)%105,a=((i*47)%60)-30;return `<line 
  <rect x="810" y="292" width="124" height="70" rx="7" fill="#6b3d22"/><path d="M810 300Q872 266 934 300Z" fill="#83502e"/><rect x="810" y="296" width="124" height="9" fill="#f2b632"/><rect x="864" y="276" width="16" height="86" fill="#f2b632"/>
  ${lock('chestlock',857,316)}
 </g>
-<rect width="1000" height="600" fill="url(#vig3)" pointer-events="none"/><g id="badges4" pointer-events="none"></g>
+<rect width="1000" height="600" fill="url(#vig3)" pointer-events="none"/><g id="badges5" pointer-events="none"></g>
 </svg>`}
 
 /* ---------- outils pour les énigmes ---------- */
@@ -773,6 +859,44 @@ function compa(o,hint,found){let st;
    s1()},
   check(){return st.done||`Termine les 4 étapes : tu en es à l'étape ${st.step}.`}}}
 const encadre=(n,rows,hint,found,intro)=>({hint,found,html:`<p>${intro}</p><div class="q frame">${rows.map((r,i)=>`<span class="lbl">${r[0]}</span><div class="row">${numIn('e'+i+'a','Nombre avant')} &lt; ${n} &lt; ${numIn('e'+i+'b','Nombre après')}</div>`).join('')}</div>`,check:()=>rows.every((r,i)=>val('e'+i+'a')===String(r[1])&&val('e'+i+'b')===String(r[2]))});
+/* plusieurs phrases : dans chacune, on touche les bons mots */
+function Wm(intro,id,list,hint,found){return {html:`<p>${intro}</p><div class="wsent">${list.map((s,k)=>`<div><b>${k+1}.</b>${words(id+k,s[0])}</div>`).join('')}</div>`,hint,found,
+  check(){const bad=list.filter((s,k)=>picked(id+k)!==s[1]).length;return bad===0||(bad===list.length?"Ce n'est pas encore ça. Relis la consigne, puis chaque phrase.":`${bad} phrase${bad>1?'s':''} à revoir. Les autres sont justes !`)}}}
+/* écrire des nombres en lettres */
+function enLettres(list,hint,found){const nr=s=>s.replace(/[\s-]+/g,' ').trim();
+  return {hint,found,html:`<p>Le Père Noël doit écrire ces nombres en lettres sur la facture :</p><div class="nl">${list.map((n,i)=>`<label for="l${i}"><span class="q" style="text-align:center">${n[0]}</span><input type="text" class="wide" id="l${i}" autocomplete="off" spellcheck="false" aria-label="${n[0]} en lettres"></label>`).join('')}</div>`,
+   check(){const bad=list.filter((n,i)=>nr(val('l'+i))!==n[1]).length;return bad===0||`${bad} nombre${bad>1?'s sont mal écrits':' est mal écrit'}. Décompose le nombre et vérifie l'orthographe.`}}}
+/* suites numériques : rows = [[suite complète], [places cachées]] */
+function suites(intro,rows,hint,found){const ans=[];
+  const html=`<p>${intro}</p><div class="q" style="display:grid;gap:14px">${rows.map(([full,hid],r)=>`<div class="suite">${full.map((v,j)=>hid.includes(j)?(ans.push([`s${r}_${j}`,v]),numIn(`s${r}_${j}`,'Nombre manquant')):`<span>${v}</span>`).join('')}</div>`).join('')}</div>`;
+  return {html,hint,found,check(){const bad=ans.filter(([id,v])=>val(id)!==String(v)).length;return bad===0||(ans.some(([id])=>!val(id))?'Il reste des cases vides.':`${bad} nombre${bad>1?'s':''} à corriger. Cherche de combien on avance (ou on recule) à chaque fois.`)}}}
+/* ordre alphabétique : on touche les mots dans l'ordre */
+function alpha(intro,list,place,hint,found){let order;const good=[...list].sort((a,b)=>a.localeCompare(b,'fr'));
+  return {hint,found,get html(){order=[];return `<p>${intro}</p><div class="choices" id="apool">${list.map((w,i)=>`<button class="choice" type="button" data-i="${i}">${w}</button>`).join('')}</div><div class="lineup" id="aline">${list.map((_,i)=>`<button type="button" class="slot" data-s="${i}"><small>${place} ${i+1}</small><span>…</span></button>`).join('')}</div>`},
+   mount(el){const pool=[...el.querySelectorAll('#apool .choice')],slots=[...el.querySelectorAll('#aline .slot')];
+     const draw=()=>{slots.forEach((s,k)=>{s.classList.toggle('on',k<order.length);s.querySelector('span').textContent=k<order.length?list[order[k]]:'…'});pool.forEach(b=>{const on=order.includes(+b.dataset.i);b.disabled=on;b.style.opacity=on?.35:1})};
+     pool.forEach(b=>b.addEventListener('click',()=>{if(b.disabled)return;order.push(+b.dataset.i);$('mFb').textContent='';draw()}));
+     slots.forEach((s,k)=>s.addEventListener('click',()=>{if(k>=order.length)return;order.splice(k,1);draw()}))},
+   check(){if(order.length<list.length)return 'Range tous les prénoms.';const j=order.findIndex((o,k)=>list[o]!==good[k]);return j<0||`À partir de la place ${j+1}, l'ordre n'est pas juste. Regarde la 1re lettre, puis la 2e si la 1re est la même. Touche un prénom rangé pour le reprendre.`}}}
+/* problème pour chercher : trouver toutes les possibilités, puis les compter */
+function enumer(o,hint,found){let sel,sols;
+  return {hint,found,get html(){sel=Array(o.k).fill(null);sols=[];return `<div class="q">${o.lines.map(l=>`<p>${l}</p>`).join('')}</div><p>${o.how}</p>
+   <div class="choices" id="eitems" style="justify-content:center">${o.items.map((it,i)=>`<button class="choice" type="button" data-i="${i}">${it}</button>`).join('')}</div>
+   <div class="slots" id="eslots">${R(o.k,s=>`<button type="button" class="slot" data-s="${s}"><small>${o.slots[s]}</small><span>…</span></button>`)}</div>
+   <div class="row" style="justify-content:center"><button class="btn gold" type="button" id="eadd">${o.add}</button><button class="btn" type="button" id="eclr">Vider</button></div>
+   <p><b>Possibilités trouvées : <span id="ecnt">0</span></b></p><div class="sols" id="esols"></div>
+   <p><b>${o.q}</b></p><div class="row">${numIn('ca')}<span>${o.unit}</span></div>`},
+   mount(el){const fb=$('mFb'),slots=[...el.querySelectorAll('#eslots .slot')];
+     const draw=()=>slots.forEach((s,k)=>{s.classList.toggle('on',sel[k]!==null);s.querySelector('span').textContent=sel[k]===null?'…':o.items[sel[k]]});
+     el.querySelectorAll('#eitems .choice').forEach(b=>b.addEventListener('click',()=>{const i=+b.dataset.i;if(sel.includes(i)){fb.textContent=o.twice;return}const k=sel.indexOf(null);if(k<0){fb.textContent='Toutes les places sont prises. Touche une place pour la vider.';return}sel[k]=i;fb.textContent='';draw()}));
+     slots.forEach((s,k)=>s.addEventListener('click',()=>{sel[k]=null;draw()}));
+     el.querySelector('#eclr').addEventListener('click',()=>{sel.fill(null);draw()});
+     el.querySelector('#eadd').addEventListener('click',()=>{if(sel.includes(null)){fb.textContent='Remplis d\'abord toutes les places.';return}
+       const key=(o.ordered?[...sel]:[...sel].sort((a,b)=>a-b)).join('-');
+       if(sols.includes(key)){fb.textContent=o.same;return}
+       sols.push(key);const sp=document.createElement('span');sp.textContent=o.ordered?sel.map((i,k)=>`${o.slots[k]} : ${o.items[i].replace(/^\S+\s/,'')}`).join(' · '):sel.map(i=>o.items[i]).join(' + ');el.querySelector('#esols').appendChild(sp);
+       el.querySelector('#ecnt').textContent=sols.length;sel.fill(null);draw();fb.textContent=`Nouvelle possibilité ! Tu en as trouvé ${sols.length}.`})},
+   check(){if(!val('ca'))return `Écris le nombre de ${o.unit} en bas.`;return +val('ca')===o.answer||(sols.length<o.answer?"Ce n'est pas le bon nombre. As-tu trouvé toutes les possibilités ? Cherche avec méthode : garde le premier, change les autres.":'Recompte tes possibilités, une par une.')}}}
 
 /* mots mêlés : on touche la première lettre puis la dernière */
 const rng=s=>()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
@@ -815,20 +939,20 @@ function crossword(rows,cols,words,hint,found){const L={},N={};
    check(){let bad=0,empty=0;document.querySelectorAll('.xc input').forEach(inp=>{if(!inp.value){empty++;return}const ok=norm(inp.value)===L[inp.dataset.k];inp.classList.toggle('bad',!ok);if(!ok)bad++});
      return empty?`Il reste ${empty} case${empty>1?'s':''} vide${empty>1?'s':''}.`:bad?`${bad} lettre${bad>1?'s':''} à corriger (en rouge).`:true}}}
 
-/* ---------- les 19 parchemins (niveau 1 = CE1, niveau 2 = CE2) ---------- */
+/* ---------- les 23 parchemins (niveau 1 = CE1, niveau 2 = CE2) ---------- */
 const ROOMS=[
  {spot:'lettres',scene:0,tag:'Trouver le verbe',title:'La lettre de Bourrasque',lv:[null,
-  W("Dans le sac, une lettre à l'encre violette : « Touche <b>le verbe conjugué</b> de ma phrase ! »",'v0',"Le lutin chante dans l'atelier.",'2',"Change le moment : « Hier, le lutin… ». Le mot qui change, c'est le verbe !","« chante », bravo !"),
-  W("Dans le sac, une lettre à l'encre violette : « Touche <b>le verbe conjugué</b> de ma phrase ! »",'v0',"Chaque soir, les lutins emballent les cadeaux dans l'atelier.",'4',"Change le moment : « Hier soir, les lutins… ». Le mot qui change, c'est le verbe !","« emballent », bravo !")]},
+  Wm("Dans le sac, une lettre à l'encre violette : « Dans chaque phrase, touche <b>le verbe conjugué</b> ! »",'v',[["Le lutin chante dans l'atelier.",'2'],["Les rennes mangent du foin.",'2'],["Ce soir, Grelot prépare les paquets.",'3']],"Change le moment : « Hier, le lutin… ». Le mot qui change, c'est le verbe !","Chante, mangent, prépare : bravo !"),
+  Wm("Dans le sac, une lettre à l'encre violette : « Dans chaque phrase, touche <b>le verbe conjugué</b> ! »",'v',[["Chaque soir, les lutins emballent les cadeaux dans l'atelier.",'4'],["Dans la cuisine, la Mère Noël décore un grand gâteau.",'6'],["Les rennes du Père Noël volent au-dessus des toits.",'5']],"Change le moment : « Hier soir, les lutins… ». Le mot qui change, c'est le verbe ! Attention, il n'est pas toujours au début.","Emballent, décore, volent : bravo !")]},
  {spot:'train',scene:0,tag:'Le groupe sujet',title:"L'étiquette du petit train",lv:[null,
-  W("Sous le wagon, une étiquette : « Touche <b>tous les mots du groupe sujet</b>. »",'s0',"Les rennes tirent le traîneau.",'0,1',"Demande : « Qui est-ce qui tire le traîneau ? »","Oui : « Les rennes » !"),
-  W("Sous le wagon, une étiquette : « Touche <b>tous les mots du groupe sujet</b>. »",'s0',"Le petit renne au nez rouge tire le traîneau.",'0,1,2,3,4,5',"Trouve le verbe (tire), puis demande : « Qui est-ce qui tire le traîneau ? »","Oui : « Le petit renne au nez rouge » !")]},
+  Wm("Sous le wagon, une étiquette : « Dans chaque phrase, touche <b>tous les mots du groupe sujet</b>. »",'s',[["Les rennes tirent le traîneau.",'0,1'],["Grelot cherche le coffre.",'0'],["La Mère Noël prépare des biscuits.",'0,1,2']],"Trouve le verbe, puis demande : « Qui est-ce qui… ? »","Les rennes, Grelot, la Mère Noël : bravo !"),
+  Wm("Sous le wagon, une étiquette : « Dans chaque phrase, touche <b>tous les mots du groupe sujet</b>. »",'s',[["Le petit renne au nez rouge tire le traîneau.",'0,1,2,3,4,5'],["Dans l'atelier, les lutins fabriquent des jouets.",'2,3'],["Le grand sapin de la maison brille.",'0,1,2,3,4,5']],"Trouve le verbe, puis demande : « Qui est-ce qui… ? ». Le groupe sujet n'est pas toujours au début de la phrase.","Tous les groupes sujets sont trouvés, bravo !")]},
  {spot:'hotte',scene:0,tag:'Trouver les noms',title:'Le fond de la hotte',lv:[null,
-  W("Dans la hotte, un papier chiffonné : « Touche <b>tous les noms</b>. »",'n0',"Le lutin a un ballon.",'1,4',"Un nom a un déterminant devant lui : le, la, un, une…","Lutin et ballon !"),
-  W("Dans la hotte, un papier chiffonné : « Touche <b>tous les noms</b>. »",'n0',"Le lutin range les jouets dans la grande hotte.",'1,4,8',"Un nom a un déterminant devant lui. « grande » est un adjectif, « range » est un verbe.","Lutin, jouets, hotte : bravo !")]},
+  Wm("Dans la hotte, un papier chiffonné : « Dans chaque phrase, touche <b>tous les noms</b>. »",'n',[["Le lutin a un ballon.",'1,4'],["La fille mange une pomme.",'1,4'],["Un renne tire le traîneau.",'1,4']],"Un nom a un déterminant devant lui : le, la, un, une…","Tous les noms sont trouvés !"),
+  Wm("Dans la hotte, un papier chiffonné : « Dans chaque phrase, touche <b>tous les noms</b>. »",'n',[["Le lutin range les jouets dans la grande hotte.",'1,4,8'],["Mon frère accroche une étoile sur le sapin.",'1,4,7'],["Grelot donne une carotte à Tornade.",'0,3,5']],"Un nom commun a un déterminant devant lui. N'oublie pas les noms propres : ils ont une majuscule !","Tous les noms sont trouvés !")]},
  {spot:'facture',scene:0,tag:'Écrire en lettres',title:'La facture des poupées',lv:[null,
-  {html:`<p>Le Père Noël doit écrire ce nombre en lettres :</p><p class="q big">46</p><input type="text" class="wide" id="l0" autocomplete="off" spellcheck="false" aria-label="Le nombre en lettres">`,hint:"46 = 40 + 6. Comment dit-on 40 ?",found:"Quarante-six, parfait !",check:()=>val('l0').replace(/[\s-]+/g,' ')==='quarante six'},
-  {html:`<p>Le Père Noël doit écrire ce nombre en lettres :</p><p class="q big">347</p><input type="text" class="wide" id="l0" autocomplete="off" spellcheck="false" aria-label="Le nombre en lettres">`,hint:"347 = 300 + 40 + 7. « cent » ne prend pas de s ici.",found:"Trois-cent-quarante-sept, parfait !",check:()=>val('l0').replace(/[\s-]+/g,' ')==='trois cent quarante sept'}]},
+  enLettres([['46','quarante six'],['73','soixante treize'],['85','quatre vingt cinq']],"Décompose : 73 = 60 + 13. 85 = 80 + 5, et 80 se dit « quatre-vingts ».","Quarante-six, soixante-treize, quatre-vingt-cinq : parfait !"),
+  enLettres([['347','trois cent quarante sept'],['692','six cent quatre vingt douze'],['580','cinq cent quatre vingts']],"Décompose : 692 = 600 + 92 (80 + 12). « Quatre-vingts » prend un s quand il est tout seul à la fin du nombre.","Tout est bien écrit, même quatre-vingts avec son s !")]},
  {spot:'biscuits',scene:1,tag:'Doubles et moitiés',title:'Les biscuits de la Mère Noël',lv:[null,
   fields("La Mère Noël : « Calcule de tête, et tu auras un biscuit ! »",[['Le double de 4 =',8],['Le double de 15 =',30],['La moitié de 10 =',5],['6 + 7 =',13]],"6 + 7, c'est le double de 6, plus 1 !","Tout est juste. Miam !"),
   fields("La Mère Noël : « Calcule de tête, et tu auras un biscuit ! »",[['Le double de 35 =',70],['La moitié de 48 =',24],['25 + 26 =',51],['19 + 20 =',39]],"Moitié de 48 : moitié de 40, puis moitié de 8. 25 + 26 : double de 25, plus 1.","Tout est juste. Miam !")]},
@@ -841,6 +965,15 @@ const ROOMS=[
  {spot:'frigo',scene:1,tag:'Message codé',title:'Les aimants du frigo',lv:[null,
   code("Sur le frigo, Bourrasque a laissé un code. Chaque lettre est remplacée par son numéro dans l'alphabet, mais il faut d'abord faire le calcul ! Quel est le mot ?","3+4 &nbsp;·&nbsp; 2−1 &nbsp;·&nbsp; 10+10 &nbsp;·&nbsp; 2+3 &nbsp;·&nbsp; 5−4 &nbsp;·&nbsp; 20+1",abcNum,'GATEAU',"Calcule : 3 + 4 = 7. La 7e lettre est G.","GÂTEAU ! La Mère Noël éclate de rire."),
   code("Sur le frigo, Bourrasque a laissé un code. Il a avancé chaque lettre de <b>3 rangs</b> dans l'alphabet : A est devenu D, B est devenu E… Recule de 3 pour trouver le mot !","J &nbsp; D &nbsp; W &nbsp; H &nbsp; D &nbsp; X",abcStrip,'GATEAU',"Pour J, recule de 3 : I, H, G. La première lettre est G.","GÂTEAU ! La Mère Noël éclate de rire.")]},
+ {spot:'soupe',scene:1,tag:'Problème pour chercher',title:'Les soupes de la Mère Noël',lv:[null,
+  enumer({lines:["La Mère Noël a 4 légumes : une carotte, un poireau, une pomme de terre et un navet.","Pour chaque soupe, elle met <b>3 légumes différents</b>.","Combien de soupes différentes peut-elle faire ?"],how:"Touche 3 légumes pour remplir la marmite, puis ajoute ta soupe à la liste. Recommence pour trouver toutes les soupes.",
+   items:['🥕 carotte','🌿 poireau','🥔 pomme de terre','⚪ navet'],k:3,ordered:false,slots:['Légume 1','Légume 2','Légume 3'],add:'Ajouter cette soupe',unit:'soupes',answer:4,q:'Combien de soupes différentes peut-elle faire ?',
+   twice:'Ce légume est déjà dans la marmite : il faut 3 légumes différents.',same:"Cette soupe est déjà dans ta liste ! Les mêmes légumes dans un autre ordre, c'est la même soupe."},
+   "Astuce : pour faire une soupe, on laisse de côté 1 seul légume. Combien de légumes peut-on laisser de côté ?","4 soupes différentes ! La Mère Noël sort sa grande louche."),
+  enumer({lines:["La Mère Noël a 5 légumes : une carotte, un poireau, une pomme de terre, un navet et une courgette.","Pour chaque soupe, elle met <b>3 légumes différents</b>.","Combien de soupes différentes peut-elle faire ?"],how:"Touche 3 légumes pour remplir la marmite, puis ajoute ta soupe à la liste. Recommence pour trouver toutes les soupes.",
+   items:['🥕 carotte','🌿 poireau','🥔 pomme de terre','⚪ navet','🥒 courgette'],k:3,ordered:false,slots:['Légume 1','Légume 2','Légume 3'],add:'Ajouter cette soupe',unit:'soupes',answer:10,q:'Combien de soupes différentes peut-elle faire ?',
+   twice:'Ce légume est déjà dans la marmite : il faut 3 légumes différents.',same:"Cette soupe est déjà dans ta liste ! Les mêmes légumes dans un autre ordre, c'est la même soupe."},
+   "Cherche avec méthode : d'abord toutes les soupes avec carotte et poireau, puis carotte et pomme de terre… Range ta liste pour ne rien oublier.","10 soupes différentes ! La Mère Noël sort sa grande louche.")]},
  {spot:'machine',scene:2,tag:'Le chiffre des… et le nombre de… en tout',title:'Le compteur de la machine',lv:[null,
   fields("Le compteur de la grande machine affiche le nombre de jouets fabriqués. Pour la redémarrer, réponds :",[['Le chiffre des centaines :',4],['Le chiffre des dizaines :',6],['Le nombre de dizaines en tout :',46],['Le chiffre des unités :',3],["Le nombre d'unités en tout :",463]],"Le chiffre des dizaines, c'est celui qu'on voit à la place des dizaines. Le nombre de dizaines en tout : cache le chiffre des unités et lis ce qui reste.","La machine redémarre !",'<p class="screen">463</p>'),
   fields("Le compteur de la grande machine affiche le nombre de jouets fabriqués. Pour la redémarrer, réponds :",[['Le chiffre des centaines :',7],['Le nombre de centaines en tout :',27],['Le chiffre des dizaines :',4],['Le nombre de dizaines en tout :',274],["Le nombre d'unités en tout :",2745]],"Le nombre de centaines en tout : cache les deux derniers chiffres (dizaines et unités) et lis ce qui reste.","La machine redémarre !",'<p class="screen">2745</p>')]},
@@ -867,29 +1000,45 @@ const ROOMS=[
  {spot:'panneau',scene:3,tag:'Mots croisés',title:'La grille du panneau',lv:[null,
   crossword(5,5,[{n:1,w:'SAPIN',r:0,c:0,d:'h',clue:'On le décore avec des boules et des guirlandes.'},{n:2,w:'ARBRE',r:0,c:1,d:'v',clue:'Le sapin en est un.'},{n:3,w:'NEIGE',r:0,c:4,d:'v',clue:'Elle tombe en flocons blancs.'},{n:4,w:'RENNE',r:4,c:0,d:'h',clue:'Il tire le traîneau du Père Noël.'}],"Commence par le 1 horizontal : son 2e lettre est aussi la 1re lettre du 2 vertical.","Grille complète, bravo !"),
   crossword(6,7,[{n:1,w:'CADEAU',r:0,c:0,d:'h',clue:'On le trouve au pied du sapin, avec un joli ruban.'},{n:1,w:'CLOCHE',r:0,c:0,d:'v',clue:'Elle sonne : ding, dong !'},{n:2,w:'ETOILE',r:0,c:3,d:'v',clue:'Elle brille tout en haut du sapin.'},{n:3,w:'COLIS',r:3,c:0,d:'h',clue:'Un paquet envoyé par la poste.'},{n:4,w:'ELFE',r:5,c:3,d:'h',clue:'Un autre nom pour un lutin.'}],"Le 1 horizontal et le 1 vertical commencent par la même lettre. Le 4 horizontal commence par la dernière lettre du 2 vertical.","Grille complète, bravo !")]},
- {spot:'partition',scene:4,tag:'Présent des verbes en -er',title:'La chanson des lutins',lv:[null,
+ {spot:'guirlande',scene:4,tag:'Suites numériques',title:'La guirlande des fanions',lv:[null,
+  suites("Bourrasque a effacé des nombres sur les fanions de la guirlande. Trouve la règle de chaque suite et complète.",[[[5,10,15,20,25,30],[3,5]],[[30,40,50,60,70,80],[3,4]],[[20,18,16,14,12,10],[3,4]]],"Regarde deux nombres qui se suivent : de combien avance-t-on ? 5, 10, 15… on avance de 5. Attention, une suite peut aussi reculer !","La guirlande se rallume !"),
+  suites("Bourrasque a effacé des nombres sur les fanions de la guirlande. Trouve la règle de chaque suite et complète.",[[[125,150,175,200,225,250],[3,4]],[[970,980,990,1000,1010,1020],[3,4]],[[300,295,290,285,280,275],[3,4]],[[2,4,8,16,32,64],[4,5]]],"Cherche de combien on avance ou on recule. Pour la dernière suite, on ne fait pas + : chaque nombre est le double du précédent !","La guirlande se rallume !")]},
+ {spot:'doudous',scene:4,tag:'Ordre alphabétique',title:'Les doudous des lutins',lv:[null,
+  alpha("Bourrasque a mélangé les doudous ! Range les prénoms des lutins dans <b>l'ordre alphabétique</b> : touche les prénoms dans l'ordre.",['Pim','Zou','Ana','Max','Lou','Rémi'],'Place',"Récite l'alphabet : A, B, C… Quel prénom commence par la lettre la plus proche du A ?","Les doudous sont rangés ! Chaque lutin retrouve le sien."),
+  alpha("Bourrasque a mélangé les doudous ! Range les prénoms des lutins dans <b>l'ordre alphabétique</b> : touche les prénoms dans l'ordre.",['Malo','Zoé','Lili','Basile','Max','Léo','Bob','Luna'],'Place',"Quand deux prénoms commencent par la même lettre, regarde la 2e lettre : Léo, Lili, Luna (e, i, u).","Les doudous sont rangés ! Chaque lutin retrouve le sien.")]},
+ {spot:'lits',scene:4,tag:'Problème pour chercher',title:'Les lits superposés',lv:[null,
+  enumer({lines:["Trois lutins, Pim, Zou et Lou, dorment dans un lit superposé à 3 étages : en haut, au milieu et en bas.","Chaque soir, ils changent de place.","De combien de façons différentes peuvent-ils se coucher ?"],how:"Touche un lutin pour chaque étage, puis ajoute la façon à la liste. Recommence pour trouver toutes les façons.",
+   items:['🧝 Pim','🧝 Zou','🧝 Lou'],k:3,ordered:true,slots:['En haut','Au milieu','En bas'],add:'Ajouter cette façon',unit:'façons',answer:6,q:'De combien de façons différentes peuvent-ils se coucher ?',
+   twice:'Ce lutin est déjà couché : un lutin ne peut pas dormir dans deux lits !',same:'Cette façon est déjà dans ta liste. Change les lutins de place !'},
+   "Cherche avec méthode : d'abord toutes les façons où Pim dort en haut, puis celles où Zou dort en haut, puis Lou.","6 façons ! Les lutins pourront changer de place toute la semaine."),
+  enumer({lines:["Quatre lutins, Pim, Zou, Lou et Max, veulent dormir dans le lit superposé à 2 étages.","Il n'y a que 2 places : en haut et en bas. Les deux autres lutins dorment dans le hamac.","Combien y a-t-il de façons différentes de choisir qui dort en haut et qui dort en bas ?"],how:"Touche un lutin pour chaque étage, puis ajoute la façon à la liste. Attention : Pim en haut et Zou en bas, ce n'est pas pareil que Zou en haut et Pim en bas !",
+   items:['🧝 Pim','🧝 Zou','🧝 Lou','🧝 Max'],k:2,ordered:true,slots:['En haut','En bas'],add:'Ajouter cette façon',unit:'façons',answer:12,q:'Combien de façons différentes ?',
+   twice:'Ce lutin est déjà couché : un lutin ne peut pas dormir dans deux lits !',same:'Cette façon est déjà dans ta liste. Change les lutins de place !'},
+   "Cherche avec méthode : si Pim dort en haut, qui peut dormir en bas ? Fais pareil avec Zou, Lou et Max en haut. Tu peux aussi faire un tableau.","12 façons ! Les lutins font la fête… en pyjama.")]},
+ {spot:'partition',scene:5,tag:'Présent des verbes en -er',title:'La chanson des lutins',lv:[null,
   fields("Bourrasque a effacé les verbes de la chanson. Conjugue-les <b>au présent</b>.",[['Je (chanter)','chante','t',' sous le sapin.'],['Tu (danser)','danses','t',' avec les lutins.'],['Nous (jouer)','jouons','t',' dans la neige.']],"Avec je : -e. Avec tu : -es. Avec nous : -ons.","Quelle belle chanson !"),
   fields("Bourrasque a effacé les verbes de la chanson. Conjugue-les <b>au présent</b>.",[['Nous (chanter)','chantons','t',' sous le sapin.'],['Tu (décorer)','décores','t',' la maison.'],['Les rennes (voler)','volent','t',' dans le ciel.'],['Vous (préparer)','préparez','t',' les cadeaux.']],"Je -e, tu -es, il -e, nous -ons, vous -ez, ils -ent.","Quelle belle chanson !")]},
- {spot:'ciel',scene:4,tag:'Message codé',title:'Le code des étoiles',lv:[null,
+ {spot:'ciel',scene:5,tag:'Message codé',title:'Le code des étoiles',lv:[null,
   code("Les étoiles forment un code ! Chaque paire donne une lettre : le premier nombre est la <b>ligne</b>, le second la <b>colonne</b> de la grille.",g5('RENNE'),grid5,'RENNE',"4-3 : ligne 4, colonne 3. C'est la lettre R.","RENNE ! Tornade est très fier."),
   code("Les étoiles forment un code ! Chaque paire donne une lettre : le premier nombre est la <b>ligne</b>, le second la <b>colonne</b> de la grille.",g5('TRAINEAU'),grid5,'TRAINEAU',"4-5 : ligne 4, colonne 5. C'est la lettre T.","TRAÎNEAU ! Le chemin du ciel est tracé.")]},
- {spot:'sacs',scene:4,tag:'Problème de composition',title:'Les sacs du traîneau',lv:[null,
+ {spot:'sacs',scene:5,tag:'Problème de composition',title:'Les sacs du traîneau',lv:[null,
   compo({lines:["Sur le traîneau, il y a 24 sacs rouges et 32 sacs bleus.","Combien y a-t-il de sacs en tout ?"],words:['sacs rouges','sacs bleus','sacs'],tout:'sacs',p1:['sacs rouges',24],p2:['sacs bleus',32],total:null,answer:56,q:'Combien y a-t-il de sacs en tout ?'},"On connaît les deux parties. Pour trouver le tout : 24 + 32.","56 sacs, bravo !"),
   compo({lines:["Le traîneau transporte 586 sacs.","Il y a des sacs de jouets et des sacs de livres.","Il y a 247 sacs de jouets.","Combien y a-t-il de sacs de livres ?"],words:['sacs','sacs de livres','sacs de jouets'],tout:'sacs',p1:['sacs de jouets',247],p2:['sacs de livres',null],total:586,answer:339,q:'Combien y a-t-il de sacs de livres ?'},"On connaît le tout (586) et une partie (247). L'autre partie : 586 − 247.","339 sacs de livres, bravo !")]}
 ];
 const N=ROOMS.length;const SPOT={};ROOMS.forEach((r,i)=>SPOT[r.spot]=i);
 const inScene=s=>ROOMS.map((r,i)=>r.scene===s?i:-1).filter(i=>i>=0);
-const BADGE={lettres:[528,470],train:[375,300],hotte:[286,425],facture:[516,330],biscuits:[852,365],bocal:[368,282],recettes:[948,355],frigo:[620,175],machine:[150,110],bacs:[797,445],tableau:[525,132],caisses:[350,425],ecran:[352,100],clavier:[500,372],imprimante:[130,316],panneau:[115,86],partition:[96,110],ciel:[520,130],sacs:[400,430]};
+const BADGE={lettres:[528,470],train:[375,300],hotte:[286,425],facture:[516,330],biscuits:[852,365],bocal:[368,282],recettes:[948,355],frigo:[620,175],machine:[150,110],bacs:[797,445],tableau:[525,132],caisses:[350,425],ecran:[352,100],clavier:[500,372],imprimante:[130,316],panneau:[115,86],soupe:[110,226],guirlande:[440,100],doudous:[725,150],lits:[185,110],partition:[96,110],ciel:[520,130],sacs:[400,430]};
 const FLAVOR={fenetre:"Il neige à gros flocons. La lune éclaire le chemin du traîneau.",sapin:"Les boules brillent… mais Bourrasque n'a rien caché dans le sapin.",nounours:"Le nounours te fait un clin d'œil. Rien ici !",chaussettes:"Une chaussette trouée… Rien dedans, à part un vieux bonbon collant !",horloge:"Il est 23 h 12 ! Il faut se dépêcher !",
  fenetre2:"Sur le rebord, un petit pot de houx. Dehors, il neige toujours.",fourneau:"Mmm… ça sent le chocolat chaud ! La Mère Noël le prépare pour les lutins.",maisonpain:"Une maison en pain d'épices ! Interdit de grignoter le toit.",saladier:"La pâte à crêpes est prête. Rien de caché dedans.",horloge2:"La pendule de la cuisine avance de cinq minutes. Ça ne nous aide pas !",casseroles:"Bong ! Les casseroles s'entrechoquent. Rien ici.",
  lampe:"Les lampes éclairent l'atelier toute la nuit.",robot:"Bip bip ! Le robot jouet tourne en rond. Il n'a rien vu.",
  lanterne:"La lanterne éclaire l'écurie d'une lumière dorée.",renne:"Tornade le renne te fait un bisou baveux. Il a hâte de partir !",foin:"Atchoum ! Que de la paille.",tonneau:"Le tonneau sent la pomme. Tornade adore ça."};
-const DOORS={porte:0,porte2:1,porte3:2,porte4:3};
-const SCENEFN=[maison,cuisine,fabrication,ordinateur,ecurie];
-Object.assign(FLAVOR,{tasse:"« Meilleur Père Noël du monde » est écrit sur la tasse. Le chocolat est encore chaud.",chaise:"Le fauteuil du Père Noël tourne… Wouiiii ! Rien de caché dessous.",globe:"Le globe montre tous les pays où le traîneau va passer cette nuit."});
+const DOORS={porte:0,porte2:1,porte3:2,porte4:3,porte5:4};
+const SCENEFN=[maison,cuisine,fabrication,ordinateur,dortoir,ecurie];
+Object.assign(FLAVOR,{tasse:"« Meilleur Père Noël du monde » est écrit sur la tasse. Le chocolat est encore chaud.",chaise:"Le fauteuil du Père Noël tourne… Wouiiii ! Rien de caché dessous.",globe:"Le globe montre tous les pays où le traîneau va passer cette nuit.",
+ fenetre3:"Par la fenêtre ronde, la lune veille sur les lutins endormis.",veilleuse:"La veilleuse éclaire tout doucement le dortoir. Chut, les lutins dorment !",chaussons:"Trois paires de chaussons bien rangés. Ils sentent un peu le fromage…"});
 
 /* ---------- état ---------- */
-const STORE='noel-escape-v6';
+const STORE='noel-escape-v7';
 const fresh=()=>({solved:new Array(N).fill(false),scene:0,intro:false,seen:SC.map(i=>i===0),elapsed:0,level:0});
 let S=fresh();
 try{const s=JSON.parse(localStorage.getItem(STORE)||'null');if(s&&Array.isArray(s.solved)&&s.solved.length===N)S=Object.assign(S,s)}catch(e){}
@@ -906,7 +1055,7 @@ const sc=SC.map(i=>$('sc'+i));
 const FLY=new Set();
 function flyKey(s){if(!$('key'+s))return;FLY.add(s);render();const orbNow=()=>$('key'+s).querySelector('.orb');
   const el=document.createElement('div');el.className='bigkey';el.setAttribute('aria-hidden','true');
-  el.innerHTML=`<div class="bk-orb">${keySvg(KEYCOL[s],true)}<b>${KEYS[s]}</b></div><p>Boule-clé ${['de la maison','de la cuisine','de la fabrication',"de l'ordinateur",'de l\'écurie'][s]} : ${KEYS[s]}</p>`;
+  el.innerHTML=`<div class="bk-orb">${keySvg(KEYCOL[s],true)}<b>${KEYS[s]}</b></div><p>Boule-clé ${['de la maison','de la cuisine','de la fabrication',"de l'ordinateur",'du dortoir',"de l'écurie"][s]} : ${KEYS[s]}</p>`;
   document.body.appendChild(el);
   let ended=false;const finish=()=>{if(ended)return;ended=true;el.remove();FLY.delete(s);render();const k=$('key'+s);k.classList.add('pop')};
   setTimeout(finish,4200);
@@ -920,7 +1069,7 @@ function keySvg(c,on){return `<svg viewBox="0 0 40 48"><rect x="16" y="1" width=
 function render(){
   sc.forEach((s,i)=>{if(i===S.scene)s.removeAttribute('hidden');else s.setAttribute('hidden','')});
   $('roomName').textContent=ROOMNAMES[S.scene];
-  $('keys').innerHTML=SC.map(s=>{const on=sceneDone(s);return `<span class="key ${on?'on':''}" id="key${s}"><span class="orb" style="${FLY.has(s)?'visibility:hidden':''}">${keySvg(KEYCOL[s],on)}<b>${on?KEYS[s]:'?'}</b></span>${['Maison','Cuisine','Fabrication','Ordinateur','Écurie'][s]} ${cntScene(s)}/${inScene(s).length}</span>`}).join('');
+  $('keys').innerHTML=SC.map(s=>{const on=sceneDone(s);return `<span class="key ${on?'on':''}" id="key${s}"><span class="orb" style="${FLY.has(s)?'visibility:hidden':''}">${keySvg(KEYCOL[s],on)}<b>${on?KEYS[s]:'?'}</b></span>${['Maison','Cuisine','Fabrication','Ordinateur','Dortoir','Écurie'][s]} ${cntScene(s)}/${inScene(s).length}</span>`}).join('');
   SC.forEach(n=>{$('badges'+n).innerHTML=ROOMS.map((r,i)=>S.solved[i]&&r.scene===n?`<g transform="translate(${BADGE[r.spot][0]} ${BADGE[r.spot][1]})"><circle r="15" fill="#1f8a4c" stroke="#fff" stroke-width="3"/><path d="M-7 0l5 5 9-10" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>`:'').join('')});
   SC.slice(0,LAST).forEach(d=>{const open=sceneDone(d);$('lock'+d).style.display=open?'none':'';$('light'+d).setAttribute('opacity',open?'.9':'0')});
   $('chestlock').style.opacity=SC.every(sceneDone)?'.5':'1';
@@ -931,7 +1080,7 @@ function render(){
 const NAMES={grelot:'Grelot',bourrasque:'Mot de Bourrasque',pere:'Le Père Noël',mere:'La Mère Noël'};
 function say(who,text){queue.push({who,text})}
 function tip(){
-  if(SC.every(sceneDone))return "On a les 5 boules-clés ! Vite, clique sur le coffre posé sur le traîneau, dans l'écurie !";
+  if(SC.every(sceneDone))return "On a les 6 boules-clés ! Vite, clique sur le coffre posé sur le traîneau, dans l'écurie !";
   const s=S.scene,n=inScene(s).length,c=cntScene(s);
   if(sceneDone(s))return s<LAST?`Cette pièce est terminée ! La porte vers ${ROOMNAMES[s+1].replace(/^La |^L'/,m=>m.toLowerCase())} est ouverte.`:"L'écurie est fouillée !";
   return `Fouille ${ROOMNAMES[s].replace(/^La |^L'/,m=>m.toLowerCase())} : clique sur les objets bizarres. Parchemins trouvés ici : ${c} sur ${n}.`;
@@ -943,7 +1092,7 @@ $('next').addEventListener('click',()=>{queue.shift();showTalk()});
 function act(id){
   if(id in SPOT){const i=SPOT[id];if(S.solved[i]){queue=[{who:'grelot',text:"On a déjà résolu le parchemin caché ici."}];showTalk()}else openRoom(i);return}
   if(id in DOORS){const d=DOORS[id];if(sceneDone(d))goScene(d+1);else{queue=[{who:'grelot',text:`La porte est fermée à clé ! Elle s'ouvrira quand tous les parchemins de cette pièce seront résolus (${cntScene(d)} sur ${inScene(d).length}).`}];showTalk()}return}
-  if(id==='traineau'){if(SC.every(sceneDone))openFinal();else{queue=[{who:'grelot',text:`Le coffre est là ! Mais il nous faut d'abord les 5 boules-clés (${SC.filter(sceneDone).length} sur 5).`}];showTalk()}return}
+  if(id==='traineau'){if(SC.every(sceneDone))openFinal();else{queue=[{who:'grelot',text:`Le coffre est là ! Mais il nous faut d'abord les 6 boules-clés (${SC.filter(sceneDone).length} sur 6).`}];showTalk()}return}
   if(FLAVOR[id]){queue=[{who:'grelot',text:FLAVOR[id]}];showTalk()}
 }
 stage.addEventListener('click',e=>{const h=e.target.closest('.hot');if(h)act(h.dataset.id)});
@@ -952,6 +1101,7 @@ const ARRIVE=[[],
  [['mere',"Bonsoir mon petit ! Je suis la Mère Noël. Bourrasque est passé dans ma cuisine… et il a semé ses parchemins partout !"],['mere',"Regarde bien le bocal, le frigo, la table… Et ne touche pas à ma maison en pain d'épices !"]],
  [['grelot',"Voici l'atelier de fabrication ! Les machines fabriquent des jouets jour et nuit."],['bourrasque',"Hi hi ! J'ai déréglé le compteur, mélangé le tableau de commande et caché des énigmes dans les bacs et les caisses !"]],
  [['grelot',"Waouh ! La salle du grand ordinateur ! C'est ici que le Père Noël garde la liste des enfants sages."],['bourrasque',"Hi hi ! J'ai mélangé la liste, bloqué le clavier et caché des grilles partout. Bon courage !"]],
+ [['grelot',"Chut… Voici le dortoir des lutins ! Ils dorment avant la grande nuit de Noël."],['bourrasque',"Hi hi ! J'ai effacé la guirlande, mélangé les doudous et posé une énigme sur le lit superposé !"]],
  [['grelot',"Voici l'écurie ! Tornade le renne est déjà attelé… presque."],['bourrasque',"Les derniers parchemins sont ici. Et le coffre ? Je l'ai mis sur le traîneau ! Hi hi !"]]];
 function goScene(n){if(!unlocked(n))return;S.scene=n;queue=[];if(!S.seen[n]){S.seen[n]=true;ARRIVE[n].forEach(([w,t])=>say(w,t))}save();render();sc[n].classList.remove('show');sc[n].getBoundingClientRect();sc[n].classList.add('show')}
 $('prev').addEventListener('click',()=>goScene(S.scene-1));
@@ -964,7 +1114,7 @@ const tries=new Array(N).fill(0);
 const oops=["Pas encore… Grelot se gratte la tête. Réessaie !","Presque ! Relis bien la consigne.","Hmm, ce n'est pas ça. Un indice peut t'aider !"];
 function openModal(tag,title,p){P=p;$('mTag').textContent=tag;$('mTitle').textContent=title;mBody.innerHTML=p.html;mFb.textContent='';mHintTxt.textContent=p.hint||'';mHintTxt.hidden=true;$('mHint').hidden=!p.hint;modal.hidden=false;if(p.mount)p.mount(mBody);const f=mBody.querySelector('input,button');if(f)f.focus()}
 function openRoom(i){current=i;const r=ROOMS[i];openModal(`Parchemin n°${i+1} · ${r.tag}`,r.title,r.lv[S.level||2])}
-function openFinal(){current='final';openModal('Le grand coffre','Le cadenas à 5 chiffres',{html:`<p>Entre les chiffres des 5 boules-clés, dans l'ordre des pièces : maison, cuisine, fabrication, ordinateur, écurie.</p><div class="digits" id="digits">${KEYS.map((_,i)=>`<input id="k${i}" inputmode="numeric" maxlength="1" aria-label="Chiffre ${i+1}">`).join('')}</div>`,hint:"Regarde les boules en haut de l'écran : elles gardent les chiffres dans l'ordre.",check:()=>KEYS.map((_,i)=>$('k'+i).value).join('')===KEYS.join('')||'Clac ! Le cadenas reste fermé. Vérifie l\'ordre des chiffres.'})}
+function openFinal(){current='final';openModal('Le grand coffre','Le cadenas à 6 chiffres',{html:`<p>Entre les chiffres des 6 boules-clés, dans l'ordre des pièces : maison, cuisine, fabrication, ordinateur, dortoir, écurie.</p><div class="digits" id="digits">${KEYS.map((_,i)=>`<input id="k${i}" inputmode="numeric" maxlength="1" aria-label="Chiffre ${i+1}">`).join('')}</div>`,hint:"Regarde les boules en haut de l'écran : elles gardent les chiffres dans l'ordre.",check:()=>KEYS.map((_,i)=>$('k'+i).value).join('')===KEYS.join('')||'Clac ! Le cadenas reste fermé. Vérifie l\'ordre des chiffres.'})}
 function closeModal(){modal.hidden=true;current=null}
 $('mClose').addEventListener('click',closeModal);
 modal.addEventListener('click',e=>{if(e.target===modal)closeModal();const w=e.target.closest('.w');if(w){w.classList.toggle('sel');w.setAttribute('aria-pressed',w.classList.contains('sel'))}});
@@ -978,7 +1128,7 @@ function validate(){
   if(current==='final'){if(r===true){closeModal();win()}else mFb.textContent=r;return}
   const i=current;
   if(r===true){const s=ROOMS[i].scene,before=sceneDone(s);S.solved[i]=true;save();closeModal();queue=[{who:'grelot',text:P.found||'Bravo !'}];
-    if(!before&&sceneDone(s)){say('grelot',`Tous les parchemins de ${ROOMNAMES[s].replace(/^La |^L'/,m=>m.toLowerCase())} sont résolus ! Une boule-clé apparaît… avec le chiffre ${KEYS[s]} !`);if(s<LAST)say('grelot',`Clic ! La porte vers ${ROOMNAMES[s+1].replace(/^La |^L'/,m=>m.toLowerCase())} vient de s'ouvrir.`);else say('grelot',"On a les 5 boules-clés ! Vite, le coffre sur le traîneau !")}
+    if(!before&&sceneDone(s)){say('grelot',`Tous les parchemins de ${ROOMNAMES[s].replace(/^La |^L'/,m=>m.toLowerCase())} sont résolus ! Une boule-clé apparaît… avec le chiffre ${KEYS[s]} !`);if(s<LAST)say('grelot',`Clic ! La porte vers ${ROOMNAMES[s+1].replace(/^La |^L'/,m=>m.toLowerCase())} vient de s'ouvrir.`);else say('grelot',"On a les 6 boules-clés ! Vite, le coffre sur le traîneau !")}
     render();if(!before&&sceneDone(s)){flyKey(s);confetti(80)}}
   else mFb.textContent=typeof r==='string'?r:oops[tries[i]++%oops.length];
 }
@@ -989,7 +1139,7 @@ function win(){done=true;$('winTime').textContent='Mission réussie en '+fmt(S.e
 function intro(){queue=[];
   say('grelot',"Oh non, oh non ! Il est 23 heures. Le Père Noël part à minuit… et le coffre des cadeaux est fermé à clé !");
   say('grelot',"C'est encore un coup de Bourrasque, le lutin farceur. Il a changé le code du cadenas et il a laissé ce mot :");
-  say('bourrasque',"Hi hi hi ! J'ai caché 19 parchemins dans la maison, la cuisine, l'atelier de fabrication, la salle du grand ordinateur et l'écurie. Quand une pièce est terminée, une boule-clé apparaît avec un chiffre du code. Bonne chance !");
+  say('bourrasque',"Hi hi hi ! J'ai caché 23 parchemins dans la maison, la cuisine, l'atelier de fabrication, la salle du grand ordinateur, le dortoir des lutins et l'écurie. Quand une pièce est terminée, une boule-clé apparaît avec un chiffre du code. Bonne chance !");
   say('grelot',"Aide-moi ! Clique sur les objets du décor. Si tu es perdu, utilise la loupe magique.");
   S.intro=true;save()}
 const lvBox=$('levels');
