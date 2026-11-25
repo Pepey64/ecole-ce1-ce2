@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Les solides (CE1-CE2)</title>
+<style>
+:root {
+  --paper: #FAF6EA;
+  --line: rgba(46,111,149,0.16);
+  --ink: #243B2C;
+  --red: #D6483D;
+  --blue: #2E6F95;
+  --yellow: #F2B33D;
+  --green: #4C9A5B;
+  --purple: #7C5CA6;
+  --card-border: #E4DCC4;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; min-height: 100vh; color: var(--ink);
+  background-color: var(--paper);
+  background-image: repeating-linear-gradient(var(--line) 0px, var(--line) 1px, transparent 1px, transparent 28px);
+  font-family: 'Nunito', 'Segoe UI', Verdana, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+.hand { font-family: 'Patrick Hand', 'Segoe Print', 'Comic Sans MS', 'Bradley Hand', cursive; }
+.wrap { max-width: 68rem; margin: 0 auto; padding: 1.2rem 1rem 3rem; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; }
+h1 { margin: 0; font-size: 2.8rem; line-height: 1; font-weight: 400; }
+.sub { margin: .25rem 0 0; font-weight: 600; color: var(--blue); }
+.retour { color: var(--blue); font-weight: 700; text-decoration: none; font-size: .95rem; }
+button { font-family: inherit; cursor: pointer; border: 0; font-weight: 700; border-radius: 9999px; transition: transform .15s; touch-action: manipulation; }
+button:active { transform: scale(.95); }
+button:focus-visible { outline: 4px solid var(--yellow); outline-offset: 2px; }
+
+.niveaux { display: flex; gap: .4rem; }
+.niveaux button { padding: .45rem 1rem; font-size: 1rem; background: white; color: var(--ink); border: 2px solid var(--card-border); }
+.niveaux button[aria-pressed="true"] { background: var(--ink); color: white; border-color: var(--ink); }
+
+.onglets { display: flex; flex-wrap: wrap; gap: .45rem; margin: 1rem 0; }
+.onglets button { padding: .6rem 1.05rem; font-size: 1.02rem; background: white; color: var(--blue); border: 2px solid var(--card-border); }
+.onglets button[aria-selected="true"] { background: var(--blue); color: white; border-color: var(--blue); }
+
+.carte { background: white; border: 2px solid var(--card-border); border-left: 8px solid var(--blue); border-radius: 1rem; padding: 1rem 1.1rem; }
+.zone { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+@media (min-width: 860px) { .zone { grid-template-columns: 1.35fr 1fr; } }
+.scene { width: 100%; height: auto; display: block; background: #fffdf6; border: 2px dashed #E4DCC4; border-radius: 1rem; touch-action: none; cursor: grab; user-select: none; }
+.scene:active { cursor: grabbing; }
+.astuce { font-size: .85rem; color: #7A7458; margin: .35rem 0 0; text-align: center; }
+
+.choix { display: flex; flex-wrap: wrap; gap: .45rem; margin: .4rem 0 .8rem; }
+.choix button { padding: .5rem .9rem; font-size: 1.05rem; background: #F4EFE2; color: var(--ink); border: 2px solid transparent; }
+.choix button[aria-pressed="true"] { background: var(--yellow); border-color: #c98c10; }
+.interrupteurs { display: flex; flex-wrap: wrap; gap: .45rem; margin: .4rem 0; }
+.interrupteurs button { padding: .4rem .8rem; font-size: .95rem; background: white; border: 2px solid var(--card-border); color: var(--ink); }
+.interrupteurs button[aria-pressed="true"] { background: var(--green); color: white; border-color: var(--green); }
+.interrupteurs button.f[aria-pressed="true"] { background: #c9a400; border-color: #c9a400; }
+.interrupteurs button.a[aria-pressed="true"] { background: var(--red); border-color: var(--red); }
+.interrupteurs button.s[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); }
+
+.fiche h2 { margin: 0 0 .3rem; font-size: 2rem; font-weight: 400; color: var(--red); }
+.fiche table { border-collapse: collapse; width: 100%; font-size: 1.1rem; margin-top: .4rem; }
+.fiche td { padding: .45rem .5rem; border-bottom: 2px solid #F0EADA; }
+.fiche td.v { font-family: 'Patrick Hand', cursive; font-size: 1.6rem; text-align: right; color: var(--blue); width: 30%; }
+.mot { font-weight: 800; }
+.mot.f { color: #b38f00; } .mot.a { color: var(--red); } .mot.s { color: var(--blue); }
+
+.progress { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; margin-bottom: .7rem; }
+.dot { width: 1.6rem; height: 1.6rem; border-radius: 9999px; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 800; background: white; color: #B7AF92; border: 2px solid #E4DCC4; }
+.dot.ok { background: var(--green); color: white; border-color: var(--green); }
+.dot.ko { background: var(--red); color: white; border-color: var(--red); }
+.dot.cur { border-color: var(--blue); color: var(--blue); }
+.question { font-size: 1.55rem; margin: .2rem 0 .6rem; }
+.msg { min-height: 2.2rem; font-weight: 800; font-size: 1.15rem; margin-top: .5rem; }
+.msg.good { color: var(--green); } .msg.bad { color: var(--red); }
+
+.pave { display: grid; grid-template-columns: repeat(3, 4.2rem); gap: .45rem; justify-content: center; margin-top: .6rem; }
+.pave button { height: 3.6rem; font-size: 1.7rem; background: white; color: var(--ink); border: 2px solid var(--card-border); border-radius: 1rem; font-family: 'Patrick Hand', cursive; }
+.pave button.ok { background: var(--green); color: white; border-color: var(--green); font-family: inherit; font-size: 1.1rem; }
+.pave button.eff { background: #F4EFE2; font-size: 1.2rem; }
+.ecran { text-align: center; font-family: 'Patrick Hand', cursive; font-size: 2.6rem; min-height: 3.4rem; border: 3px solid #B9C4CC; border-radius: .8rem; background: white; width: 9rem; margin: 0 auto; }
+
+.reponses { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); gap: .55rem; }
+.reponses button { background: #F4EFE2; color: var(--ink); padding: .5rem; border-radius: 1rem; font-size: 1.05rem; border: 3px solid transparent; display: flex; flex-direction: column; align-items: center; gap: .2rem; }
+.reponses button svg { width: 5.5rem; height: 5rem; }
+.reponses button.bon { border-color: var(--green); background: #E7F5E8; }
+.reponses button.faux { border-color: var(--red); background: #FBEAE8; }
+.ouinon { display: flex; gap: .8rem; justify-content: center; margin-top: .6rem; }
+.ouinon button { padding: .8rem 2rem; font-size: 1.4rem; color: white; }
+.ouinon .oui { background: var(--green); } .ouinon .non { background: var(--red); }
+.suivant { background: var(--blue); color: white; padding: .65rem 1.4rem; font-size: 1.1rem; margin-top: .6rem; }
+.lecteur { display: flex; align-items: center; gap: .7rem; margin-top: .6rem; flex-wrap: wrap; }
+.lecteur input[type=range] { flex: 1; min-width: 160px; accent-color: var(--blue); height: 2rem; }
+.lecteur button { background: var(--blue); color: white; padding: .55rem 1.1rem; font-size: 1.05rem; }
+.devinette { font-family: 'Patrick Hand', cursive; font-size: 1.9rem; background: #FFF6D8; border-radius: 1rem; padding: .7rem 1rem; margin-bottom: .8rem; }
+.bilan { text-align: center; padding: 1.5rem 1rem; }
+.etoiles { font-size: 3.4rem; letter-spacing: .3rem; color: var(--yellow); }
+.etoiles .vide { color: #E4DCC4; }
+.record { color: #7A7458; font-size: .95rem; }
+.cache { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <a class="retour" href="index.html">← Ludothèque</a>
+      <h1 class="hand">🧊 Les solides</h1>
+      <p class="sub">Reconnaître, nommer, décrire les solides : face, arête, sommet… et le patron du cube.</p>
+    </div>
+    <div class="niveaux" role="group" aria-label="Niveau">
+      <button data-niv="CE1" aria-pressed="true">CE1</button>
+      <button data-niv="CE2" aria-pressed="false">CE2</button>
+    </div>
+  </div>
+
+  <div class="onglets" role="tablist">
+    <button role="tab" data-onglet="decouvrir" aria-selected="true">👀 Découvrir</button>
+    <button role="tab" data-onglet="deplier" aria-selected="false">📦 Le dépliage</button>
+    <button role="tab" data-onglet="nommer" aria-selected="false">🏷️ Quel solide ?</button>
+    <button role="tab" data-onglet="compter" aria-selected="false">🔢 Compter</button>
+    <button role="tab" data-onglet="patron" aria-selected="false">✂️ Patron ou pas ?</button>
+    <button role="tab" data-onglet="devine" aria-selected="false">❓ Qui suis-je ?</button>
+  </div>
+
+  <!-- ============ DÉCOUVRIR ============ -->
+  <section id="o-decouvrir" class="zone">
+    <div class="carte">
+      <div class="choix" id="d-choix"></div>
+      <svg class="scene" id="d-scene" viewBox="-170 -130 340 260"></svg>
+      <p class="astuce">Fais tourner le solide avec le doigt ou la souris.</p>
+      <div class="interrupteurs">
+        <button id="d-tourne" aria-pressed="true">🔄 Tourne tout seul</button>
+        <button class="f" id="d-f" aria-pressed="false">Faces numérotées</button>
+        <button class="a" id="d-a" aria-pressed="false">Arêtes</button>
+        <button class="s" id="d-s" aria-pressed="false">Sommets</button>
+        <button id="d-c" aria-pressed="true">Arêtes cachées en pointillés</button>
+      </div>
+    </div>
+    <div class="carte fiche" id="d-fiche"></div>
+  </section>
+
+  <!-- ============ DÉPLIAGE ============ -->
+  <section id="o-deplier" class="zone cache">
+    <div class="carte">
+      <div class="choix" id="p-choix"></div>
+      <svg class="scene" id="p-scene" viewBox="-200 -150 400 300"></svg>
+      <div class="lecteur">
+        <button id="p-jouer">▶ Déplier</button>
+        <span class="hand" style="font-size:1.2rem">fermé</span>
+        <input type="range" id="p-curseur" min="0" max="100" value="0" aria-label="Déplier">
+        <span class="hand" style="font-size:1.2rem">à plat</span>
+      </div>
+      <p class="astuce">Glisse le curseur ou appuie sur ▶. Tu peux aussi faire tourner le solide.</p>
+    </div>
+    <div class="carte fiche" id="p-fiche"></div>
+  </section>
+
+  <!-- ============ EXERCICES ============ -->
+  <section id="o-exo" class="cache">
+    <div class="carte">
+      <div class="progress" id="e-prog"></div>
+      <div id="e-corps"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var NS = "http://www.w3.org/2000/svg";
+  var niveau = "CE1";
+  try { var n0 = localStorage.getItem("solides-niveau"); if (n0) niveau = n0; } catch (e) {}
+
+  /* ================= petite géométrie 3D ================= */
+  function sub(a, b) { return [a[0]-b[0], a[1]-b[1], a[2]-b[2]]; }
+  function add(a, b) { return [a[0]+b[0], a[1]+b[1], a[2]+b[2]]; }
+  function mul(a, k) { return [a[0]*k, a[1]*k, a[2]*k]; }
+  function dot(a, b) { return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]; }
+  function cross(a, b) { return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]; }
+  function norm(a) { var l = Math.sqrt(dot(a, a)) || 1; return mul(a, 1/l); }
+  function centre(pts) { var c = [0,0,0]; pts.forEach(function (p) { c = add(c, p); }); return mul(c, 1/pts.length); }
+  function rotAxe(p, a, d, ang) {
+    var v = sub(p, a), c = Math.cos(ang), s = Math.sin(ang);
+    return add(add(add(mul(v, c), mul(cross(d, v), s)), mul(d, dot(d, v)*(1-c))), a);
+  }
+
+  function orienter(V, F) {                      // faces tournées vers l'extérieur (solides convexes)
+    var c = centre(V);
+    return F.map(function (f) {
+      var n = cross(sub(V[f[1]], V[f[0]]), sub(V[f[2]], V[f[0]]));
+      return dot(n, sub(centre(f.map(function (i) { return V[i]; })), c)) < 0 ? f.slice().reverse() : f;
+    });
+  }
+  function pave(a, b, c) {
+    var x = a/2, y = b/2, z = c/2;
+    var V = [[-x,-y,-z],[x,-y,-z],[x,y,-z],[-x,y,-z],[-x,-y,z],[x,-y,z],[x,y,z],[-x,y,z]];
+    return { V: V, F: orienter(V, [[0,3,2,1],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]]) };
+  }
+  function pyramide(a, h) {
+    var x = a/2, V = [[-x,-x,-h/2],[x,-x,-h/2],[x,x,-h/2],[-x,x,-h/2],[0,0,h/2]];
+    return { V: V, F: orienter(V, [[0,3,2,1],[0,1,4],[1,2,4],[2,3,4],[3,0,4]]) };
+  }
+  function cylindre(r, h, n) {
+    var V = [], F = [], i;
+    for (i = 0; i < n; i++) { var t = 2*Math.PI*i/n; V.push([r*Math.cos(t), r*Math.sin(t), -h/2]); }
+    for (i = 0; i < n; i++) { var u = 2*Math.PI*i/n; V.push([r*Math.cos(u), r*Math.sin(u), h/2]); }
+    for (i = 0; i < n; i++) F.push([i, (i+1)%n, n+(i+1)%n, n+i]);
+    F.push(Array.apply(null, Array(n)).map(function (_, k) { return k; }));
+    F.push(Array.apply(null, Array(n)).map(function (_, k) { return n+k; }));
+    return { V: V, F: orienter(V, F), rond: true };
+  }
+  function cone(r, h, n) {
+    var V = [], F = [], i;
+    for (i = 0; i < n; i++) { var t = 2*Math.PI*i/n; V.push([r*Math.cos(t), r*Math.sin(t), -h/2]); }
+    V.push([0, 0, h/2]);
+    for (i = 0; i < n; i++) F.push([i, (i+1)%n, n]);
+    F.push(Array.apply(null, Array(n)).map(function (_, k) { return k; }));
+    return { V: V, F: orienter(V, F), rond: true };
+  }
+  function boule(r, nl, nL) {
+    var V = [], F = [], i, j;
+    for (i = 0; i <= nl; i++) {
+      var ph = Math.PI*i/nl;
+      for (j = 0; j < nL; j++) { var th = 2*Math.PI*j/nL; V.push([r*Math.sin(ph)*Math.cos(th), r*Math.sin(ph)*Math.sin(th), r*Math.cos(ph)]); }
+    }
+    for (i = 0; i < nl; i++) for (j = 0; j < nL; j++) {
+      var a = i*nL+j, b = i*nL+(j+1)%nL, c = (i+1)*nL+(j+1)%nL, d = (i+1)*nL+j;
+      if (i === 0) F.push([a, c, d]); else if (i === nl-1) F.push([a, b, c]); else F.push([a, b, c, d]);
+    }
+    return { V: V, F: orienter(V, F), rond: true, boule: true };
+  }
+
+  var SOLIDES = {
+    cube:     { nom: "le cube", court: "cube", coul: "#f6c35b", m: pave(1.3, 1.3, 1.3), poly: true, faces: 6, aretes: 12, sommets: 8, forme: "6 carrés", comme: "un dé à jouer" },
+    pave:     { nom: "le pavé droit", court: "pavé droit", coul: "#8ec3ea", m: pave(1.9, 1.05, 0.95), poly: true, faces: 6, aretes: 12, sommets: 8, forme: "6 rectangles (parfois 2 carrés)", comme: "une boîte à chaussures" },
+    pyramide: { nom: "la pyramide", court: "pyramide", coul: "#a9d98f", m: pyramide(1.5, 1.35), poly: true, faces: 5, aretes: 8, sommets: 5, forme: "4 triangles + 1 carré (la base)", comme: "les pyramides d'Égypte" },
+    cylindre: { nom: "le cylindre", court: "cylindre", coul: "#f3a9bd", m: cylindre(0.7, 1.45, 40), poly: false, forme: "2 disques plats et une partie arrondie", comme: "une boîte de conserve" },
+    cone:     { nom: "le cône", court: "cône", coul: "#c7b0ea", m: cone(0.78, 1.5, 40), poly: false, forme: "1 disque plat et une pointe", comme: "un cornet de glace" },
+    boule:    { nom: "la boule", court: "boule", coul: "#f9dd7a", m: boule(0.85, 14, 28), poly: false, forme: "aucune face plate", comme: "une balle" }
+  };
+  var ORDRE = ["cube", "pave", "pyramide", "cylindre", "cone", "boule"];
+
+  // arêtes « vraies » : entre deux faces qui ne sont pas dans le même plan
+  function aretes(m) {
+    var E = {}, key, f, k;
+    m.F.forEach(function (f, fi) {
+      for (k = 0; k < f.length; k++) {
+        var a = f[k], b = f[(k+1) % f.length]; key = a < b ? a + "-" + b : b + "-" + a;
+        (E[key] = E[key] || { a: Math.min(a, b), b: Math.max(a, b), f: [] }).f.push(fi);
+      }
+    });
+    var N = m.F.map(function (f) { return norm(cross(sub(m.V[f[1]], m.V[f[0]]), sub(m.V[f[2]], m.V[f[0]]))); });
+    m.N = N;
+    m.E = Object.keys(E).map(function (k) { return E[k]; }).filter(function (e) {
+      return !m.boule && (e.f.length < 2 || dot(N[e.f[0]], N[e.f[1]]) < 0.82);
+    });
+  }
+  ORDRE.forEach(function (k) { aretes(SOLIDES[k].m); });
+
+  function Vue(yaw, pitch) {
+    var cp = Math.cos(pitch), sp = Math.sin(pitch), cy = Math.cos(yaw), sy = Math.sin(yaw);
+    this.rot = function (p) { return [p[0]*cy - p[1]*sy, p[0]*sy + p[1]*cy, p[2]]; };
+    this.d = [0, cp, -sp]; this.u = [0, sp, cp];
+    this.proj = function (p, s) { var q = this.rot(p); return [q[0]*s, -dot(q, this.u)*s, dot(q, this.d)]; };
+  }
+  function teinte(hex, k) {
+    var r = parseInt(hex.substr(1, 2), 16), g = parseInt(hex.substr(3, 2), 16), b = parseInt(hex.substr(5, 2), 16);
+    function f(c) { return Math.round(k >= 1 ? c + (255 - c)*(k - 1) : c*k); }
+    return "rgb(" + f(r) + "," + f(g) + "," + f(b) + ")";
+  }
+  function lum(v, n) {                           // éclairage doux
+    var q = v.rot(n), nt = -dot(q, v.d), nu = dot(q, v.u);
+    return 0.72 + 0.42*Math.max(0, -0.3*q[0] + 0.6*nu + 0.7*nt);
+  }
+  function el(tag, att, parent) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in att) e.setAttribute(k, att[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+
+  /* dessin d'un solide convexe */
+  function dessiner(svg, cle, vue, s, opt) {
+    opt = opt || {};
+    var S = SOLIDES[cle], m = S.m;
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var P = m.V.map(function (v) { return vue.proj(v, s); });
+    var vis = m.N.map(function (n) { return dot(vue.rot(n), vue.d) < -1e-6; });
+    var g = el("g", {}, svg);
+    m.F.forEach(function (f, fi) {
+      if (!vis[fi]) return;
+      var c = teinte(S.coul, lum(vue, m.N[fi]));
+      el("polygon", { points: f.map(function (i) { return P[i][0].toFixed(1) + "," + P[i][1].toFixed(1); }).join(" "),
+        fill: c, stroke: S.poly ? "#24302a" : c, "stroke-width": S.poly ? 2.2 : 0.8, "stroke-linejoin": "round" }, g);
+    });
+    if (m.boule) {                                // contour de la boule
+      var r = 0.85*s; el("circle", { cx: 0, cy: 0, r: r, fill: "none", stroke: "#24302a", "stroke-width": 2.2 }, g);
+    }
+    m.E.forEach(function (e) {
+      var v1 = vis[e.f[0]], v2 = e.f.length > 1 ? vis[e.f[1]] : v1;
+      var visible = v1 || v2;
+      if (!S.poly) {                              // cylindre, cône : bords des disques et silhouette
+        if (!visible && !opt.cache) return;
+        el("line", { x1: P[e.a][0], y1: P[e.a][1], x2: P[e.b][0], y2: P[e.b][1], stroke: "#24302a",
+          "stroke-width": visible ? 2.2 : 1.4, "stroke-dasharray": visible ? "" : "6 5" }, g);
+        return;
+      }
+      if (!visible && !opt.cache) return;
+      var rouge = opt.aretes;
+      el("line", { x1: P[e.a][0], y1: P[e.a][1], x2: P[e.b][0], y2: P[e.b][1],
+        stroke: rouge ? "#D6483D" : "#24302a", "stroke-width": visible ? (rouge ? 5 : 2.2) : (rouge ? 3 : 1.6),
+        "stroke-dasharray": visible ? "" : "7 6", "stroke-linecap": "round" }, g);
+    });
+    if (!S.poly && !m.boule) {                    // silhouette des solides ronds (contour latéral)
+      silhouette(g, m, vue, P, vis);
+    }
+    if (opt.sommets && S.poly) {
+      m.V.forEach(function (v, i) {
+        var vu = m.F.some(function (f, fi) { return vis[fi] && f.indexOf(i) >= 0; });
+        if (!vu && !opt.cache) return;
+        el("circle", { cx: P[i][0], cy: P[i][1], r: vu ? 7 : 5, fill: vu ? "#2E6F95" : "#9fc0dc", stroke: "white", "stroke-width": 1.5 }, g);
+      });
+    }
+    if (opt.faces && S.poly) {
+      var num = 0;
+      m.F.forEach(function (f, fi) {
+        num++;
+        if (!vis[fi]) return;
+        var c = centre(f.map(function (i) { return P[i]; }));
+        el("circle", { cx: c[0], cy: c[1], r: 13, fill: "white", stroke: "#b38f00", "stroke-width": 2 }, g);
+        var t = el("text", { x: c[0], y: c[1] + 6, "text-anchor": "middle", "font-size": 17, "font-weight": 800, fill: "#7a6200",
+          "font-family": "Nunito, Verdana, sans-serif" }, g);
+        t.textContent = num;
+      });
+    }
+  }
+  function silhouette(g, m, vue, P, vis) {        // arêtes entre une face vue et une face cachée
+    var E = {};
+    m.F.forEach(function (f, fi) {
+      for (var k = 0; k < f.length; k++) {
+        var a = f[k], b = f[(k+1) % f.length], key = a < b ? a + "-" + b : b + "-" + a;
+        (E[key] = E[key] || []).push(fi);
+      }
+    });
+    Object.keys(E).forEach(function (key) {
+      var fs = E[key]; if (fs.length < 2 || vis[fs[0]] === vis[fs[1]]) return;
+      var ab = key.split("-").map(Number);
+      el("line", { x1: P[ab[0]][0], y1: P[ab[0]][1], x2: P[ab[1]][0], y2: P[ab[1]][1], stroke: "#24302a", "stroke-width": 2.2, "stroke-linecap": "round" }, g);
+    });
+  }
+
+  /* rotation à la main */
+  function tourneur(svg, etat, redessiner) {
+    var dep = null;
+    svg.addEventListener("pointerdown", function (e) { dep = [e.clientX, e.clientY, etat.yaw, etat.pitch]; etat.auto = false; if (etat.onStop) etat.onStop(); svg.setPointerCapture(e.pointerId); });
+    svg.addEventListener("pointermove", function (e) {
+      if (!dep) return;
+      etat.yaw = dep[2] - (e.clientX - dep[0]) * 0.012;
+      etat.pitch = Math.max(-0.2, Math.min(1.5, dep[3] + (e.clientY - dep[1]) * 0.01));
+      redessiner();
+    });
+    function fin() { dep = null; }
+    svg.addEventListener("pointerup", fin); svg.addEventListener("pointercancel", fin);
+  }
+
+  /* ================= onglet Découvrir ================= */
+  var D = { cle: "cube", yaw: -0.6, pitch: 0.42, auto: true, f: false, a: false, s: false, c: true };
+  var dScene = document.getElementById("d-scene");
+  function dDessin() { dessiner(dScene, D.cle, new Vue(D.yaw, D.pitch), 95, { faces: D.f, aretes: D.a, sommets: D.s, cache: D.c }); }
+  function dFiche() {
+    var S = SOLIDES[D.cle], h = '<h2 class="hand">' + S.nom + '</h2>';
+    if (S.poly) {
+      h += '<p>Toutes ses faces sont plates : c\'est un <b>polyèdre</b>. Il ne roule pas.</p><table>' +
+        '<tr><td><span class="mot f">faces</span></td><td class="v">' + S.faces + '</td></tr>' +
+        '<tr><td><span class="mot a">arêtes</span></td><td class="v">' + S.aretes + '</td></tr>' +
+        '<tr><td><span class="mot s">sommets</span></td><td class="v">' + S.sommets + '</td></tr>' +
+        '<tr><td colspan="2">Ses faces : <b>' + S.forme + '</b></td></tr></table>';
+      if (D.cle === "pyramide" && niveau === "CE2") h += '<p>Les faces triangulaires se rejoignent toutes au <b>même sommet</b>.</p>';
+      if (D.cle === "cube") h += '<p>Pour compter les arêtes : 4 en haut, 4 en bas, 4 debout.</p>';
+    } else {
+      h += '<p>Il a une partie arrondie : il <b>roule</b>. Ce n\'est pas un polyèdre.</p><p>' + S.forme.charAt(0).toUpperCase() + S.forme.slice(1) + '.</p>';
+    }
+    h += '<p style="color:#7A7458">Comme ' + S.comme + '.</p>';
+    h += '<p style="font-size:.95rem"><span class="mot f">Face</span> : surface plate. <span class="mot a">Arête</span> : bord où deux faces se rencontrent. <span class="mot s">Sommet</span> : pointe où les arêtes se rejoignent.</p>';
+    document.getElementById("d-fiche").innerHTML = h;
+  }
+  function boutonsSolides(id, liste, actuel, cb) {
+    var c = document.getElementById(id); c.innerHTML = "";
+    liste.forEach(function (k) {
+      var b = document.createElement("button"); b.textContent = SOLIDES[k] ? SOLIDES[k].court : k;
+      b.setAttribute("aria-pressed", String(k === actuel()));
+      b.addEventListener("click", function () { cb(k); boutonsSolides(id, liste, actuel, cb); });
+      c.appendChild(b);
+    });
+  }
+  boutonsSolides("d-choix", ORDRE, function () { return D.cle; }, function (k) { D.cle = k; dDessin(); dFiche(); });
+  tourneur(dScene, D, dDessin);
+  D.onStop = function () { document.getElementById("d-tourne").setAttribute("aria-pressed", "false"); };
+  [["d-tourne", "auto"], ["d-f", "f"], ["d-a", "a"], ["d-s", "s"], ["d-c", "c"]].forEach(function (p) {
+    var b = document.getElementById(p[0]);
+    b.addEventListener("click", function () { D[p[1]] = !D[p[1]]; b.setAttribute("aria-pressed", String(D[p[1]])); dDessin(); });
+  });
+
+  /* ================= patrons et pliage ================= */
+  // un patron = faces {pts:[[x,y]...], parent, charniere:[p0,p1], angle}
+  function plier(net, t, tf) {
+    return net.map(function (f, i) {
+      var pts = f.pts.map(function (p) { return [p[0], p[1], 0]; }), j = i;
+      while (net[j].parent !== null) {
+        var h = net[j].charniere, a = [h[0][0], h[0][1], 0], d = norm([h[1][0]-h[0][0], h[1][1]-h[0][1], 0]);
+        var c = centre(net[j].pts.map(function (p) { return [p[0], p[1], 0]; }));
+        var sg = rotAxe(c, a, d, 0.1)[2] > 0 ? 1 : -1;
+        var ang = sg * net[j].angle * (tf ? tf(j, t) : t);
+        pts = pts.map(function (p) { return rotAxe(p, a, d, ang); });
+        j = net[j].parent;
+      }
+      return pts;
+    });
+  }
+  function carre(i, j, w, h) { return [[i, j], [i+w, j], [i+w, j+h], [i, j+h]]; }
+  function netCellules(cells) {
+    var idx = {}; cells.forEach(function (c, k) { idx[c[0] + "," + c[1]] = k; });
+    var nb = function (c) { return [[1,0],[-1,0],[0,1],[0,-1]].filter(function (d) { return idx[(c[0]+d[0]) + "," + (c[1]+d[1])] !== undefined; }).length; };
+    var racine = cells.slice().sort(function (a, b) { return nb(b) - nb(a); })[0];
+    var net = cells.map(function () { return null; });
+    net[idx[racine[0] + "," + racine[1]]] = { pts: carre(racine[0], racine[1], 1, 1), parent: null, angle: 0 };
+    var file = [racine], vu = {}; vu[racine[0] + "," + racine[1]] = true;
+    while (file.length) {
+      var c = file.shift();
+      [[1,0],[-1,0],[0,1],[0,-1]].forEach(function (d) {
+        var n = [c[0]+d[0], c[1]+d[1]], k = n[0] + "," + n[1];
+        if (idx[k] === undefined || vu[k]) return;
+        vu[k] = true; file.push(n);
+        var h = d[0] === 1 ? [[n[0], n[1]], [n[0], n[1]+1]] : d[0] === -1 ? [[c[0], c[1]], [c[0], c[1]+1]]
+              : d[1] === 1 ? [[n[0], n[1]], [n[0]+1, n[1]]] : [[c[0], c[1]], [c[0]+1, c[1]]];
+        net[idx[k]] = { pts: carre(n[0], n[1], 1, 1), parent: idx[c[0] + "," + c[1]], charniere: h, angle: Math.PI/2 };
+      });
+    }
+    return net;
+  }
+  function estPatron(cells) {
+    var P = plier(netCellules(cells), 1), vus = {};
+    var cs = P.map(function (p) { return centre(p).map(function (v) { return v.toFixed(2); }).join(","); });
+    cs.forEach(function (c) { vus[c] = (vus[c] || 0) + 1; });
+    return { ok: Object.keys(vus).length === 6, doubles: cs.map(function (c) { return vus[c] > 1; }) };
+  }
+  // les 35 hexaminos (dont 11 patrons du cube)
+  var HEXA = (function () {
+    function normal(s) {
+      var best = null;
+      for (var r = 0; r < 8; r++) {
+        var t = s.map(function (p) { var x = p[0], y = p[1]; for (var q = 0; q < r % 4; q++) { var z = x; x = -y; y = z; } if (r >= 4) x = -x; return [x, y]; });
+        var mx = Math.min.apply(null, t.map(function (p) { return p[0]; })), my = Math.min.apply(null, t.map(function (p) { return p[1]; }));
+        t = t.map(function (p) { return [p[0]-mx, p[1]-my]; }).sort(function (a, b) { return a[0]-b[0] || a[1]-b[1]; });
+        var k = JSON.stringify(t); if (best === null || k < best) best = k;
+      }
+      return best;
+    }
+    var formes = {}; formes[JSON.stringify([[0, 0]])] = true;
+    for (var n = 1; n < 6; n++) {
+      var nv = {};
+      Object.keys(formes).forEach(function (k) {
+        var s = JSON.parse(k);
+        s.forEach(function (p) { [[1,0],[-1,0],[0,1],[0,-1]].forEach(function (d) {
+          var c = [p[0]+d[0], p[1]+d[1]];
+          if (!s.some(function (q) { return q[0] === c[0] && q[1] === c[1]; })) nv[normal(s.concat([c]))] = true;
+        }); });
+      });
+      formes = nv;
+    }
+    return Object.keys(formes).map(function (k) { var c = JSON.parse(k); return { cells: c, ok: estPatron(c).ok }; });
+  })();
+
+  var COULF = ["#f6c35b", "#8ec3ea", "#a9d98f", "#f3a9bd", "#c7b0ea", "#ffe14d"];
+  function patronSolide(cle) {
+    if (cle === "cube") {
+      var cells = [[1,1],[1,0],[1,2],[0,1],[2,1],[1,3]];
+      return netCellules(cells).map(function (f) { return f; });
+    }
+    if (cle === "pave") {       // fond a×b, devant/derrière a×c, côtés c×b, dessus collé derrière
+      var a = 1.6, b = 0.9, c = 0.8;
+      return [
+        { pts: carre(0, 0, a, b), parent: null, angle: 0 },
+        { pts: carre(0, -c, a, c), parent: 0, charniere: [[0, 0], [a, 0]], angle: Math.PI/2 },
+        { pts: carre(0, b, a, c), parent: 0, charniere: [[0, b], [a, b]], angle: Math.PI/2 },
+        { pts: carre(-c, 0, c, b), parent: 0, charniere: [[0, 0], [0, b]], angle: Math.PI/2 },
+        { pts: carre(a, 0, c, b), parent: 0, charniere: [[a, 0], [a, b]], angle: Math.PI/2 },
+        { pts: carre(0, b+c, a, b), parent: 2, charniere: [[0, b+c], [a, b+c]], angle: Math.PI/2 }
+      ];
+    }
+    // pyramide à base carrée : 4 triangles autour du carré
+    var A = 1.3, H = 1.15, l = Math.sqrt(H*H + A*A/4), ang = Math.PI - Math.atan(H/(A/2));
+    return [
+      { pts: carre(0, 0, A, A), parent: null, angle: 0 },
+      { pts: [[0, 0], [A, 0], [A/2, -l]], parent: 0, charniere: [[0, 0], [A, 0]], angle: ang },
+      { pts: [[A, 0], [A, A], [A+l, A/2]], parent: 0, charniere: [[A, 0], [A, A]], angle: ang },
+      { pts: [[A, A], [0, A], [A/2, A+l]], parent: 0, charniere: [[A, A], [0, A]], angle: ang },
+      { pts: [[0, A], [0, 0], [-l, A/2]], parent: 0, charniere: [[0, A], [0, 0]], angle: ang }
+    ];
+  }
+
+  function dessinerPlis(svg, net, t, vue, s, couleurs, rouges, tf) {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var P = plier(net, t, tf);
+    // centrage : sur le solide fermé quand t est grand, sur le patron quand t est petit
+    var tous = [].concat.apply([], P), c = centre(tous);
+    var faces = P.map(function (f, i) {
+      var pr = f.map(function (p) { return vue.proj(sub(p, c), s); });
+      return { i: i, pr: pr, z: pr.reduce(function (a, q) { return a + q[2]; }, 0) / pr.length,
+               n: norm(cross(sub(f[1], f[0]), sub(f[2], f[0]))) };
+    });
+    faces.sort(function (a, b) { return b.z - a.z; });
+    faces.forEach(function (f) {
+      var col = rouges && rouges[f.i] ? "#e8574a" : couleurs[f.i % couleurs.length];
+      var k = 0.8 + 0.25*Math.abs(dot(vue.rot(f.n), vue.u));
+      el("polygon", { points: f.pr.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" "),
+        fill: teinte(col, k), stroke: "#24302a", "stroke-width": 2.2, "stroke-linejoin": "round", "fill-opacity": 0.96 }, svg);
+    });
+  }
+
+  /* ================= onglet Dépliage ================= */
+  var Pd = { cle: "cube", yaw: -0.5, pitch: 0.55, t: 1, anim: null };
+  var pScene = document.getElementById("p-scene"), curseur = document.getElementById("p-curseur"), jouer = document.getElementById("p-jouer");
+  function pDessin() {
+    var net = patronSolide(Pd.cle);
+    var plat = 1 - Pd.t;                                        // on regarde de plus en plus d'en haut
+    var vue = new Vue(Pd.yaw * (1 - plat*0.7), Pd.pitch + (1.45 - Pd.pitch) * plat * plat);
+    var cols = Pd.cle === "pyramide" ? ["#cfe8bf", "#a9d98f", "#93c977", "#b9e1a3", "#86bf6a"] : COULF;
+    // d'abord le couvercle s'ouvre, puis les côtés (cube et pavé)
+    var tf = Pd.cle === "pyramide" ? null : function (i, t) {
+      return i === 5 ? Math.max(0, Math.min(1, (t - 0.5) * 2)) : Math.max(0, Math.min(1, t * 2));
+    };
+    var base = Pd.cle === "pave" ? 62 : 68;
+    dessinerPlis(pScene, net, Pd.t, vue, base * (1 + 0.55 * Pd.t * Pd.t), cols, null, tf);
+  }
+  function pFiche() {
+    var S = SOLIDES[Pd.cle], h = '<h2 class="hand">Le patron ' + (Pd.cle === "pyramide" ? "de la pyramide" : "du " + S.court) + '</h2>';
+    h += '<p>Quand on <b>déplie</b> ' + S.nom + ', on obtient un dessin tout plat : c\'est son <b>patron</b>.</p>';
+    h += '<p>Il y a une forme pour chaque face : <b>' + S.forme + '</b>.</p>';
+    if (Pd.cle === "cube") h += '<p>Le patron du cube a <b>6 carrés</b>. En pliant, aucune face ne se pose sur une autre.</p><p style="color:#7A7458">Il existe 11 patrons différents du cube : essaie l\'onglet « Patron ou pas ? ».</p>';
+    if (niveau === "CE1") h += '<p style="color:#7A7458">Le mot « patron » sera à retenir au CE2.</p>';
+    document.getElementById("p-fiche").innerHTML = h;
+  }
+  function majCurseur() { curseur.value = Math.round((1 - Pd.t) * 100); jouer.textContent = Pd.t > 0.5 ? "▶ Déplier" : "▶ Replier"; }
+  curseur.addEventListener("input", function () { arreter(); Pd.t = 1 - curseur.value / 100; jouer.textContent = Pd.t > 0.5 ? "▶ Déplier" : "▶ Replier"; pDessin(); });
+  function arreter() { if (Pd.anim) { cancelAnimationFrame(Pd.anim); Pd.anim = null; } }
+  jouer.addEventListener("click", function () {
+    arreter();
+    var cible = Pd.t > 0.5 ? 0 : 1, t0 = Pd.t, d0 = performance.now(), duree = 2600;
+    (function pas(now) {
+      var k = Math.min(1, (now - d0) / duree), e = k < 0.5 ? 2*k*k : 1 - Math.pow(-2*k + 2, 2)/2;
+      Pd.t = t0 + (cible - t0) * e; majCurseur(); pDessin();
+      if (k < 1) Pd.anim = requestAnimationFrame(pas); else Pd.anim = null;
+    })(d0);
+  });
+  boutonsSolides("p-choix", ["cube", "pave", "pyramide"], function () { return Pd.cle; }, function (k) { arreter(); Pd.cle = k; Pd.t = 1; majCurseur(); pDessin(); pFiche(); });
+  tourneur(pScene, Pd, pDessin);
+
+  /* ================= exercices (10 questions, étoiles) ================= */
+  var E = null, corps = document.getElementById("e-corps"), prog = document.getElementById("e-prog");
+  function melange(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function hasard(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function demarrer(type) {
+    E = { type: type, n: 0, total: 10, res: [], qs: GEN[type]() };
+    question();
+  }
+  function progression() {
+    prog.innerHTML = "";
+    for (var i = 0; i < E.total; i++) {
+      var d = document.createElement("div"); d.className = "dot" + (E.res[i] === true ? " ok" : E.res[i] === false ? " ko" : i === E.n ? " cur" : "");
+      d.textContent = i + 1; prog.appendChild(d);
+    }
+  }
+  function question() { progression(); if (E.n >= E.total) return bilan(); RENDU[E.type](E.qs[E.n]); }
+  function noter(ok, texte) {
+    if (E.res[E.n] === undefined) E.res[E.n] = ok;
+    var m = document.getElementById("e-msg");
+    m.className = "msg " + (ok ? "good" : "bad"); m.innerHTML = texte;
+    progression();
+  }
+  function boutonSuivant(conteneur) {
+    var b = document.createElement("button"); b.className = "suivant"; b.textContent = E.n + 1 < E.total ? "Question suivante →" : "Voir mes étoiles ★";
+    b.addEventListener("click", function () { E.n++; question(); });
+    conteneur.appendChild(b); b.focus();
+  }
+  function bilan() {
+    var erreurs = E.res.filter(function (r) { return r === false; }).length;
+    var et = erreurs <= 1 ? 3 : erreurs <= 3 ? 2 : 1, cle = "solides-" + E.type + "-" + niveau, rec = 0;
+    try { rec = +localStorage.getItem(cle) || 0; if (et > rec) localStorage.setItem(cle, et); } catch (e) {}
+    corps.innerHTML = '<div class="bilan"><div class="etoiles">' + "★★★".slice(0, et) + '<span class="vide">' + "★★★".slice(0, 3 - et) + '</span></div>' +
+      '<p class="hand" style="font-size:2rem;margin:.3rem 0">' + (et === 3 ? "Bravo, champion des solides !" : et === 2 ? "Très bien ! Encore un petit effort." : "Continue, tu vas y arriver !") + '</p>' +
+      '<p>' + (E.total - erreurs) + ' bonnes réponses du premier coup sur ' + E.total + '.</p>' +
+      '<p class="record">Meilleur score sur cet appareil : ' + "★".repeat(Math.max(et, rec)) + '</p></div>';
+    var b = document.createElement("button"); b.className = "suivant"; b.textContent = "🔄 Recommencer";
+    b.addEventListener("click", function () { demarrer(E.type); });
+    corps.firstChild.appendChild(b);
+  }
+
+  function miniature(cle) {
+    var s = el("svg", { viewBox: "-90 -80 180 160" });
+    dessiner(s, cle, new Vue(-0.6, 0.42), 62, {});
+    return s;
+  }
+  function sceneTournante(cle, opt, h) {
+    var s = el("svg", { "class": "scene", viewBox: "-170 -130 340 260" });
+    s.style.maxWidth = (h || 520) + "px"; s.style.margin = "0 auto";
+    var st = { yaw: -0.4 - Math.random() * 0.6, pitch: 0.35 + Math.random() * 0.25, auto: !opt.fixe };
+    var re = function () { dessiner(s, cle, new Vue(st.yaw, st.pitch), 95, opt); };
+    tourneur(s, st, re); re();
+    (function boucle() { if (!document.body.contains(s)) return; if (st.auto) { st.yaw += 0.006; re(); } requestAnimationFrame(boucle); })();
+    s._etat = st; s._re = re;
+    return s;
+  }
+
+  var GEN = {
+    nommer: function () {
+      var liste = niveau === "CE1" ? ORDRE : ORDRE;
+      var q = melange(liste.concat(liste)).slice(0, 10);
+      return q;
+    },
+    compter: function () {
+      var pool = [];
+      var sol = niveau === "CE1" ? ["cube", "pave", "pyramide"] : ["cube", "pave", "pyramide"];
+      var quoi = niveau === "CE1" ? ["faces", "sommets", "faces", "sommets", "aretes"] : ["faces", "aretes", "sommets"];
+      sol.forEach(function (s) { quoi.forEach(function (w) { pool.push({ s: s, w: w }); }); });
+      var q = melange(pool);
+      while (q.length < 10) q = q.concat(melange(pool));
+      return q.slice(0, 10);
+    },
+    patron: function () {
+      var oui = melange(HEXA.filter(function (h) { return h.ok; })), non = melange(HEXA.filter(function (h) { return !h.ok; }));
+      return melange(oui.slice(0, 5).concat(non.slice(0, 5)));
+    },
+    devine: function () {
+      var D1 = [
+        ["J'ai 6 faces. Elles sont toutes carrées.", "cube"],
+        ["Je ressemble à une boîte à chaussures. Mes faces sont des rectangles.", "pave"],
+        ["J'ai une pointe en haut. Mes faces sont des triangles et un carré.", "pyramide"],
+        ["Je roule. J'ai 2 faces plates en forme de rond.", "cylindre"],
+        ["J'ai une pointe et un rond plat. Je roule en tournant.", "cone"],
+        ["Je roule partout. Je n'ai aucune face plate.", "boule"],
+        ["Je suis un polyèdre. J'ai 5 sommets.", "pyramide"],
+        ["Je ressemble à un dé à jouer.", "cube"],
+        ["Je ressemble à un rouleau d'essuie-tout.", "cylindre"],
+        ["Je ressemble à une balle de tennis.", "boule"],
+        ["Je ressemble à un cornet de glace.", "cone"],
+        ["J'ai 8 sommets et des faces rectangulaires.", "pave"]
+      ];
+      var D2 = [
+        ["J'ai 12 arêtes et toutes mes faces sont des carrés.", "cube"],
+        ["J'ai 8 sommets, 12 arêtes. 4 de mes faces sont des rectangles longs.", "pave"],
+        ["J'ai 5 faces et 8 arêtes.", "pyramide"],
+        ["Je ne suis pas un polyèdre. J'ai 2 faces plates.", "cylindre"],
+        ["Je ne suis pas un polyèdre. J'ai une seule face plate.", "cone"],
+        ["Je n'ai ni arête, ni sommet, ni face plate.", "boule"],
+        ["Mes faces triangulaires se rejoignent au même sommet.", "pyramide"],
+        ["Je suis un pavé droit spécial : mes 6 faces sont pareilles.", "cube"],
+        ["J'ai 5 sommets. Ma base est un carré.", "pyramide"],
+        ["Mon patron a 6 carrés.", "cube"],
+        ["J'ai 6 faces, mais elles ne sont pas toutes carrées.", "pave"],
+        ["Si on me déroule, on obtient un rectangle et deux disques.", "cylindre"]
+      ];
+      return melange(niveau === "CE1" ? D1 : D2).slice(0, 10);
+    }
+  };
+
+  var RENDU = {
+    nommer: function (cle) {
+      corps.innerHTML = '<p class="question hand">Comment s\'appelle ce solide ?</p>';
+      corps.appendChild(sceneTournante(cle, { cache: false }, 420));
+      var r = document.createElement("div"); r.className = "reponses"; r.style.marginTop = ".8rem";
+      melange(ORDRE).forEach(function (k) {
+        var b = document.createElement("button"); b.innerHTML = '<span class="hand" style="font-size:1.5rem">' + SOLIDES[k].nom + '</span>';
+        b.addEventListener("click", function () {
+          if (k === cle) {
+            b.classList.add("bon");
+            noter(true, "✓ Oui, c'est " + SOLIDES[cle].nom + " ! " + (SOLIDES[cle].poly ? "C'est un polyèdre." : "Il roule."));
+            r.querySelectorAll("button").forEach(function (x) { x.disabled = true; });
+            boutonSuivant(corps);
+          } else { b.classList.add("faux"); b.disabled = true; noter(false, "✗ Non, ce n'est pas " + SOLIDES[k].nom + ". Regarde ses faces et essaie encore."); }
+        });
+        r.appendChild(b);
+      });
+      corps.appendChild(r);
+      var m = document.createElement("div"); m.id = "e-msg"; m.className = "msg"; corps.appendChild(m);
+    },
+    compter: function (q) {
+      var S = SOLIDES[q.s], mots = { faces: "faces", aretes: "arêtes", sommets: "sommets" };
+      var cls = { faces: "f", aretes: "a", sommets: "s" }[q.w];
+      corps.innerHTML = '<p class="question hand">Combien ' + S.nom.replace(/^le |^la /, function (x) { return x === "le " ? "le " : "la "; }) + ' a-t-' + (q.s === "pyramide" ? "elle" : "il") + ' de <span class="mot ' + cls + '">' + mots[q.w] + '</span> ?</p>';
+      corps.querySelector(".question").innerHTML = 'Combien de <span class="mot ' + cls + '">' + mots[q.w] + '</span> a ' + S.nom + ' ?';
+      var z = document.createElement("div"); z.className = "zone"; corps.appendChild(z);
+      var g = document.createElement("div"); z.appendChild(g);
+      var opt = { cache: true, fixe: true, sommets: q.w === "sommets", aretes: q.w === "aretes" };
+      var sc = sceneTournante(q.s, opt, 520); g.appendChild(sc);
+      var ast = document.createElement("p"); ast.className = "astuce"; ast.textContent = "Fais tourner le solide pour tout voir. Ce qui est caché est en pointillés."; g.appendChild(ast);
+      if (q.w === "faces") {
+        var aide = document.createElement("div"); aide.className = "interrupteurs"; aide.style.justifyContent = "center";
+        var ba = document.createElement("button"); ba.className = "f"; ba.textContent = "Aide : numéroter les faces"; ba.setAttribute("aria-pressed", "false");
+        ba.addEventListener("click", function () { opt.faces = !opt.faces; ba.setAttribute("aria-pressed", String(opt.faces)); sc._re(); });
+        aide.appendChild(ba); g.appendChild(aide);
+      }
+      var d = document.createElement("div"); z.appendChild(d);
+      var ecran = document.createElement("div"); ecran.className = "ecran"; d.appendChild(ecran);
+      var pave = document.createElement("div"); pave.className = "pave"; d.appendChild(pave);
+      var val = "", fini = false;
+      ["7","8","9","4","5","6","1","2","3","⌫","0","OK"].forEach(function (t) {
+        var b = document.createElement("button"); b.textContent = t;
+        if (t === "OK") b.className = "ok"; if (t === "⌫") b.className = "eff";
+        b.addEventListener("click", function () {
+          if (fini) return;
+          if (t === "⌫") val = val.slice(0, -1);
+          else if (t === "OK") {
+            if (!val) return;
+            var bon = +val === S[q.w];
+            if (bon) {
+              fini = true;
+              var astuce = q.w === "aretes" ? " (4 en haut, 4 en bas, 4 debout)" : "";
+              if (q.s === "pyramide" && q.w === "aretes") astuce = " (4 autour de la base, 4 qui montent au sommet)";
+              if (q.s === "pyramide" && q.w === "faces") astuce = " (4 triangles + 1 carré)";
+              noter(true, "✓ Bravo : " + S[q.w] + " " + mots[q.w] + astuce + " !");
+              boutonSuivant(d);
+            } else {
+              noter(false, "✗ Pas " + val + ". Fais tourner le solide et marque ce que tu as déjà compté.");
+              val = "";
+            }
+          } else if (val.length < 2) val += t;
+          ecran.textContent = val;
+        });
+        pave.appendChild(b);
+      });
+      var m = document.createElement("div"); m.id = "e-msg"; m.className = "msg"; d.appendChild(m);
+      document.onkeydown = function (e) {
+        if (E.type !== "compter") return;
+        var k = e.key === "Enter" ? "OK" : e.key === "Backspace" ? "⌫" : e.key;
+        pave.querySelectorAll("button").forEach(function (b) { if (b.textContent === k) b.click(); });
+      };
+    },
+    patron: function (h) {
+      corps.innerHTML = '<p class="question hand">Est-ce un patron du cube ?</p>';
+      var sc = el("svg", { "class": "scene", viewBox: "-200 -150 400 300" }); sc.style.maxWidth = "560px"; sc.style.margin = "0 auto";
+      corps.appendChild(sc);
+      var net = netCellules(h.cells), st = { yaw: 0, pitch: Math.PI/2 - 0.02, t: 0 };
+      var jaunes = h.cells.map(function () { return "#fdf0c4"; });
+      function re(rouges) {
+        var plat = 1 - st.t;
+        var vue = new Vue(-0.55 * (1 - plat), (Math.PI/2 - 0.02) - (Math.PI/2 - 0.6) * (1 - plat));
+        dessinerPlis(sc, net, st.t, vue, 52 * (1 + 0.6 * st.t), st.t > 0 ? COULF : jaunes, rouges);
+      }
+      re();
+      var on = document.createElement("div"); on.className = "ouinon";
+      on.innerHTML = '<button class="oui">Oui</button><button class="non">Non</button>';
+      corps.appendChild(on);
+      var m = document.createElement("div"); m.id = "e-msg"; m.className = "msg"; m.style.textAlign = "center"; corps.appendChild(m);
+      on.querySelectorAll("button").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var dit = b.classList.contains("oui"), bon = dit === h.ok;
+          on.querySelectorAll("button").forEach(function (x) { x.disabled = true; });
+          noter(bon, (bon ? "✓ Bien vu ! " : "✗ Non. ") + "On vérifie en pliant…");
+          var d0 = performance.now(), info = estPatron(h.cells);
+          (function pas(now) {
+            var k = Math.min(1, (now - d0) / 2200);
+            st.t = k < 0.5 ? 2*k*k : 1 - Math.pow(-2*k + 2, 2)/2;
+            re(k >= 1 && !h.ok ? info.doubles : null);
+            if (k < 1) requestAnimationFrame(pas);
+            else {
+              m.innerHTML += h.ok ? "<br>Le cube se ferme : c'est bien un patron du cube." : "<br>Deux faces se posent l'une sur l'autre (en rouge) : ce n'est pas un patron du cube.";
+              boutonSuivant(corps);
+            }
+          })(d0);
+        });
+      });
+    },
+    devine: function (d) {
+      corps.innerHTML = '<p class="question hand">Qui suis-je ?</p><div class="devinette">« ' + d[0] + ' »</div>';
+      var r = document.createElement("div"); r.className = "reponses";
+      melange(ORDRE).forEach(function (k) {
+        var b = document.createElement("button");
+        b.appendChild(miniature(k));
+        var s = document.createElement("span"); s.textContent = SOLIDES[k].nom; b.appendChild(s);
+        b.addEventListener("click", function () {
+          if (k === d[1]) {
+            b.classList.add("bon"); r.querySelectorAll("button").forEach(function (x) { x.disabled = true; });
+            noter(true, "✓ C'est " + SOLIDES[k].nom + " !"); boutonSuivant(corps);
+          } else { b.classList.add("faux"); b.disabled = true; noter(false, "✗ Ce n'est pas " + SOLIDES[k].nom + ". Relis bien chaque indice."); }
+        });
+        r.appendChild(b);
+      });
+      corps.appendChild(r);
+      var m = document.createElement("div"); m.id = "e-msg"; m.className = "msg"; corps.appendChild(m);
+    }
+  };
+
+  /* ================= navigation ================= */
+  var ongletActuel = "decouvrir";
+  function ouvrir(o) {
+    ongletActuel = o;
+    document.querySelectorAll(".onglets button").forEach(function (b) { b.setAttribute("aria-selected", String(b.dataset.onglet === o)); });
+    document.getElementById("o-decouvrir").classList.toggle("cache", o !== "decouvrir");
+    document.getElementById("o-deplier").classList.toggle("cache", o !== "deplier");
+    document.getElementById("o-exo").classList.toggle("cache", ["nommer", "compter", "patron", "devine"].indexOf(o) < 0);
+    if (o === "deplier") { pDessin(); pFiche(); }
+    if (o === "decouvrir") { dFiche(); dDessin(); }
+    if (["nommer", "compter", "patron", "devine"].indexOf(o) >= 0) demarrer(o);
+  }
+  document.querySelectorAll(".onglets button").forEach(function (b) { b.addEventListener("click", function () { ouvrir(b.dataset.onglet); }); });
+  document.querySelectorAll(".niveaux button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      niveau = b.dataset.niv;
+      try { localStorage.setItem("solides-niveau", niveau); } catch (e) {}
+      document.querySelectorAll(".niveaux button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      ouvrir(ongletActuel);
+    });
+    b.setAttribute("aria-pressed", String(b.dataset.niv === niveau));
+  });
+
+  (function boucle() {
+    if (ongletActuel === "decouvrir" && D.auto) { D.yaw += 0.006; dDessin(); }
+    requestAnimationFrame(boucle);
+  })();
+  majCurseur();
+  ouvrir("decouvrir");
+})();
+</script>
+</body>
+</html>
