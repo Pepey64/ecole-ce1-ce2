@@ -185,6 +185,18 @@ mark{background:#ffd76a;border-radius:4px;padding:0 3px;font-weight:800;color:in
 .win h2{font-size:clamp(30px,6vw,42px);color:var(--red);padding:0}
 #confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:30}
 footer{color:#9fc7b8;font-size:14px;text-align:center}
+/* plein écran : tout tient dans la hauteur de l'écran, textes plus grands pour la projection */
+body.fs{overflow:hidden}
+body.fs .wrap{max-width:none;padding:8px 16px;gap:8px;min-height:100vh;align-content:center}
+body.fs .stage{justify-self:center;max-width:100%}
+body.fs .talk,body.fs .tools{width:min(100%,1400px);justify-self:center}
+body.fs footer{display:none}
+body.fs .talk{min-height:0;padding:10px 14px}
+body.fs .say{font-size:clamp(18px,1.35vw,28px)}
+body.fs .tools .btn{min-height:40px;padding:8px 16px}
+body.fs .paper{max-width:min(980px,94vw);font-size:clamp(17px,1.2vw,24px)}
+body.fs .paper h2{font-size:clamp(26px,2vw,38px)}
+body.fs .ov{overflow-y:auto}
 @media(max-width:640px){.talk{grid-template-columns:56px minmax(0,1fr)}.face{width:56px;height:56px}.talk .btn{grid-column:1/-1}.say{font-size:16px}.key{width:54px}}
 @media(prefers-reduced-motion:reduce){.tw,.flame,.flick,.smoke,.steam,.spin,.belt,.ride,.reveal .hot{animation:none}}
 </style>
@@ -211,6 +223,7 @@ footer{color:#9fc7b8;font-size:14px;text-align:center}
     <button class="btn ghost" id="prev" type="button">◂ Pièce précédente</button>
     <button class="btn ghost" id="fwd" type="button">Pièce suivante ▸</button>
     <button class="btn ghost" id="reset" type="button">Recommencer</button>
+    <button class="btn gold" id="fs" type="button" aria-pressed="false">⛶ Plein écran</button>
   </div>
   <footer>Clique sur les objets du décor pour trouver les parchemins de Bourrasque. Chaque pièce terminée donne une boule-clé avec un chiffre du code.</footer>
 </div>
@@ -987,6 +1000,23 @@ $('again').addEventListener('click',resetAll);
 $('reset').addEventListener('click',()=>{const b=$('reset');if(b.dataset.c){delete b.dataset.c;b.textContent='Recommencer';resetAll()}else{b.dataset.c='1';b.textContent='Sûr ? Clique encore';setTimeout(()=>{delete b.dataset.c;b.textContent='Recommencer'},3000)}});
 if(!(S.level===1||S.level===2)){S.level=0;pickLevel()}else{$('cnt').textContent=S.level===1?'463':'2745';if(!S.intro)intro()}
 setInterval(()=>{if(done)return;S.elapsed=Math.floor((Date.now()-start)/1000);$('timer').textContent='⏱ '+fmt(S.elapsed);if(S.elapsed%5===0)save()},1000);
+
+/* ---------- plein écran (vidéoprojecteur) ---------- */
+const fsBtn=$('fs'),root=document.documentElement;
+const fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement;
+/* la scène prend toute la hauteur qui reste une fois l'en-tête, la bulle et les boutons placés */
+function fsFit(){const st=$('stage');if(!document.body.classList.contains('fs')){st.style.width='';return}
+  const used=['.top','.talk','.tools'].reduce((a,s)=>a+document.querySelector(s).getBoundingClientRect().height,0)+8*3+16+6;
+  st.style.width=Math.round(Math.max(480,Math.min(innerWidth-32,(innerHeight-used)*5/3)))+'px'}
+addEventListener('resize',fsFit);
+const fsSync=()=>{const on=!!fsEl();document.body.classList.toggle('fs',on);fsBtn.textContent=on?'✕ Quitter le plein écran':'⛶ Plein écran';fsBtn.setAttribute('aria-pressed',on);fsFit()};
+fsBtn.addEventListener('click',()=>{
+  if(fsEl()){(document.exitFullscreen||document.webkitExitFullscreen).call(document);return}
+  const req=root.requestFullscreen||root.webkitRequestFullscreen;
+  const refuse=()=>{queue=[{who:'grelot',text:"Le plein écran n'est pas permis dans cette page. Ouvre le jeu dans son propre onglet, ou appuie sur la touche F11 du clavier."}];showTalk()};
+  if(!req||!(document.fullscreenEnabled||document.webkitFullscreenEnabled)){refuse();return}
+  try{const p=req.call(root);if(p&&p.catch)p.catch(refuse)}catch(e){refuse()}});
+document.addEventListener('fullscreenchange',fsSync);document.addEventListener('webkitfullscreenchange',fsSync);
 
 /* ---------- confettis ---------- */
 const cv=$('confetti'),cx=cv.getContext('2d');let bits=[],running=false;
