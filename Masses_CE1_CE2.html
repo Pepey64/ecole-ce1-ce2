@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Les masses (CE1-CE2)</title>
+<style>
+:root { --paper:#FAF6EA; --line:rgba(46,111,149,0.16); --ink:#243B2C; --red:#D6483D; --blue:#2E6F95; --yellow:#F2B33D; --green:#4C9A5B; --card-border:#E4DCC4; }
+* { box-sizing: border-box; }
+body { margin:0; min-height:100vh; color:var(--ink); background-color:var(--paper);
+  background-image: repeating-linear-gradient(var(--line) 0px, var(--line) 1px, transparent 1px, transparent 28px);
+  font-family:'Nunito','Segoe UI',Verdana,sans-serif; -webkit-tap-highlight-color: transparent; }
+.hand { font-family:'Patrick Hand','Segoe Print','Comic Sans MS','Bradley Hand',cursive; }
+.wrap { max-width:68rem; margin:0 auto; padding:1.2rem 1rem 3rem; }
+.top { display:flex; align-items:center; justify-content:space-between; gap:.75rem; flex-wrap:wrap; }
+h1 { margin:0; font-size:2.8rem; line-height:1; font-weight:400; }
+.sub { margin:.25rem 0 0; font-weight:600; color:var(--blue); }
+.retour { color:var(--blue); font-weight:700; text-decoration:none; font-size:.95rem; }
+button { font-family:inherit; cursor:pointer; border:0; font-weight:700; border-radius:9999px; transition:transform .15s; touch-action:manipulation; }
+button:active { transform:scale(.95); } button:focus-visible { outline:4px solid var(--yellow); outline-offset:2px; } button:disabled { cursor:default; }
+.niveaux { display:flex; gap:.4rem; }
+.niveaux button { padding:.45rem 1rem; font-size:1rem; background:white; color:var(--ink); border:2px solid var(--card-border); }
+.niveaux button[aria-pressed="true"] { background:var(--ink); color:white; border-color:var(--ink); }
+.onglets { display:flex; flex-wrap:wrap; gap:.45rem; margin:1rem 0; }
+.onglets button { padding:.6rem 1.05rem; font-size:1.02rem; background:white; color:var(--blue); border:2px solid var(--card-border); }
+.onglets button[aria-selected="true"] { background:var(--blue); color:white; border-color:var(--blue); }
+.carte { background:white; border:2px solid var(--card-border); border-left:8px solid var(--blue); border-radius:1rem; padding:1rem 1.1rem; }
+.scene { width:100%; max-width:760px; height:auto; display:block; margin:0 auto; background:#fffdf6; border:2px dashed #E4DCC4; border-radius:1rem; user-select:none; touch-action:none; }
+.progress { display:flex; align-items:center; gap:.35rem; flex-wrap:wrap; margin-bottom:.7rem; }
+.dot { width:1.6rem; height:1.6rem; border-radius:9999px; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:800; background:white; color:#B7AF92; border:2px solid #E4DCC4; }
+.dot.ok { background:var(--green); color:white; border-color:var(--green); } .dot.ko { background:var(--red); color:white; border-color:var(--red); } .dot.cur { border-color:var(--blue); color:var(--blue); }
+.question { font-size:1.6rem; margin:.2rem 0 .6rem; }
+.msg { min-height:2.2rem; font-weight:800; font-size:1.15rem; margin-top:.6rem; text-align:center; }
+.msg.good { color:var(--green); } .msg.bad { color:var(--red); }
+.reponses { display:flex; flex-wrap:wrap; gap:.55rem; justify-content:center; margin-top:.8rem; }
+.reponses button { background:#F4EFE2; color:var(--ink); padding:.6rem 1.2rem; border-radius:1rem; font-size:1.3rem; border:3px solid transparent; min-width:6rem; }
+.reponses button.bon { border-color:var(--green); background:#E7F5E8; } .reponses button.faux { border-color:var(--red); background:#FBEAE8; }
+.outil { background:#5b7d97; color:white; padding:.55rem 1.1rem; font-size:1.05rem; }
+.suivant { background:var(--blue); color:white; padding:.65rem 1.4rem; font-size:1.1rem; }
+.ligne { display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; margin-top:.7rem; align-items:center; }
+.astuce { font-size:.9rem; color:#7A7458; text-align:center; margin:.4rem 0 0; }
+.bilan { text-align:center; padding:1.5rem 1rem; } .etoiles { font-size:3.4rem; letter-spacing:.3rem; color:var(--yellow); } .etoiles .vide { color:#E4DCC4; }
+.record { color:#7A7458; font-size:.95rem; }
+.pave { display:grid; grid-template-columns:repeat(3, 4.2rem); gap:.45rem; justify-content:center; margin-top:.6rem; }
+.pave button { height:3.4rem; font-size:1.7rem; background:white; color:var(--ink); border:2px solid var(--card-border); border-radius:1rem; font-family:'Patrick Hand',cursive; }
+.pave button.ok { background:var(--green); color:white; border-color:var(--green); font-family:inherit; font-size:1.1rem; } .pave button.eff { background:#F4EFE2; font-size:1.2rem; }
+.ecran { display:inline-block; text-align:center; font-family:'Patrick Hand',cursive; font-size:2.3rem; min-height:3.2rem; border:3px solid #B9C4CC; border-radius:.8rem; background:white; min-width:6rem; padding:0 .6rem; vertical-align:middle; }
+.ecran.actif { border-color:var(--blue); box-shadow:0 0 0 3px #cfe2f1; }
+.enonce { font-size:1.45rem; text-align:center; margin:.4rem 0; }
+.boite { display:inline-block; background:#FFF6D8; border:3px solid #e2c766; border-radius:1rem; padding:.5rem 1rem; font-family:'Patrick Hand',cursive; font-size:1.8rem; margin:.3rem; cursor:pointer; }
+.boite.choisi { opacity:.35; cursor:default; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <a class="retour" href="index.html">← Ludothèque</a>
+      <h1 class="hand">⚖️ Les masses</h1>
+      <p class="sub">Comparer avec la balance, peser avec des masses marquées, choisir l'unité (g, kg, t), convertir et des problèmes.</p>
+    </div>
+    <div class="niveaux" role="group" aria-label="Niveau">
+      <button data-niv="CE1" aria-pressed="true">CE1</button>
+      <button data-niv="CE2" aria-pressed="false">CE2</button>
+    </div>
+  </div>
+  <div class="onglets" role="tablist">
+    <button role="tab" data-onglet="balance" aria-selected="true">⚖️ La balance</button>
+    <button role="tab" data-onglet="ranger" aria-selected="false">📦 La plus légère ?</button>
+    <button role="tab" data-onglet="equilibrer" aria-selected="false">🏋️ Masses marquées</button>
+    <button role="tab" data-onglet="unite" aria-selected="false">🤔 Quelle unité ?</button>
+    <button role="tab" data-onglet="convertir" aria-selected="false">🔁 Convertir</button>
+    <button role="tab" data-onglet="ordre" aria-selected="false">📊 Ranger</button>
+    <button role="tab" data-onglet="problemes" aria-selected="false">🧩 Problèmes</button>
+  </div>
+  <div class="carte">
+    <div class="progress" id="prog"></div>
+    <div id="corps"></div>
+  </div>
+</div>
+<script>
+(function () {
+  "use strict";
+  var PREFIXE = "masses-";
+  var niveau = "CE1";
+  try { var n0 = localStorage.getItem(PREFIXE + "niveau"); if (n0) niveau = n0; } catch (e) {}
+
+  var NS = "http://www.w3.org/2000/svg";
+  function el(tag, att, parent) { var e = document.createElementNS(NS, tag); for (var k in att) e.setAttribute(k, att[k]); if (parent) parent.appendChild(e); return e; }
+  function melange(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function hasard(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function entre(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+  function esp(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+  var E = null, corps = document.getElementById("corps"), prog = document.getElementById("prog");
+  function demarrer(type) { E = { type: type, n: 0, res: [], qs: GEN[type]() }; E.total = E.qs.length; question(); }
+  function progression() { prog.innerHTML = ""; for (var i = 0; i < E.total; i++) { var d = document.createElement("div"); d.className = "dot" + (E.res[i] === true ? " ok" : E.res[i] === false ? " ko" : i === E.n ? " cur" : ""); d.textContent = i + 1; prog.appendChild(d); } }
+  function question() { document.onkeydown = null; progression(); if (E.n >= E.total) return bilan(); corps.innerHTML = ""; RENDU[E.type](E.qs[E.n]); }
+  function noter(ok, html) { if (E.res[E.n] === undefined) E.res[E.n] = ok; var m = document.getElementById("msg"); m.className = "msg " + (ok ? "good" : "bad"); m.innerHTML = html; progression(); }
+  function suivant() { if (document.querySelector(".suivant")) return; var b = document.createElement("button"); b.className = "suivant"; b.textContent = E.n + 1 < E.total ? "Question suivante →" : "Voir mes étoiles ★";
+    b.addEventListener("click", function () { E.n++; question(); }); var l = document.createElement("div"); l.className = "ligne"; l.appendChild(b); corps.appendChild(l); b.focus(); }
+  function msgZone() { var m = document.createElement("div"); m.id = "msg"; m.className = "msg"; corps.appendChild(m); }
+  function titre(t) { var p = document.createElement("p"); p.className = "question hand"; p.innerHTML = t; corps.appendChild(p); }
+  function astuce(t) { var p = document.createElement("p"); p.className = "astuce"; p.innerHTML = t; corps.appendChild(p); }
+  function bilan() {
+    var err = E.res.filter(function (r) { return r === false; }).length, et = err <= 1 ? 3 : err <= 3 ? 2 : 1, cle = PREFIXE + E.type + "-" + niveau, rec = 0;
+    try { rec = +localStorage.getItem(cle) || 0; if (et > rec) localStorage.setItem(cle, et); } catch (e) {}
+    corps.innerHTML = '<div class="bilan"><div class="etoiles">' + "★★★".slice(0, et) + '<span class="vide">' + "★★★".slice(0, 3 - et) + '</span></div>' +
+      '<p class="hand" style="font-size:2rem;margin:.3rem 0">' + (et === 3 ? "Bravo, champion de la mesure !" : et === 2 ? "Très bien ! Encore un petit effort." : "Continue, tu vas y arriver !") + '</p>' +
+      '<p>' + (E.total - err) + ' bonnes réponses du premier coup sur ' + E.total + '.</p><p class="record">Meilleur score sur cet appareil : ' + "★".repeat(Math.max(et, rec)) + '</p></div>';
+    var b = document.createElement("button"); b.className = "suivant"; b.textContent = "🔄 Recommencer"; b.addEventListener("click", function () { demarrer(E.type); }); corps.firstChild.appendChild(b);
+  }
+  function choix(liste, estBon, libelle, retour) {
+    var r = document.createElement("div"); r.className = "reponses";
+    liste.forEach(function (v) { var b = document.createElement("button"); b.innerHTML = libelle(v);
+      b.addEventListener("click", function () { if (estBon(v)) { b.classList.add("bon"); r.querySelectorAll("button").forEach(function (x) { x.disabled = true; }); retour(true, v); suivant(); }
+        else { b.classList.add("faux"); b.disabled = true; retour(false, v); } }); r.appendChild(b); });
+    corps.appendChild(r);
+  }
+  /* pavé numérique : champs = liste d'écrans à remplir (le 1er est actif) ; valider(valeurs) renvoie true/false */
+  function pave(conteneur, ecrans, valider) {
+    var actif = 0, fini = false;
+    function maj() { ecrans.forEach(function (e, i) { e.classList.toggle("actif", i === actif && !fini); }); }
+    ecrans.forEach(function (e, i) { e.addEventListener("click", function () { actif = i; maj(); }); });
+    var p = document.createElement("div"); p.className = "pave";
+    ["7","8","9","4","5","6","1","2","3","⌫","0","OK"].forEach(function (t) {
+      var b = document.createElement("button"); b.textContent = t; if (t === "OK") b.className = "ok"; if (t === "⌫") b.className = "eff";
+      b.addEventListener("click", function () {
+        if (fini) return; var e = ecrans[actif];
+        if (t === "⌫") e.textContent = e.textContent.slice(0, -1);
+        else if (t === "OK") {
+          if (ecrans.some(function (x) { return x.textContent === ""; })) { var vide = ecrans.findIndex(function (x) { return x.textContent === ""; }); actif = vide; maj(); return; }
+          var ok = valider(ecrans.map(function (x) { return +x.textContent; }));
+          if (ok) { fini = true; maj(); suivant(); } else { ecrans.forEach(function (x) { x.textContent = ""; }); actif = 0; maj(); }
+        } else if (e.textContent.length < 6) { e.textContent += t; if (e.textContent.length >= 6 && actif < ecrans.length - 1) actif++; }
+        maj();
+      });
+      p.appendChild(b);
+    });
+    conteneur.appendChild(p); maj();
+    document.onkeydown = function (ev) { var k = ev.key === "Enter" ? "OK" : ev.key === "Backspace" ? "⌫" : ev.key; if (k === "Tab") { ev.preventDefault(); actif = (actif + 1) % ecrans.length; maj(); return; }
+      p.querySelectorAll("button").forEach(function (b) { if (b.textContent === k) b.click(); }); };
+  }
+  function ecran() { var s = document.createElement("span"); s.className = "ecran"; return s; }
+  /* phrase à trous : "1 m 46 cm = [] cm" -> écrans */
+  function trous(modele) {
+    var d = document.createElement("div"); d.className = "enonce"; var ecs = [];
+    modele.split("[]").forEach(function (part, i, arr) { d.appendChild(document.createTextNode(part)); if (i < arr.length - 1) { var e = ecran(); ecs.push(e); d.appendChild(e); } });
+    corps.appendChild(d); return ecs;
+  }
+
+
+  /* ---------- balance ---------- */
+  function balance(svg, tilt, gauche, droite) {
+    // gauche / droite : listes d'objets {t, c, w, h} posés sur le plateau
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var cx = 300, by = 300, L = 170, a = 11 * tilt * Math.PI / 180;
+    el("polygon", { points: (cx - 110) + "," + by + " " + (cx + 110) + "," + by + " " + (cx + 85) + "," + (by - 26) + " " + (cx - 85) + "," + (by - 26), fill: "#9a7b4f", stroke: "#4a3a20", "stroke-width": 2 }, svg);
+    el("rect", { x: cx - 9, y: by - 170, width: 18, height: 146, fill: "#b89a68", stroke: "#4a3a20", "stroke-width": 2 }, svg);
+    var pl = [cx - L * Math.cos(a), by - 170 + L * Math.sin(a)], pr = [cx + L * Math.cos(a), by - 170 - L * Math.sin(a)];
+    el("line", { x1: pl[0], y1: pl[1], x2: pr[0], y2: pr[1], stroke: "#4a3a20", "stroke-width": 9, "stroke-linecap": "round" }, svg);
+    el("circle", { cx: cx, cy: by - 170, r: 11, fill: "#4a3a20" }, svg);
+    el("polygon", { points: (cx - 8) + "," + (by - 160) + " " + (cx + 8) + "," + (by - 160) + " " + (cx + 22 * Math.sin(a)) + "," + (by - 215), fill: "#D6483D" }, svg);
+    var zones = [];
+    [[pl, gauche], [pr, droite]].forEach(function (pp, side) {
+      var p = pp[0], objs = pp[1] || [];
+      el("line", { x1: p[0], y1: p[1], x2: p[0] - 60, y2: p[1] + 80, stroke: "#4a3a20", "stroke-width": 2 }, svg);
+      el("line", { x1: p[0], y1: p[1], x2: p[0] + 60, y2: p[1] + 80, stroke: "#4a3a20", "stroke-width": 2 }, svg);
+      el("polygon", { points: (p[0] - 85) + "," + (p[1] + 80) + " " + (p[0] + 85) + "," + (p[1] + 80) + " " + (p[0] + 66) + "," + (p[1] + 96) + " " + (p[0] - 66) + "," + (p[1] + 96), fill: "#d8c08a", stroke: "#4a3a20", "stroke-width": 2 }, svg);
+      var tot = objs.reduce(function (s, o) { return s + (o.w || 60); }, 0) + (objs.length - 1) * 4, x = p[0] - tot / 2;
+      objs.forEach(function (o, i) {
+        var w = o.w || 60, h = o.h || 46, g = el("g", { style: o.clic ? "cursor:pointer" : "" }, svg);
+        if (o.masse) {
+          el("polygon", { points: x + "," + (p[1] + 80) + " " + (x + w) + "," + (p[1] + 80) + " " + (x + w * 0.85) + "," + (p[1] + 80 - h) + " " + (x + w * 0.15) + "," + (p[1] + 80 - h), fill: "#c9a24a", stroke: "#5a4510", "stroke-width": 2 }, g);
+          el("rect", { x: x + w * 0.38, y: p[1] + 80 - h - 9, width: w * 0.24, height: 9, fill: "#c9a24a", stroke: "#5a4510", "stroke-width": 2 }, g);
+        } else el("rect", { x: x, y: p[1] + 80 - h, width: w, height: h, rx: 8, fill: o.c || "#fdf0c4", stroke: "#333", "stroke-width": 2 }, g);
+        var t = el("text", { x: x + w / 2, y: p[1] + 80 - h / 2 + 6, "text-anchor": "middle", "font-size": o.masse ? 13 : 16, "font-weight": 800, fill: "#222", "font-family": "Nunito, sans-serif" }, g); t.textContent = o.t;
+        if (o.clic) g.addEventListener("click", o.clic);
+        x += w + 4;
+      });
+    });
+  }
+  function scene(w, h) { var s = el("svg", { "class": "scene", viewBox: "0 0 " + (w || 600) + " " + (h || 330) }); s.style.maxWidth = "600px"; corps.appendChild(s); return s; }
+  function signe(a, b) { return a > b ? 1 : a < b ? -1 : 0; }
+
+  var OBJ = [["une plume", 1, "#ffffff"], ["une gomme", 20, "#f3a9bd"], ["un œuf", 60, "#fff7e6"], ["une pomme", 150, "#e8574a"], ["une orange", 200, "#f6a85b"],
+    ["une trousse", 300, "#8ec3ea"], ["un ballon", 450, "#f9dd7a"], ["un livre", 500, "#a9d98f"], ["un ananas", 1000, "#f6c35b"], ["un dictionnaire", 1200, "#c7b0ea"], ["une brique", 2500, "#d9743e"]];
+
+  var GEN = {
+    balance: function () {
+      var q = [];
+      for (var i = 0; i < 10; i++) {
+        var a = hasard(OBJ), b = hasard(OBJ.filter(function (o) { return o !== a; }));
+        if (i % 4 === 3) b = a.slice(0) ;  // même objet de chaque côté : équilibre
+        q.push([a, b]);
+      }
+      return q;
+    },
+    ranger: function () {
+      var q = [];
+      for (var i = 0; i < 8; i++) { var m = melange([1, 2, 3]); q.push({ A: m[0], B: m[1], C: m[2], quoi: Math.random() < 0.5 ? "légère" : "lourde" }); }
+      return q;
+    },
+    equilibrer: function () {
+      var q = [];
+      for (var i = 0; i < 6; i++) {
+        if (niveau === "CE1") q.push(hasard([60, 80, 120, 150, 250, 300, 350, 470, 520, 760, 880, 1000, 1500, 2000]));
+        else q.push(hasard([1250, 1300, 1760, 2050, 2400, 980, 3150, 1120, 2730, 1580]));
+      }
+      return q;
+    },
+    unite: function () {
+      var U1 = [["un paquet de sucre", ["1 g", "1 kg", "100 kg"], "1 kg"], ["une pomme", ["150 g", "150 kg", "15 kg"], "150 g"], ["un enfant de 8 ans", ["25 g", "25 kg", "250 kg"], "25 kg"],
+        ["un sachet de levure", ["10 g", "10 kg", "1 kg"], "10 g"], ["un cartable plein", ["3 g", "3 kg", "30 kg"], "3 kg"], ["un œuf", ["60 g", "60 kg", "6 kg"], "60 g"],
+        ["un adulte", ["70 g", "70 kg", "700 kg"], "70 kg"], ["une gomme", ["20 g", "20 kg", "2 kg"], "20 g"], ["un chat", ["4 g", "4 kg", "40 kg"], "4 kg"], ["un stylo", ["10 g", "10 kg", "100 g"], "10 g"]];
+      var U2 = [["une voiture", ["1 kg", "100 kg", "1 t"], "1 t"], ["une feuille de papier", ["5 g", "5 kg", "50 kg"], "5 g"], ["un éléphant", ["5 kg", "50 kg", "5 t"], "5 t"],
+        ["un camion chargé", ["30 kg", "300 kg", "30 t"], "30 t"], ["un dictionnaire", ["1 g", "1 kg", "1 t"], "1 kg"], ["un seau d'eau", ["10 g", "10 kg", "10 t"], "10 kg"]];
+      return niveau === "CE1" ? melange(U1) : melange(melange(U1).slice(0, 4).concat(U2));
+    },
+    convertir: function () {
+      var q = [];
+      for (var i = 0; i < 10; i++) {
+        var t = niveau === "CE1" ? hasard(["kg>g", "kgg>g", "g>kgg"]) : hasard(["kg>g", "kgg>g", "g>kgg", "t>kg", "kg>tkg", "tkg>kg"]);
+        var k = entre(1, 9), g = entre(1, 9) * 100 + (niveau === "CE2" ? entre(0, 99) : 0);
+        if (t === "kg>g") q.push([k + " kg = [] g", [k * 1000]]);
+        if (t === "kgg>g") q.push([k + " kg " + g + " g = [] g", [k * 1000 + g]]);
+        if (t === "g>kgg") q.push([esp(k * 1000 + g) + " g = [] kg [] g", [k, g]]);
+        if (t === "t>kg") q.push([k + " t = [] kg", [k * 1000]]);
+        if (t === "kg>tkg") q.push([esp(k * 1000 + g) + " kg = [] t [] kg", [k, g]]);
+        if (t === "tkg>kg") q.push([k + " t " + g + " kg = [] kg", [k * 1000 + g]]);
+      }
+      return q;
+    },
+    ordre: function () {
+      var q = [];
+      for (var i = 0; i < 6; i++) {
+        var vals = [], used = {};
+        while (vals.length < 4) { var v = niveau === "CE1" ? entre(2, 40) * 100 : entre(5, 6000) * (Math.random() < 0.3 ? 1000 : 1); if (!used[v]) { used[v] = 1; vals.push(v); } }
+        q.push(vals.map(function (v) { return { v: v, t: ecrire(v) }; }));
+      }
+      return q;
+    },
+    problemes: function () {
+      var P1 = [["Emma achète 1 kg de pommes et 500 g de raisin. Quelle masse de fruits porte-t-elle, en grammes ?", "[] g", [1500]],
+        ["Le cartable de Léo pèse 3 kg. Celui de Rémi pèse 2 500 g. De combien de grammes le cartable de Léo est-il plus lourd ?", "[] g", [500]],
+        ["Un paquet de farine pèse 1 kg. Ludo en utilise 250 g. Combien de grammes reste-t-il ?", "[] g", [750]],
+        ["Un œuf pèse 60 g. Combien pèsent 3 œufs ?", "[] g", [180]],
+        ["Léo pèse 26 kg. Son chien pèse 9 kg. Combien pèsent-ils ensemble ?", "[] kg", [35]],
+        ["Pour un gâteau, il faut 200 g de sucre et 300 g de farine. Quelle masse en tout ?", "[] g", [500]]];
+      var P2 = [["Un camion vide pèse 3 t. On le charge de 2 500 kg de sable. Quelle est sa masse en kg ?", "[] kg", [5500]],
+        ["Ludo a 2 kg de farine. Il en utilise 350 g. Combien de grammes lui reste-t-il ?", "[] g", [1650]],
+        ["Un sac contient 4 paquets de 250 g. Quelle est la masse du sac, en grammes ?", "[] g", [1000]],
+        ["Un éléphant pèse 5 t 200 kg. Combien de kilogrammes ?", "[] kg", [5200]],
+        ["Emma pèse 28 kg 500 g. Son petit frère pèse 12 kg 700 g. Quelle est la différence, en grammes ?", "[] g", [15800]],
+        ["Un pont supporte 10 t. Un camion pèse 7 t 400 kg. Combien de kilogrammes peut-on encore ajouter ?", "[] kg", [2600]]];
+      return melange(niveau === "CE1" ? P1 : P2);
+    }
+  };
+  function ecrire(g) {
+    if (niveau === "CE2" && g >= 1000 && g % 1000 === 0 && Math.random() < 0.4) return esp(g / 1000) + " kg";
+    if (g >= 1000 && Math.random() < 0.6) return esp(Math.floor(g / 1000)) + " kg" + (g % 1000 ? " " + (g % 1000) + " g" : "");
+    return esp(g) + " g";
+  }
+
+  var RENDU = {
+    balance: function (q) {
+      titre("Quel objet est le plus lourd ?");
+      var a = q[0], b = q[1], s = scene(); var t = signe(a[1], b[1]);
+      balance(s, t, [{ t: a[0].replace(/^une? /, ""), c: a[2], w: 110 }], [{ t: b[0].replace(/^une? /, ""), c: b[2], w: 110 }]);
+      astuce("Regarde de quel côté le plateau descend.");
+      choix([0, 1, 2], function (i) { return (i === 0 && t === 1) || (i === 1 && t === -1) || (i === 2 && t === 0); },
+        function (i) { return '<span class="hand" style="font-size:1.5rem">' + (i === 0 ? a[0] : i === 1 ? b[0] : "même masse") + '</span>'; },
+        function (ok) { noter(ok, ok ? (t === 0 ? "✓ La balance est en équilibre : même masse." : "✓ Oui : le plateau descend du côté de " + (t === 1 ? a[0] : b[0]) + ".") : "✗ Non. Le plateau le plus bas porte l'objet le plus lourd."); });
+      msgZone();
+    },
+    ranger: function (q) {
+      titre("Quelle est la boîte la plus " + q.quoi + " ?");
+      var d = document.createElement("div"); d.style.display = "grid"; d.style.gridTemplateColumns = "repeat(auto-fit, minmax(240px,1fr))"; d.style.gap = ".5rem"; corps.appendChild(d);
+      var col = { A: "#f6a85b", B: "#8ec3ea", C: "#a9d98f" };
+      [["A", "B"], ["B", "C"], ["A", "C"]].forEach(function (p) {
+        var s = el("svg", { "class": "scene", viewBox: "0 0 600 330" }); s.style.border = "none"; d.appendChild(s);
+        balance(s, signe(q[p[0]], q[p[1]]), [{ t: p[0], c: col[p[0]], w: 80 }], [{ t: p[1], c: col[p[1]], w: 80 }]);
+      });
+      var bon = ["A", "B", "C"].filter(function (k) { return q[k] === (q.quoi === "légère" ? 1 : 3); })[0];
+      choix(["A", "B", "C"], function (v) { return v === bon; }, function (v) { return '<span class="hand" style="font-size:1.8rem">' + v + '</span>'; },
+        function (ok) { noter(ok, ok ? "✓ Oui, " + bon + " est la plus " + q.quoi + "." : "✗ Relis chaque pesée : « … est plus lourde que … »."); });
+      msgZone();
+    },
+    equilibrer: function (m) {
+      titre("Pose des masses marquées pour mettre la balance en équilibre.");
+      var s = scene(600, 340), pose = [], fini = false;
+      var MASSES = niveau === "CE1" ? [1000, 500, 200, 100, 50, 20, 10] : [1000, 1000, 500, 200, 100, 50, 20, 10];
+      function lab(v) { return v >= 1000 ? (v / 1000) + " kg" : v + " g"; }
+      function dessiner() {
+        var tot = pose.reduce(function (a, b) { return a + b; }, 0);
+        balance(s, signe(m, tot), [{ t: "?", c: "#c7b0ea", w: 90, h: 70 }],
+          pose.map(function (v, i) { return { t: lab(v), masse: true, w: v >= 500 ? 50 : 40, h: v >= 500 ? 46 : 34, clic: function () { if (fini) return; pose.splice(i, 1); dessiner(); } }; }));
+        if (tot === m && !fini) { fini = true; demander(); }
+      }
+      var plateau = document.createElement("div"); plateau.className = "ligne";
+      [1000, 500, 200, 100, 50, 20, 10].forEach(function (v) {
+        var b = document.createElement("button"); b.className = "outil"; b.textContent = "+ " + lab(v);
+        b.addEventListener("click", function () { if (fini || pose.length >= 9) return; pose.push(v); pose.sort(function (x, y) { return y - x; }); dessiner(); });
+        plateau.appendChild(b);
+      });
+      corps.appendChild(plateau);
+      astuce("Touche une masse posée sur le plateau pour l'enlever. La flèche rouge doit être bien droite.");
+      var z = document.createElement("div"); corps.appendChild(z); msgZone();
+      function demander() {
+        var m2 = document.getElementById("msg"); m2.className = "msg good"; m2.textContent = "Équilibre ! Additionne les masses posées.";
+        var ecs; var d = document.createElement("div"); d.className = "enonce"; d.appendChild(document.createTextNode("L'objet pèse "));
+        var e = ecran(); d.appendChild(e); d.appendChild(document.createTextNode(" g.")); z.appendChild(d); ecs = [e];
+        pave(z, ecs, function (v) { var ok = v[0] === m; noter(ok, ok ? "✓ Bravo : " + pose.map(lab).join(" + ") + " = " + esp(m) + " g" + (m >= 1000 ? " (" + Math.floor(m / 1000) + " kg" + (m % 1000 ? " " + (m % 1000) + " g" : "") + ")" : "") + "." : "✗ Recompte : 1 kg = 1 000 g."); return ok; });
+      }
+      dessiner();
+    },
+    unite: function (o) {
+      titre("Quelle est la bonne masse ?"); var d = document.createElement("div"); d.className = "enonce"; d.innerHTML = "<b>" + o[0] + "</b>"; corps.appendChild(d);
+      choix(melange(o[1]), function (v) { return v === o[2]; }, function (v) { return '<span class="hand" style="font-size:1.7rem">' + v + '</span>'; },
+        function (ok, v) { noter(ok, ok ? "✓ Oui, " + o[0] + " : environ " + o[2] + "." : "✗ " + v + ", ce n'est pas possible. Pense à tes repères (1 kg = un paquet de sucre)."); });
+      msgZone();
+    },
+    convertir: function (q) {
+      titre("Complète.");
+      var ecs = trous(q[0]), z = document.createElement("div"); corps.appendChild(z);
+      astuce(niveau === "CE1" ? "1 kg = 1 000 g" : "1 kg = 1 000 g ; 1 t = 1 000 kg"); msgZone();
+      pave(z, ecs, function (v) { var ok = v.every(function (x, i) { return x === q[1][i]; }); noter(ok, ok ? "✓ Bravo !" : "✗ Pas tout à fait. Utilise l'égalité écrite en dessous."); return ok; });
+    },
+    ordre: function (q) {
+      titre("Touche les masses de la plus petite à la plus grande.");
+      var tri = q.slice().sort(function (a, b) { return a.v - b.v; }), k = 0, faute = false;
+      var d = document.createElement("div"); d.style.textAlign = "center"; corps.appendChild(d);
+      var rep = document.createElement("div"); rep.className = "enonce"; rep.innerHTML = "&nbsp;"; corps.appendChild(rep);
+      melange(q).forEach(function (o) {
+        var b = document.createElement("span"); b.className = "boite"; b.textContent = o.t;
+        b.addEventListener("click", function () {
+          if (b.classList.contains("choisi") || k >= 4) return;
+          if (o.v === tri[k].v) { b.classList.add("choisi"); rep.innerHTML = (k ? rep.innerHTML + " &lt; " : "") + o.t; k++;
+            if (k === 4) { noter(!faute, "✓ Bravo, c'est rangé !"); suivant(); } }
+          else { faute = true; noter(false, "✗ Ce n'est pas la plus petite des masses qui restent. Convertis en grammes pour comparer."); }
+        });
+        d.appendChild(b);
+      });
+      astuce(niveau === "CE1" ? "Astuce : 1 kg 300 g = 1 300 g" : "Astuce : je convertis tout en grammes ou tout en kilogrammes.");
+      msgZone();
+    },
+    problemes: function (q) {
+      titre("Résous le problème."); var d = document.createElement("div"); d.className = "enonce"; d.textContent = q[0]; corps.appendChild(d);
+      var ecs = trous(q[1]), z = document.createElement("div"); corps.appendChild(z); msgZone();
+      pave(z, ecs, function (v) { var ok = v[0] === q[2][0]; noter(ok, ok ? "✓ Bravo !" : "✗ Ce n'est pas ça. Convertis dans la même unité, puis calcule."); return ok; });
+    }
+  };
+
+  var actuel = "balance";
+  function ouvrir(o) { actuel = o; document.querySelectorAll(".onglets button").forEach(function (b) { b.setAttribute("aria-selected", String(b.dataset.onglet === o)); }); demarrer(o); }
+  document.querySelectorAll(".onglets button").forEach(function (b) { b.addEventListener("click", function () { ouvrir(b.dataset.onglet); }); });
+  document.querySelectorAll(".niveaux button").forEach(function (b) {
+    b.setAttribute("aria-pressed", String(b.dataset.niv === niveau));
+    b.addEventListener("click", function () { niveau = b.dataset.niv; try { localStorage.setItem(PREFIXE + "niveau", niveau); } catch (e) {}
+      document.querySelectorAll(".niveaux button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); ouvrir(actuel); });
+  });
+  ouvrir(actuel);
+})();
+</script>
+</body>
+</html>

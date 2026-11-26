@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Les longueurs (CE1-CE2)</title>
+<style>
+:root { --paper:#FAF6EA; --line:rgba(46,111,149,0.16); --ink:#243B2C; --red:#D6483D; --blue:#2E6F95; --yellow:#F2B33D; --green:#4C9A5B; --card-border:#E4DCC4; }
+* { box-sizing: border-box; }
+body { margin:0; min-height:100vh; color:var(--ink); background-color:var(--paper);
+  background-image: repeating-linear-gradient(var(--line) 0px, var(--line) 1px, transparent 1px, transparent 28px);
+  font-family:'Nunito','Segoe UI',Verdana,sans-serif; -webkit-tap-highlight-color: transparent; }
+.hand { font-family:'Patrick Hand','Segoe Print','Comic Sans MS','Bradley Hand',cursive; }
+.wrap { max-width:68rem; margin:0 auto; padding:1.2rem 1rem 3rem; }
+.top { display:flex; align-items:center; justify-content:space-between; gap:.75rem; flex-wrap:wrap; }
+h1 { margin:0; font-size:2.8rem; line-height:1; font-weight:400; }
+.sub { margin:.25rem 0 0; font-weight:600; color:var(--blue); }
+.retour { color:var(--blue); font-weight:700; text-decoration:none; font-size:.95rem; }
+button { font-family:inherit; cursor:pointer; border:0; font-weight:700; border-radius:9999px; transition:transform .15s; touch-action:manipulation; }
+button:active { transform:scale(.95); } button:focus-visible { outline:4px solid var(--yellow); outline-offset:2px; } button:disabled { cursor:default; }
+.niveaux { display:flex; gap:.4rem; }
+.niveaux button { padding:.45rem 1rem; font-size:1rem; background:white; color:var(--ink); border:2px solid var(--card-border); }
+.niveaux button[aria-pressed="true"] { background:var(--ink); color:white; border-color:var(--ink); }
+.onglets { display:flex; flex-wrap:wrap; gap:.45rem; margin:1rem 0; }
+.onglets button { padding:.6rem 1.05rem; font-size:1.02rem; background:white; color:var(--blue); border:2px solid var(--card-border); }
+.onglets button[aria-selected="true"] { background:var(--blue); color:white; border-color:var(--blue); }
+.carte { background:white; border:2px solid var(--card-border); border-left:8px solid var(--blue); border-radius:1rem; padding:1rem 1.1rem; }
+.scene { width:100%; max-width:760px; height:auto; display:block; margin:0 auto; background:#fffdf6; border:2px dashed #E4DCC4; border-radius:1rem; user-select:none; touch-action:none; }
+.progress { display:flex; align-items:center; gap:.35rem; flex-wrap:wrap; margin-bottom:.7rem; }
+.dot { width:1.6rem; height:1.6rem; border-radius:9999px; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:800; background:white; color:#B7AF92; border:2px solid #E4DCC4; }
+.dot.ok { background:var(--green); color:white; border-color:var(--green); } .dot.ko { background:var(--red); color:white; border-color:var(--red); } .dot.cur { border-color:var(--blue); color:var(--blue); }
+.question { font-size:1.6rem; margin:.2rem 0 .6rem; }
+.msg { min-height:2.2rem; font-weight:800; font-size:1.15rem; margin-top:.6rem; text-align:center; }
+.msg.good { color:var(--green); } .msg.bad { color:var(--red); }
+.reponses { display:flex; flex-wrap:wrap; gap:.55rem; justify-content:center; margin-top:.8rem; }
+.reponses button { background:#F4EFE2; color:var(--ink); padding:.6rem 1.2rem; border-radius:1rem; font-size:1.3rem; border:3px solid transparent; min-width:6rem; }
+.reponses button.bon { border-color:var(--green); background:#E7F5E8; } .reponses button.faux { border-color:var(--red); background:#FBEAE8; }
+.outil { background:#5b7d97; color:white; padding:.55rem 1.1rem; font-size:1.05rem; }
+.suivant { background:var(--blue); color:white; padding:.65rem 1.4rem; font-size:1.1rem; }
+.ligne { display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; margin-top:.7rem; align-items:center; }
+.astuce { font-size:.9rem; color:#7A7458; text-align:center; margin:.4rem 0 0; }
+.bilan { text-align:center; padding:1.5rem 1rem; } .etoiles { font-size:3.4rem; letter-spacing:.3rem; color:var(--yellow); } .etoiles .vide { color:#E4DCC4; }
+.record { color:#7A7458; font-size:.95rem; }
+.pave { display:grid; grid-template-columns:repeat(3, 4.2rem); gap:.45rem; justify-content:center; margin-top:.6rem; }
+.pave button { height:3.4rem; font-size:1.7rem; background:white; color:var(--ink); border:2px solid var(--card-border); border-radius:1rem; font-family:'Patrick Hand',cursive; }
+.pave button.ok { background:var(--green); color:white; border-color:var(--green); font-family:inherit; font-size:1.1rem; } .pave button.eff { background:#F4EFE2; font-size:1.2rem; }
+.ecran { display:inline-block; text-align:center; font-family:'Patrick Hand',cursive; font-size:2.3rem; min-height:3.2rem; border:3px solid #B9C4CC; border-radius:.8rem; background:white; min-width:6rem; padding:0 .6rem; vertical-align:middle; }
+.ecran.actif { border-color:var(--blue); box-shadow:0 0 0 3px #cfe2f1; }
+.enonce { font-size:1.45rem; text-align:center; margin:.4rem 0; }
+.boite { display:inline-block; background:#FFF6D8; border:3px solid #e2c766; border-radius:1rem; padding:.5rem 1rem; font-family:'Patrick Hand',cursive; font-size:1.8rem; margin:.3rem; cursor:pointer; }
+.boite.choisi { opacity:.35; cursor:default; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <a class="retour" href="index.html">← Ludothèque</a>
+      <h1 class="hand">📏 Les longueurs</h1>
+      <p class="sub">Mesurer et tracer à la règle, choisir l'unité, convertir, le périmètre (CE2) et des problèmes.</p>
+    </div>
+    <div class="niveaux" role="group" aria-label="Niveau">
+      <button data-niv="CE1" aria-pressed="true">CE1</button>
+      <button data-niv="CE2" aria-pressed="false">CE2</button>
+    </div>
+  </div>
+  <div class="onglets" role="tablist">
+    <button role="tab" data-onglet="mesurer" aria-selected="true">📏 Mesurer</button>
+    <button role="tab" data-onglet="tracer" aria-selected="false">✏️ Tracer</button>
+    <button role="tab" data-onglet="unite" aria-selected="false">🤔 Quelle unité ?</button>
+    <button role="tab" data-onglet="convertir" aria-selected="false">🔁 Convertir</button>
+    <button role="tab" data-onglet="comparer" aria-selected="false">⚖️ Comparer</button>
+    <button role="tab" data-onglet="perimetre" aria-selected="false">⬜ Périmètre (CE2)</button>
+    <button role="tab" data-onglet="problemes" aria-selected="false">🧩 Problèmes</button>
+  </div>
+  <div class="carte">
+    <div class="progress" id="prog"></div>
+    <div id="corps"></div>
+  </div>
+</div>
+<script>
+(function () {
+  "use strict";
+  var PREFIXE = "longueurs-";
+  var niveau = "CE1";
+  try { var n0 = localStorage.getItem(PREFIXE + "niveau"); if (n0) niveau = n0; } catch (e) {}
+
+  var NS = "http://www.w3.org/2000/svg";
+  function el(tag, att, parent) { var e = document.createElementNS(NS, tag); for (var k in att) e.setAttribute(k, att[k]); if (parent) parent.appendChild(e); return e; }
+  function melange(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function hasard(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function entre(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+  function esp(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+  var E = null, corps = document.getElementById("corps"), prog = document.getElementById("prog");
+  function demarrer(type) { E = { type: type, n: 0, res: [], qs: GEN[type]() }; E.total = E.qs.length; question(); }
+  function progression() { prog.innerHTML = ""; for (var i = 0; i < E.total; i++) { var d = document.createElement("div"); d.className = "dot" + (E.res[i] === true ? " ok" : E.res[i] === false ? " ko" : i === E.n ? " cur" : ""); d.textContent = i + 1; prog.appendChild(d); } }
+  function question() { document.onkeydown = null; progression(); if (E.n >= E.total) return bilan(); corps.innerHTML = ""; RENDU[E.type](E.qs[E.n]); }
+  function noter(ok, html) { if (E.res[E.n] === undefined) E.res[E.n] = ok; var m = document.getElementById("msg"); m.className = "msg " + (ok ? "good" : "bad"); m.innerHTML = html; progression(); }
+  function suivant() { if (document.querySelector(".suivant")) return; var b = document.createElement("button"); b.className = "suivant"; b.textContent = E.n + 1 < E.total ? "Question suivante →" : "Voir mes étoiles ★";
+    b.addEventListener("click", function () { E.n++; question(); }); var l = document.createElement("div"); l.className = "ligne"; l.appendChild(b); corps.appendChild(l); b.focus(); }
+  function msgZone() { var m = document.createElement("div"); m.id = "msg"; m.className = "msg"; corps.appendChild(m); }
+  function titre(t) { var p = document.createElement("p"); p.className = "question hand"; p.innerHTML = t; corps.appendChild(p); }
+  function astuce(t) { var p = document.createElement("p"); p.className = "astuce"; p.innerHTML = t; corps.appendChild(p); }
+  function bilan() {
+    var err = E.res.filter(function (r) { return r === false; }).length, et = err <= 1 ? 3 : err <= 3 ? 2 : 1, cle = PREFIXE + E.type + "-" + niveau, rec = 0;
+    try { rec = +localStorage.getItem(cle) || 0; if (et > rec) localStorage.setItem(cle, et); } catch (e) {}
+    corps.innerHTML = '<div class="bilan"><div class="etoiles">' + "★★★".slice(0, et) + '<span class="vide">' + "★★★".slice(0, 3 - et) + '</span></div>' +
+      '<p class="hand" style="font-size:2rem;margin:.3rem 0">' + (et === 3 ? "Bravo, champion de la mesure !" : et === 2 ? "Très bien ! Encore un petit effort." : "Continue, tu vas y arriver !") + '</p>' +
+      '<p>' + (E.total - err) + ' bonnes réponses du premier coup sur ' + E.total + '.</p><p class="record">Meilleur score sur cet appareil : ' + "★".repeat(Math.max(et, rec)) + '</p></div>';
+    var b = document.createElement("button"); b.className = "suivant"; b.textContent = "🔄 Recommencer"; b.addEventListener("click", function () { demarrer(E.type); }); corps.firstChild.appendChild(b);
+  }
+  function choix(liste, estBon, libelle, retour) {
+    var r = document.createElement("div"); r.className = "reponses";
+    liste.forEach(function (v) { var b = document.createElement("button"); b.innerHTML = libelle(v);
+      b.addEventListener("click", function () { if (estBon(v)) { b.classList.add("bon"); r.querySelectorAll("button").forEach(function (x) { x.disabled = true; }); retour(true, v); suivant(); }
+        else { b.classList.add("faux"); b.disabled = true; retour(false, v); } }); r.appendChild(b); });
+    corps.appendChild(r);
+  }
+  /* pavé numérique : champs = liste d'écrans à remplir (le 1er est actif) ; valider(valeurs) renvoie true/false */
+  function pave(conteneur, ecrans, valider) {
+    var actif = 0, fini = false;
+    function maj() { ecrans.forEach(function (e, i) { e.classList.toggle("actif", i === actif && !fini); }); }
+    ecrans.forEach(function (e, i) { e.addEventListener("click", function () { actif = i; maj(); }); });
+    var p = document.createElement("div"); p.className = "pave";
+    ["7","8","9","4","5","6","1","2","3","⌫","0","OK"].forEach(function (t) {
+      var b = document.createElement("button"); b.textContent = t; if (t === "OK") b.className = "ok"; if (t === "⌫") b.className = "eff";
+      b.addEventListener("click", function () {
+        if (fini) return; var e = ecrans[actif];
+        if (t === "⌫") e.textContent = e.textContent.slice(0, -1);
+        else if (t === "OK") {
+          if (ecrans.some(function (x) { return x.textContent === ""; })) { var vide = ecrans.findIndex(function (x) { return x.textContent === ""; }); actif = vide; maj(); return; }
+          var ok = valider(ecrans.map(function (x) { return +x.textContent; }));
+          if (ok) { fini = true; maj(); suivant(); } else { ecrans.forEach(function (x) { x.textContent = ""; }); actif = 0; maj(); }
+        } else if (e.textContent.length < 6) { e.textContent += t; if (e.textContent.length >= 6 && actif < ecrans.length - 1) actif++; }
+        maj();
+      });
+      p.appendChild(b);
+    });
+    conteneur.appendChild(p); maj();
+    document.onkeydown = function (ev) { var k = ev.key === "Enter" ? "OK" : ev.key === "Backspace" ? "⌫" : ev.key; if (k === "Tab") { ev.preventDefault(); actif = (actif + 1) % ecrans.length; maj(); return; }
+      p.querySelectorAll("button").forEach(function (b) { if (b.textContent === k) b.click(); }); };
+  }
+  function ecran() { var s = document.createElement("span"); s.className = "ecran"; return s; }
+  /* phrase à trous : "1 m 46 cm = [] cm" -> écrans */
+  function trous(modele) {
+    var d = document.createElement("div"); d.className = "enonce"; var ecs = [];
+    modele.split("[]").forEach(function (part, i, arr) { d.appendChild(document.createTextNode(part)); if (i < arr.length - 1) { var e = ecran(); ecs.push(e); d.appendChild(e); } });
+    corps.appendChild(d); return ecs;
+  }
+
+
+  var CM = 44;  // 1 cm = 44 px à l'écran
+  function dessinerRegle(g, ncm, mm) {
+    el("rect", { x: -16, y: 0, width: ncm * CM + 32, height: 62, rx: 6, fill: "#fff6c9", "fill-opacity": 0.88, stroke: "#8a7a2a", "stroke-width": 2 }, g);
+    for (var i = 0; i <= ncm * 10; i++) {
+      if (!mm && i % 10) continue;
+      var x = i * CM / 10, L = i % 10 === 0 ? 24 : (i % 5 === 0 ? 15 : 9);
+      el("line", { x1: x, y1: 0, x2: x, y2: L, stroke: "#333", "stroke-width": i % 10 === 0 ? 2 : 1 }, g);
+    }
+    for (var c = 0; c <= ncm; c++) { var t = el("text", { x: c * CM, y: 50, "text-anchor": "middle", "font-size": 17, "font-weight": 700, fill: "#333", "font-family": "Nunito, Verdana, sans-serif" }, g); t.textContent = c; }
+  }
+  function regleMobile(svg, x, y, ncm, mm) {
+    var g = el("g", { transform: "translate(" + x + "," + y + ")", style: "cursor:grab" }, svg); dessinerRegle(g, ncm, mm);
+    var pos = [x, y], dep = null;
+    g.addEventListener("pointerdown", function (e) { dep = [e.clientX, e.clientY, pos[0], pos[1]]; g.setPointerCapture(e.pointerId); });
+    g.addEventListener("pointermove", function (e) { if (!dep) return; var k = svg.viewBox.baseVal.width / svg.getBoundingClientRect().width;
+      pos = [dep[2] + (e.clientX - dep[0]) * k, dep[3] + (e.clientY - dep[1]) * k]; g.setAttribute("transform", "translate(" + pos[0] + "," + pos[1] + ")"); });
+    g.addEventListener("pointerup", function () { dep = null; });
+    return g;
+  }
+  function seg(svg, x1, x2, y) {
+    el("line", { x1: x1, y1: y, x2: x2, y2: y, stroke: "#222", "stroke-width": 4 }, svg);
+    el("line", { x1: x1, y1: y - 10, x2: x1, y2: y + 10, stroke: "#222", "stroke-width": 3 }, svg);
+    el("line", { x1: x2, y1: y - 10, x2: x2, y2: y + 10, stroke: "#222", "stroke-width": 3 }, svg);
+  }
+
+  var OBJETS1 = [["une trousse", ["2 cm", "20 cm", "2 m"], "20 cm"], ["la hauteur d'une porte", ["2 cm", "20 cm", "2 m"], "2 m"], ["la largeur de la classe", ["8 cm", "8 m", "8 km"], "8 m"],
+    ["un crayon neuf", ["17 cm", "17 m", "17 km"], "17 cm"], ["de l'école à la ville voisine", ["5 m", "50 cm", "5 km"], "5 km"], ["la longueur d'un cahier", ["3 cm", "30 cm", "3 m"], "30 cm"],
+    ["la taille d'un enfant de CE1", ["1 m 25 cm", "12 cm", "12 m"], "1 m 25 cm"], ["la longueur de la cour", ["40 cm", "40 m", "40 km"], "40 m"], ["une gomme", ["4 cm", "40 cm", "4 m"], "4 cm"],
+    ["un bus", ["12 cm", "12 m", "12 km"], "12 m"]];
+  var OBJETS2 = [["un timbre", ["3 mm", "3 cm", "3 dm"], "3 cm"], ["l'épaisseur d'un cahier", ["5 mm", "5 cm", "5 dm"], "5 mm"], ["de chez moi à Paris", ["800 m", "8 km", "800 km"], "800 km"],
+    ["une fourmi", ["4 mm", "4 cm", "4 dm"], "4 mm"], ["une règle de classe", ["3 dm", "3 m", "3 mm"], "3 dm"], ["un marathon", ["42 m", "42 km", "420 m"], "42 km"],
+    ["la largeur d'une feuille", ["21 mm", "21 cm", "21 dm"], "21 cm"], ["la hauteur d'un immeuble de 5 étages", ["15 m", "15 cm", "15 km"], "15 m"], ["la longueur d'un ongle", ["1 cm", "1 dm", "1 m"], "1 cm"],
+    ["un stylo", ["14 cm", "14 mm", "14 dm"], "14 cm"]];
+
+  var GEN = {
+    mesurer: function () { var q = []; for (var i = 0; i < 10; i++) q.push(niveau === "CE1" ? entre(3, 13) * 10 : entre(25, 135)); return q; },
+    tracer: function () { var q = []; for (var i = 0; i < 8; i++) q.push(niveau === "CE1" ? entre(3, 13) * 10 : entre(25, 135)); return q; },
+    unite: function () { return melange(niveau === "CE1" ? OBJETS1 : melange(OBJETS1).slice(0, 4).concat(OBJETS2)).slice(0, 10); },
+    convertir: function () {
+      var q = [];
+      for (var i = 0; i < 10; i++) {
+        var t = niveau === "CE1" ? hasard(["m>cm", "mcm>cm", "cm>mcm", "km>m"]) : hasard(["cmmm>mm", "cm>mm", "cm>mdmcm", "m>cm", "m>dm", "kmm>m", "mm>cmmm"]);
+        var m = entre(1, 5), c = entre(1, 99), k = entre(1, 9);
+        if (t === "m>cm") q.push([m + " m = [] cm", [m * 100]]);
+        if (t === "mcm>cm") q.push([m + " m " + c + " cm = [] cm", [m * 100 + c]]);
+        if (t === "cm>mcm") q.push([esp(m * 100 + c) + " cm = [] m [] cm", [m, c]]);
+        if (t === "km>m") q.push([k + " km = [] m", [k * 1000]]);
+        if (t === "cmmm>mm") { var a = entre(2, 15), b = entre(1, 9); q.push([a + " cm " + b + " mm = [] mm", [a * 10 + b]]); }
+        if (t === "cm>mm") { var a2 = entre(2, 30); q.push([a2 + " cm = [] mm", [a2 * 10]]); }
+        if (t === "cm>mdmcm") { var v = entre(101, 489); q.push([v + " cm = [] m [] dm [] cm", [Math.floor(v / 100), Math.floor(v / 10) % 10, v % 10]]); }
+        if (t === "m>cm") q.push([m + " m = [] cm", [m * 100]]);
+        if (t === "m>dm") { var m2 = entre(2, 30); q.push([m2 + " m = [] dm", [m2 * 10]]); }
+        if (t === "kmm>m") { var mm2 = entre(1, 9) * 50; q.push([k + " km " + mm2 + " m = [] m", [k * 1000 + mm2]]); }
+        if (t === "mm>cmmm") { var w = entre(21, 149); if (w % 10 === 0) w++; q.push([w + " mm = [] cm [] mm", [Math.floor(w / 10), w % 10]]); }
+      }
+      return q;
+    },
+    comparer: function () {
+      var q = [];
+      for (var i = 0; i < 10; i++) {
+        var a, b;
+        if (niveau === "CE1") { var x = entre(100, 240), y = entre(60, 240); if (x === y) y += 7;
+          a = { t: x >= 100 ? Math.floor(x / 100) + " m " + (x % 100) + " cm" : x + " cm", v: x }; b = { t: y + " cm", v: y }; if (Math.random() < 0.5) { var z = a; a = b; b = z; } }
+        else { var p = entre(30, 150), r = entre(30, 150); if (p === r) r += 3;
+          a = { t: Math.floor(p / 10) + " cm " + (p % 10) + " mm", v: p }; b = { t: r + " mm", v: r }; if (Math.random() < 0.5) { var z2 = a; a = b; b = z2; } }
+        q.push([a, b]);
+      }
+      return q;
+    },
+    perimetre: function () {
+      var q = [];
+      for (var i = 0; i < 8; i++) {
+        var t = hasard(["rect", "carre", "tri", "L"]);
+        if (t === "rect") { var L = entre(3, 9), l = entre(2, 5); if (L === l) L++; q.push({ t: t, cotes: [L, l, L, l], pts: [[0, 0], [L, 0], [L, l], [0, l]] }); }
+        if (t === "carre") { var c = entre(2, 6); q.push({ t: t, cotes: [c, c, c, c], pts: [[0, 0], [c, 0], [c, c], [0, c]] }); }
+        if (t === "tri") { var a = hasard([[3, 4, 5], [6, 8, 10], [4, 3, 5]]); q.push({ t: t, cotes: [a[0], a[2], a[1]], pts: [[0, a[1]], [a[0], a[1]], [0, 0]] }); }
+        if (t === "L") { var W = entre(5, 8), H = entre(4, 6), w = entre(2, W - 2), h = entre(2, H - 2);
+          q.push({ t: t, cotes: [W, h, W - w, H - h, w, H], pts: [[0, 0], [W, 0], [W, h], [w, h], [w, H], [0, H]] }); }
+      }
+      return q;
+    },
+    problemes: function () {
+      var P1 = [["Léo a une ficelle de 1 m. Il en coupe 30 cm. Quelle longueur reste-t-il ?", "[] cm", [70]],
+        ["Emma saute 85 cm, Rémi saute 1 m 5 cm. De combien de centimètres Rémi saute-t-il plus loin ?", "[] cm", [20]],
+        ["Un ruban mesure 2 m. Ludo en utilise 1 m 50 cm. Combien de centimètres reste-t-il ?", "[] cm", [50]],
+        ["Pour aller à la piscine, on fait 2 km à l'aller et 2 km au retour. Combien de kilomètres en tout ?", "[] km", [4]],
+        ["Léo met bout à bout 3 bâtons de 20 cm. Quelle longueur obtient-il ?", "[] cm", [60]],
+        ["La porte mesure 2 m. Emma mesure 1 m 30 cm. Combien de centimètres de plus mesure la porte ?", "[] cm", [70]]];
+      var P2 = [["Un jardin rectangulaire mesure 8 m sur 5 m. Quelle longueur de grillage faut-il pour en faire le tour ?", "[] m", [26]],
+        ["Ludo marche 1 km 200 m le matin et 800 m l'après-midi. Combien de mètres en tout ?", "[] m", [2000]],
+        ["Un carré a un périmètre de 20 cm. Combien mesure un côté ?", "[] cm", [5]],
+        ["Emma trace un segment de 7 cm 4 mm puis le prolonge de 16 mm. Combien mesure-t-il en mm ?", "[] mm", [90]],
+        ["Un coureur doit faire 5 km. Il a déjà fait 3 km 600 m. Combien de mètres lui reste-t-il ?", "[] m", [1400]],
+        ["Une piste de 400 m : Léo en fait 3 tours. Combien de mètres a-t-il parcourus ?", "[] m", [1200]]];
+      return melange(niveau === "CE1" ? P1 : P2);
+    }
+  };
+
+  var RENDU = {
+    mesurer: function (L) {
+      titre(niveau === "CE1" ? "Combien mesure ce segment ? Déplace la règle." : "Combien mesure ce segment, en millimètres ? Déplace la règle.");
+      var s = el("svg", { "class": "scene", viewBox: "0 0 760 300" }); corps.appendChild(s);
+      var x1 = entre(40, 760 - 40 - L * CM / 10 - 10); seg(s, x1, x1 + L * CM / 10, 90);
+      regleMobile(s, 30, 190, 15, niveau === "CE2");
+      astuce("Fais glisser la règle : le 0 doit être exactement au début du segment.");
+      var ecs = trous(niveau === "CE1" ? "Le segment mesure [] cm." : "Le segment mesure [] mm.");
+      var z = document.createElement("div"); corps.appendChild(z); msgZone();
+      pave(z, ecs, function (v) {
+        var bon = niveau === "CE1" ? L / 10 : L, ok = v[0] === bon;
+        noter(ok, ok ? "✓ Bravo : " + (niveau === "CE1" ? bon + " cm." : Math.floor(L / 10) + " cm " + (L % 10) + " mm, c'est " + L + " mm.") : "✗ Pas " + v[0] + ". Le début du segment est-il bien sur le 0 ?");
+        return ok;
+      });
+    },
+    tracer: function (L) {
+      var txt = niveau === "CE1" ? (L / 10) + " cm" : (L % 10 ? Math.floor(L / 10) + " cm " + (L % 10) + " mm" : (L / 10) + " cm");
+      titre("Trace un segment de " + txt + " : touche l'endroit où il doit s'arrêter.");
+      var s = el("svg", { "class": "scene", viewBox: "0 0 760 260" }); corps.appendChild(s);
+      var x0 = 60, y0 = 110, g = el("g", { transform: "translate(" + x0 + "," + (y0 + 14) + ")" }, s); dessinerRegle(g, 15, niveau === "CE2");
+      el("circle", { cx: x0, cy: y0, r: 7, fill: "#D6483D" }, s);
+      var trait = el("line", { x1: x0, y1: y0, x2: x0, y2: y0, stroke: "#222", "stroke-width": 4 }, s), fin = el("circle", { cx: x0, cy: y0, r: 0, fill: "#2E6F95" }, s);
+      var pose = null, fini = false;
+      s.addEventListener("pointerdown", function (e) {
+        if (fini) return; var pt = s.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; var l = pt.matrixTransform(s.getScreenCTM().inverse());
+        var mm = Math.round((l.x - x0) / (CM / 10)); if (mm < 1 || mm > 150) return; pose = mm;
+        var xx = x0 + mm * CM / 10; trait.setAttribute("x2", xx); fin.setAttribute("cx", xx); fin.setAttribute("r", 7);
+      });
+      astuce("Le segment part du point rouge, en face du 0. Touche la règle pour placer la fin, puis valide.");
+      var l = document.createElement("div"); l.className = "ligne"; var b = document.createElement("button"); b.className = "suivant"; b.textContent = "✓ Valider"; l.appendChild(b); corps.appendChild(l); msgZone();
+      b.addEventListener("click", function () {
+        if (pose === null) return;
+        var tol = niveau === "CE1" ? 2 : 0, ok = Math.abs(pose - L) <= tol;
+        noter(ok, ok ? "✓ Bravo, ton segment mesure bien " + txt + " !" : "✗ Ton segment mesure " + Math.floor(pose / 10) + " cm" + (pose % 10 ? " " + (pose % 10) + " mm" : "") + ". Recommence.");
+        if (ok) { fini = true; b.disabled = true; suivant(); }
+      });
+    },
+    unite: function (o) {
+      titre("Quelle est la bonne mesure ?"); var d = document.createElement("div"); d.className = "enonce"; d.innerHTML = "<b>" + o[0] + "</b>"; corps.appendChild(d);
+      choix(melange(o[1]), function (v) { return v === o[2]; }, function (v) { return '<span class="hand" style="font-size:1.7rem">' + v + '</span>'; },
+        function (ok, v) { noter(ok, ok ? "✓ Oui, " + o[0] + " : environ " + o[2] + "." : "✗ " + v + ", ce n'est pas possible. Pense à tes repères."); });
+      msgZone();
+    },
+    convertir: function (q) {
+      titre("Complète.");
+      var ecs = trous(q[0]), z = document.createElement("div"); corps.appendChild(z);
+      astuce(niveau === "CE1" ? "1 m = 100 cm ; 1 km = 1 000 m" : "1 cm = 10 mm ; 1 dm = 10 cm ; 1 m = 10 dm = 100 cm ; 1 km = 1 000 m");
+      msgZone();
+      pave(z, ecs, function (v) { var ok = v.every(function (x, i) { return x === q[1][i]; });
+        noter(ok, ok ? "✓ Bravo !" : "✗ Pas tout à fait. Utilise les égalités écrites en dessous."); return ok; });
+    },
+    comparer: function (q) {
+      titre("Quelle est la longueur la plus grande ?");
+      choix([0, 1], function (i) { return q[i].v > q[1 - i].v; }, function (i) { return '<span class="hand" style="font-size:1.8rem">' + q[i].t + '</span>'; },
+        function (ok) { var g = q[0].v > q[1].v ? 0 : 1; noter(ok, ok ? "✓ Oui ! " + q[g].t + " = " + q[g].v + (niveau === "CE1" ? " cm" : " mm") + "." : "✗ Convertis tout dans la même unité (" + (niveau === "CE1" ? "en cm" : "en mm") + ") pour comparer."); });
+      msgZone();
+    },
+    perimetre: function (q) {
+      titre(niveau === "CE1" ? "Le périmètre, c'est le tour de la figure (CE2). Additionne les côtés." : "Calcule le périmètre de la figure.");
+      var c = 40, s = el("svg", { "class": "scene", viewBox: "0 0 560 360" }); s.style.maxWidth = "560px"; corps.appendChild(s);
+      for (var i = 0; i <= 14; i++) el("line", { x1: i * c, y1: 0, x2: i * c, y2: 360, stroke: "#dbe8f4" }, s);
+      for (var j = 0; j <= 9; j++) el("line", { x1: 0, y1: j * c, x2: 560, y2: j * c, stroke: "#dbe8f4" }, s);
+      var ox = 2 * c, oy = 1.5 * c, P = q.pts.map(function (p) { return [ox + p[0] * c, oy + p[1] * c]; });
+      el("polygon", { points: P.map(function (p) { return p.join(","); }).join(" "), fill: "#fdf0c4", stroke: "#222", "stroke-width": 4 }, s);
+      var cx = P.reduce(function (a, p) { return a + p[0]; }, 0) / P.length, cy = P.reduce(function (a, p) { return a + p[1]; }, 0) / P.length;
+      for (var k = 0; k < P.length; k++) { var A = P[k], B = P[(k + 1) % P.length], mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2, dx = mx - cx, dy = my - cy, n = Math.hypot(dx, dy) || 1;
+        var t = el("text", { x: mx + dx / n * 24, y: my + dy / n * 24 + 7, "text-anchor": "middle", "font-size": 20, "font-weight": 800, fill: "#2E6F95", "font-family": "Nunito, sans-serif" }, s); t.textContent = q.cotes[k] + " cm"; }
+      var ecs = trous("Périmètre = [] cm"), z = document.createElement("div"); corps.appendChild(z);
+      astuce("J'additionne la longueur de chaque côté, sans en oublier."); msgZone();
+      var tot = q.cotes.reduce(function (a, b) { return a + b; }, 0);
+      pave(z, ecs, function (v) { var ok = v[0] === tot; noter(ok, ok ? "✓ " + q.cotes.join(" + ") + " = " + tot + " cm." : "✗ Recompte : as-tu ajouté tous les côtés ?"); return ok; });
+    },
+    problemes: function (q) {
+      titre("Résous le problème."); var d = document.createElement("div"); d.className = "enonce"; d.textContent = q[0]; corps.appendChild(d);
+      var ecs = trous(q[1]), z = document.createElement("div"); corps.appendChild(z); msgZone();
+      pave(z, ecs, function (v) { var ok = v[0] === q[2][0]; noter(ok, ok ? "✓ Bravo !" : "✗ Ce n'est pas ça. Écris d'abord le calcul sur ton ardoise."); return ok; });
+    }
+  };
+
+  var actuel = "mesurer";
+  function ouvrir(o) { actuel = o; document.querySelectorAll(".onglets button").forEach(function (b) { b.setAttribute("aria-selected", String(b.dataset.onglet === o)); }); demarrer(o); }
+  document.querySelectorAll(".onglets button").forEach(function (b) { b.addEventListener("click", function () { ouvrir(b.dataset.onglet); }); });
+  document.querySelectorAll(".niveaux button").forEach(function (b) {
+    b.setAttribute("aria-pressed", String(b.dataset.niv === niveau));
+    b.addEventListener("click", function () { niveau = b.dataset.niv; try { localStorage.setItem(PREFIXE + "niveau", niveau); } catch (e) {}
+      document.querySelectorAll(".niveaux button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); ouvrir(actuel); });
+  });
+  ouvrir(actuel);
+})();
+</script>
+</body>
+</html>
