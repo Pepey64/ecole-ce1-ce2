@@ -57,8 +57,19 @@ h1,h2{font-family:Fredoka,Nunito,sans-serif;line-height:1.1;margin:0;text-wrap:b
 @keyframes belt{to{stroke-dashoffset:-40}}
 .ride{animation:ride 9s linear infinite}
 @keyframes ride{from{transform:translateX(0)}to{transform:translateX(420px)}}
-.talk{background:var(--paper);color:var(--ink);border-radius:18px;padding:14px 16px;display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:14px;align-items:center;min-height:100px;box-shadow:0 6px 0 rgba(0,0,0,.25)}
-.face{width:72px;height:72px;border-radius:50%;background:#e8f2ec;overflow:hidden}
+/* le bandeau de dialogue : il passe devant tout, le jeu attend qu'on l'ait lu */
+.talkov{position:fixed;inset:0;z-index:18;background:rgba(8,18,14,.62);display:flex;align-items:flex-end;justify-content:center;padding:16px 16px max(16px,4vh)}
+.talk{background:var(--paper);color:var(--ink);border-radius:22px;padding:18px 20px;display:grid;grid-template-columns:96px minmax(0,1fr);gap:8px 18px;align-items:center;width:min(920px,100%);max-height:78vh;overflow-y:auto;border:4px solid var(--gold);box-shadow:0 0 0 6px rgba(242,182,50,.25),0 18px 50px rgba(0,0,0,.55);animation:talkin .35s ease-out}
+@keyframes talkin{from{transform:translateY(40px);opacity:0}}
+.txtin{animation:txtin .3s ease-out}
+@keyframes txtin{from{opacity:0}}
+.talk .face{width:96px;height:96px;grid-row:1/3}
+.talk .say{font-size:clamp(19px,1.6vw,24px)}
+.talk .tnav{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap}
+.talk .tcount{font:600 14px Fredoka,sans-serif;color:var(--muted)}
+.talk #next{font-size:18px;min-height:48px;padding:10px 22px;animation:nudge 1.6s 1s infinite}
+@keyframes nudge{0%,80%,100%{transform:none}88%{transform:translateX(5px)}94%{transform:translateX(-2px)}}
+.face{width:72px;height:72px;border-radius:50%;background:radial-gradient(circle at 50% 40%,#f3faf5,#cfe8d8);overflow:hidden;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2)}
 .face svg{width:100%;height:100%}
 .who{font:700 15px Fredoka,sans-serif;color:var(--red2)}
 .say{margin:2px 0 0;font-size:18px}
@@ -70,10 +81,29 @@ h1,h2{font-family:Fredoka,Nunito,sans-serif;line-height:1.1;margin:0;text-wrap:b
 .btn.gold{background:var(--gold);color:#4a2c00;box-shadow:0 4px 0 #b37f10}
 .paper .btn.ghost{color:var(--muted);box-shadow:inset 0 0 0 2px #cdb99a}
 button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-.ov{position:fixed;inset:0;z-index:20;background:rgba(10,20,16,.78);display:grid;place-items:center;padding:16px;overflow-y:auto}
+.ov{position:fixed;inset:0;z-index:20;background:rgba(10,20,16,.78);display:flex;padding:16px;overflow-y:auto}
+.ov>*{margin:auto}
 .paper{background:var(--paper);color:var(--ink);border-radius:20px;max-width:620px;width:100%;padding:22px 22px 20px;display:grid;gap:12px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:up .3s}
 @keyframes up{from{transform:translateY(20px);opacity:0}}
 .paper h2{font-size:26px;padding-right:40px}
+/* le parchemin trouvé : il apparaît roulé, puis se déroule en grand */
+.scroll{background:none;box-shadow:none;padding:0;max-width:min(900px,96vw);display:block;animation:none;font-size:18px}
+.scroll .sheet{position:relative;display:grid;gap:12px;padding:30px 30px 26px;margin:0 8px;color:var(--ink);
+  background:radial-gradient(ellipse at 50% 40%,#fffaf0 0%,#f8ead0 62%,#ecd4a4 100%);
+  box-shadow:inset 0 0 40px rgba(160,110,40,.28),0 22px 60px rgba(0,0,0,.55)}
+.scroll .sheet::before,.scroll .sheet::after{content:"";position:absolute;top:0;bottom:0;width:14px;pointer-events:none}
+.scroll .sheet::before{left:0;background:linear-gradient(90deg,rgba(150,100,40,.25),transparent)}
+.scroll .sheet::after{right:0;background:linear-gradient(-90deg,rgba(150,100,40,.25),transparent)}
+.rod{position:relative;display:block;height:26px;border-radius:13px;z-index:2;
+  background:linear-gradient(180deg,#b9824a 0%,#e0aa6a 35%,#8a5527 75%,#5e3716 100%);box-shadow:0 4px 8px rgba(0,0,0,.35)}
+.rod::before,.rod::after{content:"";position:absolute;top:-5px;width:36px;height:36px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#ff7a85,#d42a3a 55%,#8e1622);box-shadow:0 3px 6px rgba(0,0,0,.35)}
+.rod::before{left:-14px}.rod::after{right:-14px}
+.rod.t{margin-bottom:-8px}.rod.b{margin-top:-8px}
+.scroll .seal{position:absolute;left:50%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;z-index:3;pointer-events:none;opacity:0;
+  background:radial-gradient(circle at 38% 35%,#e35a66,#b01e2c 60%,#7c1019);box-shadow:0 3px 8px rgba(0,0,0,.4);display:grid;place-items:center;font:700 28px Fredoka,sans-serif;color:#ffd7a0}
+.scroll .x{top:14px;right:14px;background:#ead6ad}
+.scroll .q{background:rgba(255,255,255,.55)}
 .ptag{font:600 14px Fredoka,sans-serif;color:var(--red2)}
 .paper p{margin:0}
 .x{position:absolute;top:10px;right:10px;width:44px;height:44px;border-radius:50%;border:0;background:#efe2cc;color:var(--ink);font:700 22px Fredoka,sans-serif;cursor:pointer}
@@ -121,6 +151,14 @@ input.mini{width:5.6em;text-align:center;padding:8px 6px}
 .cmpr .nb{min-width:64px;text-align:center;font:700 24px Fredoka,sans-serif}
 .cmpr .choice{min-width:52px;font-size:22px}
 .part{border-top:2px dashed #e4d5bb;padding-top:10px;display:grid;gap:8px}
+.rbs{display:grid;gap:8px;justify-items:center;background:rgba(255,255,255,.6);border-radius:14px;padding:12px}
+.rbl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;font:700 30px Fredoka,sans-serif}
+.rbl>b,.rba b{color:var(--muted)}
+.rbi{display:inline-grid;width:54px;height:54px;background:#fff;border-radius:12px;box-shadow:0 2px 0 #e2cfa8;padding:4px}
+.rbi svg{width:100%;height:100%}
+.rbn{min-width:2em;text-align:center}
+.rba{display:flex;flex-wrap:wrap;gap:10px 22px;justify-content:center}
+.rba label{display:flex;align-items:center;gap:8px;font:700 26px Fredoka,sans-serif}
 .abc{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:4px}
 .abc span{background:#fff;border-radius:8px;text-align:center;padding:2px 0;font-size:14px;line-height:1.2}
 .abc b{display:block;font:700 17px Fredoka,sans-serif;color:var(--red2)}
@@ -136,31 +174,6 @@ input.mini{width:5.6em;text-align:center;padding:8px 6px}
 .mb small{font:600 12px Fredoka,sans-serif;color:var(--muted)}
 .mb b{font:600 15px Nunito,sans-serif;overflow-wrap:anywhere}
 .mb span{font:700 22px Fredoka,sans-serif}
-.steps{display:flex;flex-wrap:wrap;gap:6px}
-.steps span{font:600 13px Fredoka,sans-serif;border:2px solid #d4c1a1;border-radius:999px;padding:3px 10px;color:var(--muted);background:#fff}
-.steps .on{background:#2f5fb3;border-color:#2f5fb3;color:#fff}
-.steps .ok{border-color:#2d9a5f;color:#1f8a4c;background:#eaf7ef}
-.cmpwrap{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:10px}
-.stmt{display:grid;gap:6px;align-content:start}
-.stmt p{background:#fff;border:2px solid #2a1d14;border-radius:10px;padding:6px 10px;font-size:16px}
-mark{background:#ffd76a;border-radius:4px;padding:0 3px;font-weight:800;color:inherit}
-.cm{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:200px auto;background:#fff;border-radius:14px;padding:10px;transition:opacity .3s}
-.cm.dim{opacity:.45}
-.ccol{display:grid;grid-template-rows:2fr 3fr;min-height:0}
-.ccol.big .cq{grid-row:1/3;grid-column:1}
-.ccol.big .dl{grid-row:1;grid-column:1;align-self:end;border-bottom:3px dotted #2a1d14;margin:0 3px;transform:translateY(3px);pointer-events:none;z-index:1}
-.cm>b{text-align:center;font:700 14px Fredoka,sans-serif;padding-top:4px;line-height:1.2}
-#cnS{color:#c46a0a}#cnB{color:#1f8a4c}
-.ecart{border:3px solid #2f5fb3;border-bottom:0;border-radius:12px 0 0 0;display:grid;justify-items:center;align-content:center;gap:2px;cursor:pointer}
-.ecart i{width:48px;height:48px;border:2px solid #555;border-radius:50%;display:grid;place-items:center;font:700 18px Fredoka,sans-serif;font-style:normal;background:#fff}
-.ecart small{font:600 11px Fredoka,sans-serif;color:#2f5fb3}
-.cq{display:grid;justify-items:center;align-content:start;padding-top:8px;cursor:pointer;position:relative}
-.cq i{font:700 22px Fredoka,sans-serif;font-style:normal}
-.cq.or{background:#fbd9a8;border:3px solid #e08a1e}
-.cq.gr{background:#bfeec4;border:3px solid #2d9a5f}
-.cm .pick{outline:3px dashed #f2b632;outline-offset:-3px}
-.rule{display:block;background:#fff8dc;border:2px dashed #c9a24a;border-radius:10px;padding:6px 10px;font-size:15px}
-.calc{font:700 26px Fredoka,sans-serif}
 .bigkey{position:fixed;inset:0;z-index:25;display:grid;place-items:center;align-content:center;gap:14px;background:rgba(10,20,16,.6);pointer-events:none;transition:background .5s}
 .bigkey.go{background:transparent}
 .bk-orb{position:relative;width:min(190px,45vw);aspect-ratio:40/48;transform-origin:center}
@@ -192,7 +205,6 @@ mark{background:#ffd76a;border-radius:4px;padding:0 3px;font-weight:800;color:in
 .clues h3{margin:0;font:700 16px Fredoka,sans-serif}
 .clues ul{margin:4px 0 0;padding-left:18px;font-size:15px}
 .clues small{color:var(--muted)}
-@media(max-width:560px){.cmpwrap{grid-template-columns:1fr}}
 .sudo{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;max-width:300px;margin:0 auto;width:100%;background:#7a4a28;padding:6px;border-radius:14px}
 .sudo button{aspect-ratio:1;border:0;background:#fff;border-radius:8px;cursor:pointer;padding:12%;display:grid;place-items:center}
 .sudo button.giv{background:#f1e6d2;cursor:default}
@@ -213,15 +225,16 @@ footer{color:#9fc7b8;font-size:14px;text-align:center}
 body.fs{overflow:hidden}
 body.fs .wrap{max-width:none;padding:8px 16px;gap:8px;min-height:100vh;align-content:center}
 body.fs .stage{justify-self:center;max-width:100%}
-body.fs .talk,body.fs .tools{width:min(100%,1400px);justify-self:center}
+body.fs .tools{width:min(100%,1400px);justify-self:center}
 body.fs footer{display:none}
-body.fs .talk{min-height:0;padding:10px 14px}
-body.fs .say{font-size:clamp(18px,1.35vw,28px)}
+body.fs .talk .say{font-size:clamp(20px,1.6vw,30px)}
 body.fs .tools .btn{min-height:40px;padding:8px 16px}
 body.fs .paper{max-width:min(980px,94vw);font-size:clamp(17px,1.2vw,24px)}
+body.fs .scroll{max-width:min(1100px,94vw);font-size:clamp(18px,1.3vw,26px)}
+body.fs .talk{width:min(1200px,100%)}
 body.fs .paper h2{font-size:clamp(26px,2vw,38px)}
 body.fs .ov{overflow-y:auto}
-@media(max-width:640px){.talk{grid-template-columns:56px minmax(0,1fr)}.face{width:56px;height:56px}.talk .btn{grid-column:1/-1}.say{font-size:16px}.key{width:54px}}
+@media(max-width:640px){.talk{grid-template-columns:60px minmax(0,1fr);padding:14px}.talk .face{width:60px;height:60px;grid-row:auto}.talk .tnav{grid-column:1/-1}.talk .say{font-size:17px}.key{width:54px}.scroll .sheet{padding:26px 16px 20px;margin:0 4px}}
 @media(prefers-reduced-motion:reduce){.tw,.flame,.flick,.smoke,.steam,.spin,.belt,.ride,.reveal .hot{animation:none}}
 </style>
 </head>
@@ -236,12 +249,6 @@ body.fs .ov{overflow-y:auto}
 
   <div class="stage" id="stage"><span class="room" id="roomName"></span></div>
 
-  <div class="talk" aria-live="polite">
-    <div class="face" id="face"></div>
-    <div><div class="who" id="who"></div><p class="say" id="say"></p></div>
-    <button class="btn" id="next" type="button">Suite ▸</button>
-  </div>
-
   <div class="tools">
     <button class="btn gold" id="loupe" type="button">Loupe magique</button>
     <button class="btn ghost" id="prev" type="button">◂ Pièce précédente</button>
@@ -252,15 +259,28 @@ body.fs .ov{overflow-y:auto}
   <footer>Clique sur les objets du décor pour trouver les parchemins de Bourrasque. Chaque pièce terminée donne une boule-clé avec un chiffre du code.</footer>
 </div>
 
+<div class="talkov" id="talkov" hidden>
+  <div class="talk" role="dialog" aria-modal="true" aria-labelledby="who" aria-describedby="say">
+    <div class="face" id="face"></div>
+    <div><div class="who" id="who"></div><p class="say" id="say" aria-live="polite"></p></div>
+    <div class="tnav"><span class="tcount" id="tcount"></span><button class="btn" id="next" type="button">Suivant ▸</button></div>
+  </div>
+</div>
+
 <div class="ov" id="modal" hidden>
-  <div class="paper" role="dialog" aria-modal="true" aria-labelledby="mTitle">
-    <button class="x" id="mClose" type="button" aria-label="Fermer">×</button>
-    <div class="ptag" id="mTag"></div>
-    <h2 id="mTitle"></h2>
-    <div id="mBody" style="display:grid;gap:12px"></div>
-    <p class="fb" id="mFb" aria-live="polite"></p>
-    <div class="row"><button class="btn" id="mOk" type="button">Valider</button><button class="btn ghost" id="mHint" type="button">Un indice, Grelot ?</button></div>
-    <p class="hint" id="mHintTxt" hidden></p>
+  <div class="paper scroll" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <span class="rod t" id="rodT"></span>
+    <div class="sheet" id="sheet">
+      <button class="x" id="mClose" type="button" aria-label="Fermer">×</button>
+      <div class="ptag" id="mTag"></div>
+      <h2 id="mTitle"></h2>
+      <div id="mBody" style="display:grid;gap:12px"></div>
+      <p class="fb" id="mFb" aria-live="polite"></p>
+      <div class="row"><button class="btn" id="mOk" type="button">Valider</button><button class="btn ghost" id="mHint" type="button">Un indice, Grelot ?</button></div>
+      <p class="hint" id="mHintTxt" hidden></p>
+    </div>
+    <span class="rod b" id="rodB"></span>
+    <span class="seal" id="seal" aria-hidden="true">B</span>
   </div>
 </div>
 
@@ -275,7 +295,7 @@ body.fs .ov{overflow-y:auto}
 
 <div class="ov" id="win" hidden>
   <div class="paper win">
-    <svg width="130" height="130" viewBox="0 0 120 120" aria-hidden="true"><path d="M32 50Q60 14 92 50Z" fill="#d42a3a"/><path d="M88 46Q104 40 100 26" stroke="#d42a3a" stroke-width="10" fill="none" stroke-linecap="round"/><circle cx="100" cy="24" r="8" fill="#fff"/><circle cx="60" cy="64" r="24" fill="#f6c9a4"/><path d="M30 62Q28 104 60 112Q92 104 90 62Q82 82 60 82Q38 82 30 62Z" fill="#fff"/><ellipse cx="51" cy="78" rx="11" ry="6" fill="#f4f4f4"/><ellipse cx="69" cy="78" rx="11" ry="6" fill="#f4f4f4"/><circle cx="60" cy="72" r="5" fill="#e98a7a"/><circle cx="51" cy="62" r="3" fill="#2a1a12"/><circle cx="69" cy="62" r="3" fill="#2a1a12"/><rect x="30" y="44" width="60" height="13" rx="6.5" fill="#fff"/></svg>
+    <div class="face" id="winFace" aria-hidden="true" style="width:140px;height:140px"></div>
     <h2>Ho ho ho ! Joyeux Noël !</h2>
     <p>Le coffre est ouvert ! Grâce à toi, les cadeaux partiront à l'heure. Et Bourrasque ? Il fera la vaisselle de la Mère Noël jusqu'au printemps !</p>
     <p><strong id="winTime"></strong></p>
@@ -293,9 +313,48 @@ const SC=[0,1,2,3,4,5],LAST=SC.length-1;
 const KEYS=[3,8,5,7,4,2],KEYCOL=['#d42a3a','#4fb3e8','#f2b632','#9b7be0','#e46fb0','#5fd08a'];
 
 /* ---------- personnages ---------- */
-function face(who){
-  if(who==='pere')return `<svg viewBox="0 0 80 80"><path d="M18 36Q40 8 62 36Z" fill="#d42a3a"/><circle cx="66" cy="22" r="6" fill="#fff"/><circle cx="40" cy="44" r="16" fill="#f6c9a4"/><path d="M20 44Q20 74 40 78Q60 74 60 44Q54 56 40 56Q26 56 20 44Z" fill="#fff"/><circle cx="34" cy="42" r="2.4" fill="#2a1a12"/><circle cx="46" cy="42" r="2.4" fill="#2a1a12"/><circle cx="40" cy="49" r="3.5" fill="#e98a7a"/><rect x="18" y="32" width="44" height="9" rx="4.5" fill="#fff"/></svg>`;
-  if(who==='mere')return `<svg viewBox="0 0 80 80"><circle cx="40" cy="20" r="12" fill="#eceff1"/><circle cx="40" cy="48" r="21" fill="#f6c9a4"/><path d="M19 47Q16 25 40 25Q64 25 61 47Q56 33 40 33Q24 33 19 47Z" fill="#eceff1"/><circle cx="32" cy="48" r="6.5" fill="#fff" fill-opacity=".3" stroke="#c9a24a" stroke-width="2"/><circle cx="48" cy="48" r="6.5" fill="#fff" fill-opacity=".3" stroke="#c9a24a" stroke-width="2"/><path d="M38.5 48h3" stroke="#c9a24a" stroke-width="2"/><circle cx="32" cy="48" r="2.3" fill="#2a1a12"/><circle cx="48" cy="48" r="2.3" fill="#2a1a12"/><circle cx="27" cy="58" r="4" fill="#f59a9a" opacity=".6"/><circle cx="53" cy="58" r="4" fill="#f59a9a" opacity=".6"/><path d="M34 60Q40 65 46 60" stroke="#7a3b2a" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M18 80Q20 68 40 68Q60 68 62 80Z" fill="#d42a3a"/><path d="M32 68h16l-8 7Z" fill="#fff"/></svg>`;
+let FID=0;
+function face(who){const u=++FID;
+  if(who==='pere')return `<svg viewBox="0 0 80 80">
+   <defs><radialGradient id="pfSkin${u}" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#ffe0c8"/><stop offset="1" stop-color="#f3b994"/></radialGradient>
+   <linearGradient id="pfHat${u}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ef4352"/><stop offset="1" stop-color="#a9182a"/></linearGradient></defs>
+   <path d="M15 34C16 15 30 5 46 6C58 7 66 15 68 27L60 31C57 23 51 18 43 18C31 18 23 25 21 34Z" fill="url(#pfHat${u})"/>
+   <path d="M46 6C58 7 66 15 68 27L64 29C62 19 55 12 46 10Z" fill="#fff" opacity=".18"/>
+   <circle cx="66" cy="29" r="6.5" fill="#fff"/><circle cx="64.5" cy="27.5" r="2.5" fill="#fff" stroke="#e6ebef" stroke-width="1"/>
+   <path d="M18 51C14 60 17 70 25 74C29 79 35 79 40 78C45 79 51 79 55 74C63 70 66 60 62 51Z" fill="#fff"/>
+   ${[[19,56,6],[21,65,7],[28,72,7],[40,75,8],[52,72,7],[59,65,7],[61,56,6]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="#fff"/>`).join('')}
+   <path d="M24 66q4 3 8 1M48 67q4 2 8-1M34 73q6 3 12 0" stroke="#dde3e8" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+   <ellipse cx="40" cy="43" rx="16.5" ry="14" fill="url(#pfSkin${u})"/>
+   <path d="M27 35q4-3 9-1M44 34q5-2 9 1" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+   <ellipse cx="33.5" cy="40.5" rx="2.6" ry="3" fill="#2a1a12"/><ellipse cx="46.5" cy="40.5" rx="2.6" ry="3" fill="#2a1a12"/>
+   <circle cx="34.4" cy="39.4" r="1" fill="#fff"/><circle cx="47.4" cy="39.4" r="1" fill="#fff"/>
+   <circle cx="28.5" cy="47" r="4.2" fill="#f78f8f" opacity=".55"/><circle cx="51.5" cy="47" r="4.2" fill="#f78f8f" opacity=".55"/>
+   <path d="M36 57q4 4 8 0" fill="#c2453a" stroke="#c2453a" stroke-width="1.5" stroke-linejoin="round"/>
+   <path d="M40 51C35 47 27 48 23 54C29 56 35 56 40 53.5Z" fill="#fff" stroke="#dfe5ea" stroke-width="1"/>
+   <path d="M40 51C45 47 53 48 57 54C51 56 45 56 40 53.5Z" fill="#fff" stroke="#dfe5ea" stroke-width="1"/>
+   <circle cx="40" cy="48" r="4" fill="#ee8a7c"/><circle cx="38.8" cy="46.8" r="1.2" fill="#fff" opacity=".6"/>
+   <rect x="12" y="29" width="54" height="11" rx="5.5" fill="#fff"/>
+   ${[17,24,31,38,45,52,59].map(x=>`<circle cx="${x}" cy="${x%2?30:39}" r="2.6" fill="#fff" stroke="#e6ebef" stroke-width="1"/>`).join('')}
+   </svg>`;
+  if(who==='mere')return `<svg viewBox="0 0 80 80">
+   <defs><radialGradient id="mfSkin${u}" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#ffe2cc"/><stop offset="1" stop-color="#f2b896"/></radialGradient>
+   <radialGradient id="mfHair${u}" cx="45%" cy="35%" r="65%"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d6dbe1"/></radialGradient></defs>
+   <path d="M14 80C15 67 27 62 40 62C53 62 65 67 66 80Z" fill="#c82536"/>
+   <path d="M22 67Q40 77 58 67Q54 61 40 61Q26 61 22 67Z" fill="#fff"/>
+   <circle cx="40" cy="70" r="3" fill="#f2b632" stroke="#c9902a" stroke-width="1"/>
+   <path d="M16 50C12 30 24 17 40 17C56 17 68 30 64 50C61 57 58 58 56 56L24 56C22 58 19 57 16 50Z" fill="url(#mfHair${u})"/>
+   <circle cx="40" cy="13" r="10" fill="url(#mfHair${u})"/><path d="M33 10q7-6 14 0" stroke="#c9ced5" stroke-width="1.4" fill="none"/>
+   <path d="M47 8l7-4-1 6ZM47 8l8 2-5 4Z" fill="#2d9a5f"/><circle cx="46" cy="9" r="2.2" fill="#d42a3a"/><circle cx="49" cy="11" r="2" fill="#d42a3a"/>
+   <ellipse cx="40" cy="45" rx="17" ry="16" fill="url(#mfSkin${u})"/>
+   <path d="M23 40C25 29 33 26 40 30C47 26 55 29 57 40C52 33 46 33 40 35C34 33 28 33 23 40Z" fill="url(#mfHair${u})"/>
+   <circle cx="23" cy="51" r="2.6" fill="#d42a3a"/><circle cx="57" cy="51" r="2.6" fill="#d42a3a"/>
+   <path d="M29.5 44.5q3-3 6 0M44.5 44.5q3-3 6 0" stroke="#2a1a12" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+   <circle cx="32.5" cy="44" r="6.5" fill="#fff" fill-opacity=".25" stroke="#c9a24a" stroke-width="1.8"/><circle cx="47.5" cy="44" r="6.5" fill="#fff" fill-opacity=".25" stroke="#c9a24a" stroke-width="1.8"/>
+   <path d="M39 43.5q1-1.5 2 0" stroke="#c9a24a" stroke-width="1.8" fill="none"/>
+   <circle cx="28" cy="52" r="4" fill="#f78f8f" opacity=".55"/><circle cx="52" cy="52" r="4" fill="#f78f8f" opacity=".55"/>
+   <ellipse cx="40" cy="50" rx="2.4" ry="2" fill="#e89580"/>
+   <path d="M34.5 55Q40 60.5 45.5 55Q40 57.5 34.5 55Z" fill="#c8323f" stroke="#c8323f" stroke-width="1.6" stroke-linejoin="round"/>
+   </svg>`;
   const hat=who==='bourrasque'?'#7b3fb5':'#1f8a4c', trim=who==='bourrasque'?'#f2b632':'#d42a3a';
   const brows=who==='bourrasque'?'<path d="M27 40l9 3M53 40l-9 3" stroke="#5a3a22" stroke-width="2.5" stroke-linecap="round"/>':'';
   const mouth=who==='bourrasque'?'<path d="M32 57Q42 63 50 54" stroke="#7a3b2a" stroke-width="2.5" fill="none" stroke-linecap="round"/>':'<path d="M33 56Q40 63 47 56" stroke="#7a3b2a" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
@@ -305,6 +364,9 @@ const ICON={
  sapin:'<path d="M20 3L31 17H25L34 29H6L15 17H9Z" fill="#1f8a4c"/><rect x="17" y="29" width="6" height="7" fill="#7a4a28"/><circle cx="20" cy="4" r="2.5" fill="#f2b632"/>',
  etoile:'<path d="M20 3l4.9 10 11 1.6-8 7.8 1.9 11L20 28.2 10.2 33.4l1.9-11-8-7.8 11-1.6Z" fill="#f2b632" stroke="#d09a1c" stroke-width="1.5"/>',
  cloche:'<path d="M20 5c-7 0-10 6-10 13v7l-4 5h28l-4-5v-7c0-7-3-13-10-13Z" fill="#f2b632"/><circle cx="20" cy="33" r="3.5" fill="#d09a1c"/><path d="M12 30h16" stroke="#d42a3a" stroke-width="3"/>',
+ sucre:'<path d="M15 36V14a7 7 0 0 1 14 0v4" stroke="#a51c2a" stroke-width="9.5" fill="none" stroke-linecap="round"/><path d="M15 36V14a7 7 0 0 1 14 0v4" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M15 36V14a7 7 0 0 1 14 0v4" stroke="#d42a3a" stroke-width="7" fill="none" stroke-dasharray="3.5 3.5"/>',
+ boule:'<rect x="16" y="3" width="8" height="6" rx="1.5" fill="#c9a24a"/><circle cx="20" cy="23" r="14" fill="#2f7fd8"/><path d="M7 21q13 6 26 0" stroke="#f2b632" stroke-width="3" fill="none"/><circle cx="14" cy="17" r="4" fill="#fff" opacity=".55"/>',
+ lutin:'<path d="M9 19C11 8 20 3 31 2C27 8 28 14 31 19Z" fill="#1f8a4c"/><circle cx="31" cy="2.5" r="2.5" fill="#f2b632"/><circle cx="20" cy="26" r="11" fill="#f6c9a4"/><path d="M9 25L3 20 9 31ZM31 25l6-5-6 11Z" fill="#f0bb93"/><circle cx="16" cy="25" r="1.8" fill="#2a1a12"/><circle cx="24" cy="25" r="1.8" fill="#2a1a12"/><path d="M16 30q4 3 8 0" stroke="#7a3b2a" stroke-width="1.8" fill="none" stroke-linecap="round"/><rect x="8" y="17" width="24" height="5" rx="2.5" fill="#d42a3a"/>',
  cadeau:'<rect x="6" y="15" width="28" height="20" rx="2" fill="#d42a3a"/><rect x="4" y="10" width="32" height="7" rx="2" fill="#e5404f"/><rect x="17" y="10" width="6" height="25" fill="#f2b632"/><path d="M20 10c-6-8-12-4-8 0M20 10c6-8 12-4 8 0" stroke="#f2b632" stroke-width="3" fill="none"/>'
 };
 const ic=n=>`<svg viewBox="0 0 40 40" aria-hidden="true">${ICON[n]}</svg>`;
@@ -830,42 +892,19 @@ function compo(o,hint,found){
    mount(el){el.querySelectorAll('#cwds .choice').forEach(b=>b.addEventListener('click',()=>{if(b.disabled)return;el.querySelectorAll('#cwds .choice').forEach(x=>x.classList.remove('bad'));
      if(b.textContent===o.tout){b.classList.add('sel');el.querySelectorAll('#cwds .choice').forEach(x=>x.disabled=true);$('st2').hidden=false;$('mFb').textContent='';$('ca').focus()}else{b.classList.add('bad');$('mFb').textContent="Ce mot ne réunit pas les deux autres. Lequel peut désigner les deux à la fois ?"}}))},
    check(){if($('st2').hidden)return "Commence par l'étape 1 : trouve le mot qui réunit.";return +$('ca').value===o.answer||"Le calcul n'est pas juste. Regarde le modèle : cherches-tu le tout ou une partie ?"}}}
-/* problème de comparaison, méthode de la ludothèque :
-   1) qui a la grande quantité  2) le modèle et le ?  3) je cherche… et je calcule  4) la phrase réponse */
-function compa(o,hint,found){let st;
-  const small=1-o.big,hl=l=>l.replace(/\b(\d+)\b/g,'<b>$1</b>').replace(/(de plus|de moins)/g,'<mark>$1</mark>');
-  const target={g:String(o.vals[o.big]??'?'),p:String(o.vals[small]??'?'),e:String(o.ecart??'?')};
-  const SEEK={ecart:"l'écart",grande:'la grande quantité',petite:'la petite quantité'},op=o.seek==='grande'?'+':'−';
-  const calc=o.seek==='ecart'?`${o.vals[o.big]} − ${o.vals[small]}`:o.seek==='grande'?`${o.vals[small]} + ${o.ecart}`:`${o.vals[o.big]} − ${o.ecart}`;
-  return {hint,found,get html(){st={step:1,sel:null,n:0,done:false};return `<div class="steps" id="csteps">${['Qui a la grande quantité ?','Le modèle et le ?','Le calcul','La phrase réponse'].map((t,i)=>`<span data-s="${i+1}">${i+1} · ${t}</span>`).join('')}</div>
-   <div class="cmpwrap"><div class="stmt">${o.lines.map(l=>`<p>${hl(l)}</p>`).join('')}</div>
-   <div class="cm dim" id="cm"><div class="ccol"><div class="ecart" data-slot="e"><i>·····</i><small>Écart</small></div><div class="cq or" data-slot="p"><i>·····</i></div></div><div class="ccol big"><div class="cq gr" data-slot="g"><i>·····</i></div><span class="dl"></span></div><b id="cnS">·····</b><b id="cnB">·····</b></div></div>
-   <div id="cstep" style="display:grid;gap:8px"></div>`},
-  mount(el){const box=el.querySelector('#cstep'),fb=$('mFb'),slot=k=>el.querySelector(`[data-slot="${k}"] i`);
-   const setStep=n=>{st.step=n;el.querySelectorAll('#csteps span').forEach(s=>{const k=+s.dataset.s;s.className=k<n||st.done?'ok':k===n?'on':''})};
-   const choices=(arr,cb)=>{const d=document.createElement('div');d.className='choices';arr.forEach((t,i)=>{const b=document.createElement('button');b.type='button';b.className='choice';b.textContent=t;b.onclick=()=>{if(b.disabled)return;const r=cb(i,b);if(r===true){d.querySelectorAll('.choice').forEach(x=>{x.disabled=true;x.classList.remove('bad')});b.classList.add('sel');fb.textContent=''}else{b.classList.add('bad');fb.textContent=r}};d.appendChild(b)});return d};
-   const para=h=>{const p=document.createElement('p');p.innerHTML=h;return p};
-   function s1(){setStep(1);box.innerHTML='';box.append(para("<b>Étape 1 · Qui a la grande quantité ?</b> Lis bien l'énoncé, surtout « de plus » et « de moins »."),
-     choices(o.who,i=>{if(i!==o.big)return "Relis bien « de plus » ou « de moins »… Qui en a le plus ?";$('cnB').textContent=o.who[o.big];$('cnS').textContent=o.who[small];$('cm').classList.remove('dim');setTimeout(s2,500);return true}))}
-   function s2(){setStep(2);box.innerHTML='';box.append(para("<b>Étape 2 · Relis l'énoncé et complète le modèle.</b> Touche un nombre, puis touche sa place dans le modèle. Le ? : ce que la question demande."));
-     const d=document.createElement('div');d.className='choices';o.chips.forEach(c=>{const b=document.createElement('button');b.type='button';b.className='choice';b.textContent=c;b.style.minWidth='64px';b.onclick=()=>{if(b.disabled)return;d.querySelectorAll('.choice').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');st.sel=b;el.querySelectorAll('[data-slot]').forEach(s=>s.classList.add('pick'))};d.appendChild(b)});box.append(d)}
-   el.querySelectorAll('[data-slot]').forEach(s=>s.addEventListener('click',()=>{if(st.step!==2||!st.sel)return;const k=s.dataset.slot,v=st.sel.textContent;
-     if(slot(k).dataset.v){fb.textContent='Cette place est déjà remplie.';return}
-     if(target[k]!==v){fb.textContent=v==='?'?"Le ? va à la place de ce que la question demande.":"Ce nombre ne va pas là. Colonne verte : la grande quantité. Colonne orange : la petite. Rond : l'écart.";return}
-     slot(k).textContent=v;slot(k).dataset.v=v;st.sel.disabled=true;st.sel.classList.remove('sel');st.sel=null;fb.textContent='';el.querySelectorAll('[data-slot]').forEach(x=>x.classList.remove('pick'));
-     if(++st.n===3)setTimeout(s3,400)}));
-   function s3(){setStep(3);box.innerHTML='';box.append(para("<b>Étape 3 · Je cherche… et je calcule.</b> Que cherche-t-on : où est le ? dans le modèle ?"),
-     choices(['Je cherche l\'écart','Je cherche la grande quantité','Je cherche la petite quantité'],i=>{if(['ecart','grande','petite'][i]!==o.seek)return "Regarde où est le ? dans le modèle.";s3b();return true}))}
-   function s3b(){box.append(para(`<span class="rule">Si je cherche la grande quantité, je fais une addition.<br>Si je cherche la petite quantité, je fais une soustraction.<br>Si je cherche l'écart, je fais une soustraction.</span>`),para(`Je cherche ${SEEK[o.seek]}. Je dois faire :`),
-     choices(['une addition (+)','une soustraction (−)'],i=>{if(['+','−'][i]!==op)return "Relis la règle juste au-dessus.";s3c();return true}))}
-   function s3c(){const p=para(`<span class="calc">${calc} = </span>`);const inp=document.createElement('input');inp.type='number';inp.className='mini';inp.id='ca';inp.setAttribute('aria-label','Résultat');const ok=document.createElement('button');ok.type='button';ok.className='btn gold';ok.textContent='OK';
-     const go=()=>{if(+inp.value!==o.answer){fb.textContent="Le calcul n'est pas juste. Pose-le sur ton ardoise !";return}inp.disabled=ok.disabled=true;fb.textContent='';const q=Object.keys(target).find(k=>target[k]==='?');slot(q).textContent=o.answer;s4()};
-     ok.onclick=go;inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();go()}});const r=document.createElement('div');r.className='row';r.append(p,inp,ok);box.append(r);inp.focus()}
-   function s4(){setStep(4);box.innerHTML='';box.append(para(`<b>Étape 4 · La phrase réponse.</b> ${o.seek==='ecart'?"Je cherche l'écart : dans ma phrase il y a « de plus » ou « de moins », comme dans la question.":"Je cherche une quantité : ma phrase dit combien en a "+o.who[o.seek==='grande'?o.big:small].toLowerCase()+"."}`),
-     choices(o.phrases,i=>{if(i!==o.ok)return "Relis la question : que demande-t-elle exactement ?";st.done=true;setStep(4);fb.textContent='';setTimeout(()=>{$('mFb').textContent='Bravo ! Clique sur Valider.'},50);return true}))}
-   s1()},
-  check(){return st.done||`Termine les 4 étapes : tu en es à l'étape ${st.step}.`}}}
 const encadre=(n,rows,hint,found,intro)=>({hint,found,html:`<p>${intro}</p><div class="q frame">${rows.map((r,i)=>`<span class="lbl">${r[0]}</span><div class="row">${numIn('e'+i+'a','Nombre avant')} &lt; ${n} &lt; ${numIn('e'+i+'b','Nombre après')}</div>`).join('')}</div>`,check:()=>rows.every((r,i)=>val('e'+i+'a')===String(r[1])&&val('e'+i+'b')===String(r[2]))});
+/* équations en dessins : chaque dessin cache un nombre. o={intro,lines:[[[dessins],total]],ask:[[dessin,valeur]],final:[[dessins],total]} */
+const RBN={sucre:"le sucre d'orge",etoile:"l'étoile",boule:'la boule',lutin:'le lutin'};
+const rbIc=n=>`<span class="rbi" role="img" aria-label="${RBN[n]}">${ic(n)}</span>`;
+const rbLine=(items,right)=>`<div class="rbl">${items.map(rbIc).join('<b>+</b>')}<b>=</b>${right}</div>`;
+function rebus(o,hint,found){
+  return {hint,found,html:`<p>${o.intro}</p><div class="rbs">${o.lines.map(([it,t])=>rbLine(it,`<span class="rbn">${t}</span>`)).join('')}</div>
+   <p><b>Combien vaut chaque dessin ?</b></p><div class="rba">${o.ask.map(([n],i)=>`<label for="r${i}">${rbIc(n)}<b>=</b>${numIn('r'+i,'Valeur de '+RBN[n])}</label>`).join('')}</div>
+   <p><b>Le code de la machine :</b></p><div class="rbs">${rbLine(o.final[0],numIn('rf','Résultat'))}</div>`,
+   check(){const el=[...o.ask.map((_,i)=>'r'+i),'rf'];if(el.some(id=>!val(id)))return 'Il reste des cases vides.';
+     const bad=o.ask.filter(([,v],i)=>val('r'+i)!==String(v)).length;
+     if(bad)return `${bad} dessin${bad>1?'s ont':' a'} une mauvaise valeur. Vérifie avec chaque ligne : le calcul doit tomber juste !`;
+     return val('rf')===String(o.final[1])||"Les dessins sont justes, mais pas le code. Remplace chaque dessin par sa valeur, puis calcule."}}}
 /* comparer, encadrer, ranger des nombres : o={intro,cmp:[[a,b]],frame:{n,rows},orders:[{t,list,dir,sep}]} */
 function ranger(o,hint,found){let ord;const cmpOk=([a,b])=>a<b?'<':a>b?'>':'=';
   const goods=(o.orders||[]).map(x=>[...x.list].sort((a,b)=>(a-b)*x.dir));
@@ -1002,11 +1041,11 @@ const ROOMS=[
  {spot:'machine',scene:2,tag:['','Visibles et en tout','Le chiffre des… (visibles) et le nombre de… (en tout)'],title:'Le compteur de la machine',lv:[null,
   fields("Le compteur de la grande machine affiche le nombre de jouets fabriqués. Pour la redémarrer, réponds :",[['Les centaines visibles :',4],['Les dizaines visibles :',6],['Les dizaines en tout :',46],['Les unités visibles :',3],["Les unités en tout :",463]],"Les dizaines visibles : le chiffre qu'on voit à la place des dizaines. Les dizaines en tout : cache le chiffre des unités et lis ce qui reste.","La machine redémarre !",'<p class="screen">463</p>'),
   fields("Le compteur de la grande machine affiche le nombre de jouets fabriqués. Pour la redémarrer, réponds :",[['Le chiffre des centaines (visibles) :',7],['Le nombre de centaines (en tout) :',27],['Le chiffre des dizaines (visibles) :',4],['Le nombre de dizaines (en tout) :',274],["Le nombre d'unités (en tout) :",2745]],"Le nombre de centaines en tout : cache les deux derniers chiffres (dizaines et unités) et lis ce qui reste.","La machine redémarre !",'<p class="screen">2745</p>')]},
- {spot:'bacs',scene:2,tag:'Problème de comparaison',title:'Les bacs des deux machines',lv:[null,
-  compa({lines:["La machine rouge a fabriqué 43 ours.","La machine bleue a fabriqué 28 ours.","Combien d'ours la machine rouge a-t-elle fabriqués de plus que la machine bleue ?"],who:['Machine rouge','Machine bleue'],big:0,vals:[43,28],ecart:null,chips:[43,28,'?'],seek:'ecart',answer:15,
-   phrases:["La machine rouge a fabriqué 15 ours.","La machine rouge a fabriqué 15 ours de plus que la machine bleue.","La machine rouge a fabriqué 28 ours de plus que la machine bleue."],ok:1},"43 est plus grand que 28 : la machine rouge a la grande quantité. On cherche l'écart, c'est une soustraction : 43 − 28.","15 ours de plus, bravo !"),
-  compa({lines:["La machine rouge a fabriqué 134 trains.","La machine bleue a fabriqué 58 trains de moins que la machine rouge.","Combien de trains la machine bleue a-t-elle fabriqués ?"],who:['Machine rouge','Machine bleue'],big:0,vals:[134,null],ecart:58,chips:[134,58,'?'],seek:'petite',answer:76,
-   phrases:["La machine bleue a fabriqué 192 trains.","La machine bleue a fabriqué 76 trains de moins.","La machine bleue a fabriqué 76 trains."],ok:2},"« 58 de moins » : la machine bleue a la petite quantité. 58, c'est l'écart. On cherche la petite quantité : 134 − 58.","76 trains, bravo !")]},
+ {spot:'bacs',scene:2,tag:'Calculs en dessins',title:'Les bacs de friandises',lv:[null,
+  rebus({intro:"Bourrasque a remplacé les nombres des bacs par des dessins ! Chaque dessin cache toujours le même nombre. Trouve-les.",lines:[[['sucre','sucre'],10],[['sucre','etoile'],8],[['boule','boule','boule'],6],[['boule','lutin'],9]],
+   ask:[['sucre',5],['etoile',3],['boule',2],['lutin',7]],final:[['lutin','etoile'],10]},"Commence par les lignes où il n'y a qu'un seul dessin : 2 sucres d'orge font 10, donc 1 sucre d'orge vaut 5. Puis 5 + étoile = 8.","Sucre d'orge 5, étoile 3, boule 2, lutin 7 : la machine affiche 10 !"),
+  rebus({intro:"Bourrasque a remplacé les nombres des bacs par des dessins ! Chaque dessin cache toujours le même nombre. Trouve-les.",lines:[[['sucre','sucre','etoile'],17],[['sucre','etoile'],11],[['lutin','boule'],15],[['lutin','lutin','boule'],24]],
+   ask:[['sucre',6],['etoile',5],['boule',6],['lutin',9]],final:[['sucre','etoile','boule','lutin'],26]},"Compare les deux premières lignes : la 1re a un sucre d'orge de plus que la 2e, et 6 de plus (17 − 11). Donc un sucre d'orge vaut 6. Fais pareil avec les lutins.","Sucre d'orge 6, étoile 5, boule 6, lutin 9 : la machine affiche 26 !")]},
  {spot:'tableau',scene:2,tag:'Sudoku',title:'Le tableau de commande',lv:[null,
   sudoku([1,4,7,10,13,14],"Regarde d'abord les lignes où il ne manque qu'un seul dessin.","Le tableau de commande se rallume !"),
   sudoku([1,3,4,6,9,10,12,15,7],"Commence par la ligne ou la colonne qui a déjà le plus de dessins.","Le tableau de commande se rallume !")]},
@@ -1108,14 +1147,17 @@ function render(){
 }
 const NAMES={grelot:'Grelot',bourrasque:'Mot de Bourrasque',pere:'Le Père Noël',mere:'La Mère Noël'};
 function say(who,text){queue.push({who,text})}
-function tip(){
-  if(SC.every(sceneDone))return "On a les 6 boules-clés ! Vite, clique sur le coffre posé sur le traîneau, dans l'écurie !";
-  const s=S.scene,n=inScene(s).length,c=cntScene(s);
-  if(sceneDone(s))return s<LAST?`Cette pièce est terminée ! La porte vers ${ROOMNAMES[s+1].replace(/^La |^L'/,m=>m.toLowerCase())} est ouverte.`:"L'écurie est fouillée !";
-  return `Fouille ${ROOMNAMES[s].replace(/^La |^L'/,m=>m.toLowerCase())} : clique sur les objets bizarres. Parchemins trouvés ici : ${c} sur ${n}.`;
-}
-function showTalk(){const l=queue[0]||{who:'grelot',text:tip()};$('face').innerHTML=face(l.who);$('who').textContent=NAMES[l.who];const s=$('say');s.textContent=l.text;s.className='say'+(l.who==='bourrasque'?' note':'');$('next').hidden=queue.length===0}
-$('next').addEventListener('click',()=>{queue.shift();showTalk()});
+/* le bandeau passe devant le jeu : on le lit, on clique sur Suivant ; quand tout est lu, il disparaît */
+const talkov=$('talkov'),wrapEl=document.querySelector('.wrap');let shown=null,readN=0;
+function showTalk(){
+  const l=queue[0];
+  if(!l){talkov.hidden=true;wrapEl.inert=false;shown=null;readN=0;return}
+  if(shown!==l){shown=l;$('face').innerHTML=face(l.who);$('who').textContent=NAMES[l.who];const s=$('say');s.textContent=l.text;s.className='say'+(l.who==='bourrasque'?' note':'');
+    if(!talkov.hidden)[s,$('face'),$('who')].forEach(e=>{e.classList.remove('txtin');void e.offsetWidth;e.classList.add('txtin')})}
+  const total=readN+queue.length;$('tcount').textContent=total>1?`${readN+1} / ${total}`:'';
+  $('next').textContent=queue.length>1?'Suivant ▸':"J'ai compris ✓";
+  const was=talkov.hidden;talkov.hidden=false;wrapEl.inert=true;if(was||document.activeElement!==$('next'))$('next').focus({preventScroll:true})}
+$('next').addEventListener('click',()=>{queue.shift();readN++;showTalk()});
 
 /* ---------- clics dans le décor ---------- */
 function act(id){
@@ -1141,7 +1183,16 @@ $('loupe').addEventListener('click',()=>{stage.classList.remove('reveal');void s
 const modal=$('modal'),mBody=$('mBody'),mFb=$('mFb'),mHintTxt=$('mHintTxt');
 const tries=new Array(N).fill(0);
 const oops=["Pas encore… Grelot se gratte la tête. Réessaie !","Presque ! Relis bien la consigne.","Hmm, ce n'est pas ça. Un indice peut t'aider !"];
-function openModal(tag,title,p){P=p;$('mTag').textContent=tag;$('mTitle').textContent=title;mBody.innerHTML=p.html;mFb.textContent='';mHintTxt.textContent=p.hint||'';mHintTxt.hidden=true;$('mHint').hidden=!p.hint;modal.hidden=false;if(p.mount)p.mount(mBody);const f=mBody.querySelector('input,button');if(f)f.focus()}
+function openModal(tag,title,p){P=p;$('mTag').textContent=tag;$('mTitle').textContent=title;mBody.innerHTML=p.html;mFb.textContent='';mHintTxt.textContent=p.hint||'';mHintTxt.hidden=true;$('mHint').hidden=!p.hint;modal.hidden=false;modal.scrollTop=0;if(p.mount)p.mount(mBody);unroll();const f=mBody.querySelector('input,button');if(f)f.focus({preventScroll:true})}
+/* le parchemin arrive roulé (les deux bâtons collés, le sceau de Bourrasque), grossit, puis se déroule */
+function unroll(){const sh=$('sheet'),t=$('rodT'),b=$('rodB'),seal=$('seal');[sh,t,b,seal].forEach(e=>e.getAnimations&&e.getAnimations().forEach(a=>a.cancel()));
+  if(!sh.animate||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const h=sh.offsetHeight,half=h/2+9,pop=500,open=750,ease='cubic-bezier(.3,.7,.2,1)';
+  const card=sh.parentNode;card.animate([{transform:'scale(.15) rotate(-12deg)',opacity:0},{transform:'scale(1.08) rotate(3deg)',opacity:1,offset:.7},{transform:'none',opacity:1}],{duration:pop,easing:'ease-out'});
+  t.animate([{transform:`translateY(${half}px)`},{transform:`translateY(${half}px)`,offset:pop/(pop+open)},{transform:'none'}],{duration:pop+open,easing:ease});
+  b.animate([{transform:`translateY(${-half}px)`},{transform:`translateY(${-half}px)`,offset:pop/(pop+open)},{transform:'none'}],{duration:pop+open,easing:ease});
+  sh.animate([{clipPath:'inset(50% 0 50% 0)'},{clipPath:'inset(50% 0 50% 0)',offset:pop/(pop+open)},{clipPath:'inset(0 0 0 0)'}],{duration:pop+open,easing:ease});
+  seal.animate([{opacity:1,transform:'scale(1)'},{opacity:1,transform:'scale(1.1)',offset:.35},{opacity:0,transform:'scale(1.6)'}],{duration:pop+250,easing:'ease-in'})}
 function openRoom(i){current=i;const r=ROOMS[i];openModal(`Parchemin n°${i+1} · ${Array.isArray(r.tag)?r.tag[S.level||2]:r.tag}`,r.title,r.lv[S.level||2])}
 function openFinal(){current='final';openModal('Le grand coffre','Le cadenas à 6 chiffres',{html:`<p>Entre les chiffres des 6 boules-clés, dans l'ordre des pièces : maison, cuisine, fabrication, ordinateur, dortoir, écurie.</p><div class="digits" id="digits">${KEYS.map((_,i)=>`<input id="k${i}" inputmode="numeric" maxlength="1" aria-label="Chiffre ${i+1}">`).join('')}</div>`,hint:"Regarde les boules en haut de l'écran : elles gardent les chiffres dans l'ordre.",check:()=>KEYS.map((_,i)=>$('k'+i).value).join('')===KEYS.join('')||'Clac ! Le cadenas reste fermé. Vérifie l\'ordre des chiffres.'})}
 function closeModal(){modal.hidden=true;current=null}
@@ -1164,6 +1215,7 @@ function validate(){
 
 /* ---------- niveau, début, fin ---------- */
 function fmt(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+$('winFace').innerHTML=face('pere');
 function win(){done=true;$('winTime').textContent='Mission réussie en '+fmt(S.elapsed)+' !';$('win').hidden=false;confetti(180)}
 function intro(){queue=[];
   say('grelot',"Oh non, oh non ! Il est 23 heures. Le Père Noël part à minuit… et le coffre des cadeaux est fermé à clé !");
@@ -1185,7 +1237,7 @@ const fsBtn=$('fs'),root=document.documentElement;
 const fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement;
 /* la scène prend toute la hauteur qui reste une fois l'en-tête, la bulle et les boutons placés */
 function fsFit(){const st=$('stage');if(!document.body.classList.contains('fs')){st.style.width='';return}
-  const used=['.top','.talk','.tools'].reduce((a,s)=>a+document.querySelector(s).getBoundingClientRect().height,0)+8*3+16+6;
+  const used=['.top','.tools'].reduce((a,s)=>a+document.querySelector(s).getBoundingClientRect().height,0)+8*2+16+6;
   st.style.width=Math.round(Math.max(480,Math.min(innerWidth-32,(innerHeight-used)*5/3)))+'px'}
 addEventListener('resize',fsFit);
 const fsSync=()=>{const on=!!fsEl();document.body.classList.toggle('fs',on);fsBtn.textContent=on?'✕ Quitter le plein écran':'⛶ Plein écran';fsBtn.setAttribute('aria-pressed',on);fsFit()};
