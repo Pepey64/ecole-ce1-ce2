@@ -234,6 +234,48 @@ body.fs .scroll{max-width:min(1100px,94vw);font-size:clamp(18px,1.3vw,26px)}
 body.fs .talk{width:min(1200px,100%)}
 body.fs .paper h2{font-size:clamp(26px,2vw,38px)}
 body.fs .ov{overflow-y:auto}
+/* page de titre : nuit au pôle Nord, on entre dans la maison par la fenêtre */
+.title{position:fixed;inset:0;z-index:30;overflow:hidden;background:#0b1a3a;display:grid}
+.tscene{position:absolute;inset:0}
+.tscene>svg{width:100%;height:100%;display:block}
+.tsnow{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.flake{position:absolute;top:-6vh;color:#fff;opacity:.85;animation:fall linear infinite;text-shadow:0 0 6px rgba(255,255,255,.6)}
+@keyframes fall{to{transform:translate(var(--dx),112vh) rotate(360deg)}}
+.tcard{position:relative;z-index:2;align-self:start;justify-self:center;text-align:center;margin-top:max(3vh,14px);padding:0 16px;display:grid;justify-items:center;gap:clamp(6px,1.3vh,14px);width:min(1500px,100%)}
+.tkick{font:700 clamp(13px,1.9vmin,22px) Fredoka,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#cfe8ff;text-shadow:0 2px 8px rgba(0,0,0,.7)}
+.tkick::before,.tkick::after{content:"✦";color:var(--gold);margin:0 .7em}
+.tmain{font:700 clamp(42px,9.5vmin,124px)/.98 Fredoka,sans-serif;color:#fff;margin:0;text-shadow:0 4px 0 #a51c2a,0 8px 0 #6e1019,0 16px 34px rgba(0,0,0,.65)}
+.tmain span{color:var(--gold)}
+.tribbon{position:relative;font:700 clamp(18px,3.4vmin,40px) Fredoka,sans-serif;color:#fff;background:linear-gradient(#e43848,#a51c2a);padding:.22em 1.2em;box-shadow:0 6px 16px rgba(0,0,0,.45);display:flex;align-items:center;gap:.45em;margin:0 1em}
+.tribbon::before,.tribbon::after{content:"";position:absolute;top:.3em;width:1.2em;height:100%;background:#7e1420;z-index:-1}
+.tribbon::before{left:-.9em;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,35% 50%)}
+.tribbon::after{right:-.9em;clip-path:polygon(0 0,100% 0,65% 50%,100% 100%,0 100%)}
+.tface{width:1.7em;height:1.7em;margin:-.35em 0;flex:none;background:#fff8ec;border-radius:50%;border:3px solid var(--gold)}
+.tface svg{width:100%;height:100%;display:block}
+.tgo{margin-top:clamp(2px,1vh,12px);display:grid;justify-items:center;gap:10px;background:rgba(9,22,50,.6);backdrop-filter:blur(4px);border:2px solid rgba(255,255,255,.2);border-radius:22px;padding:12px 24px 16px}
+.tgo p{margin:0;font:600 clamp(15px,2.1vmin,24px) Fredoka,sans-serif;color:#e6f2ff}
+.tbtns{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.tbtn{font:700 clamp(20px,3.2vmin,36px) Fredoka,sans-serif;color:#fff;border:0;border-radius:999px;padding:.32em 1.3em;cursor:pointer;background:repeating-linear-gradient(-45deg,#d42a3a 0 14px,#ea4b5c 14px 28px);box-shadow:0 6px 0 #7e1420,0 10px 22px rgba(0,0,0,.45);transition:transform .15s,box-shadow .15s;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.tbtn.g{background:repeating-linear-gradient(-45deg,#1f8a4c 0 14px,#30a964 14px 28px);box-shadow:0 6px 0 #0f5a2f,0 10px 22px rgba(0,0,0,.45)}
+.tbtn.gold{background:linear-gradient(#ffd866,#f2b632);color:#4a2c00;text-shadow:none;box-shadow:0 6px 0 #b37f10,0 10px 22px rgba(0,0,0,.45)}
+.tbtn:hover{transform:translateY(-3px)}
+.tbtn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.4)}
+.tbtn:disabled{cursor:default}
+.tnote{font-size:clamp(12px,1.6vmin,17px)!important;font-weight:500!important;color:#b8cde3!important;font-family:Nunito,sans-serif!important}
+.tglow{position:absolute;inset:0;z-index:3;background:radial-gradient(circle,#fff8dc,#ffd27a 45%,#f3a640);opacity:0;pointer-events:none}
+.twk{animation:twk 2.6s ease-in-out infinite}
+@keyframes twk{50%{opacity:.2}}
+.aur{animation:aur 10s ease-in-out infinite alternate}
+@keyframes aur{to{transform:translateX(70px);opacity:.6}}
+.bob{animation:bob 3.2s ease-in-out infinite alternate}
+@keyframes bob{to{transform:translate(-14px,-12px)}}
+.tsm{animation:tsm 4s ease-out infinite;opacity:0}
+@keyframes tsm{0%{opacity:0;transform:translate(0,0) scale(.5)}20%{opacity:.75}100%{opacity:0;transform:translate(40px,-150px) scale(2)}}
+.peek{animation:peek 5s ease-in-out infinite}
+@keyframes peek{0%,100%{transform:translateX(0)}45%,60%{transform:translateX(-26px) rotate(-6deg)}}
+.fly{animation:fly 6s ease-in-out infinite alternate}
+@keyframes fly{to{transform:translate(-40px,-30px) rotate(-18deg)}}
+@media(prefers-reduced-motion:reduce){.flake,.aur,.twk,.bob,.tsm,.peek,.fly{animation:none}.tsm{opacity:.5}}
 @media(max-width:640px){.talk{grid-template-columns:60px minmax(0,1fr);padding:14px}.talk .face{width:60px;height:60px;grid-row:auto}.talk .tnav{grid-column:1/-1}.talk .say{font-size:17px}.key{width:54px}.scroll .sheet{padding:26px 16px 20px;margin:0 4px}}
 @media(prefers-reduced-motion:reduce){.tw,.flame,.flick,.smoke,.steam,.spin,.belt,.ride,.reveal .hot{animation:none}}
 </style>
@@ -284,13 +326,21 @@ body.fs .ov{overflow-y:auto}
   </div>
 </div>
 
-<div class="ov" id="levels" hidden>
-  <div class="paper win">
-    <svg width="96" height="96" viewBox="0 0 80 80" aria-hidden="true"><path d="M19 48L5 38 20 57Z" fill="#f0bb93"/><path d="M61 48L75 38 60 57Z" fill="#f0bb93"/><circle cx="40" cy="50" r="22" fill="#f6c9a4"/><circle cx="32" cy="47" r="3.2" fill="#2a1a12"/><circle cx="48" cy="47" r="3.2" fill="#2a1a12"/><path d="M33 56Q40 63 47 56" stroke="#7a3b2a" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M16 38C20 20 36 8 60 4C53 14 56 26 64 38Z" fill="#1f8a4c"/><rect x="14" y="34" width="52" height="9" rx="4.5" fill="#d42a3a"/><circle cx="60" cy="5" r="5" fill="#f2b632"/></svg>
-    <h2 style="color:var(--ink)">Choisis ton niveau</h2>
-    <p>Les décors et l'histoire sont les mêmes. Seules les énigmes changent.</p>
-    <div class="row" style="justify-content:center"><button class="btn" type="button" data-lv="1">CE1</button><button class="btn" type="button" data-lv="2">CE2</button></div>
+<div class="title" id="title" hidden>
+  <div class="tscene" id="tscene" aria-hidden="true"></div>
+  <div class="tsnow" id="tsnow" aria-hidden="true"></div>
+  <div class="tcard" id="tcard">
+    <div class="tkick">Escape game de Noël</div>
+    <h1 class="tmain">Danger sur la <span>tournée</span> !</h1>
+    <div class="tribbon"><span class="tface" id="tface" aria-hidden="true"></span>Bourrasque : la farce de trop</div>
+    <div class="tgo">
+      <button class="tbtn gold" id="tcont" type="button" hidden></button>
+      <p id="tlvlab">Choisis ton niveau :</p>
+      <div class="tbtns"><button class="tbtn" type="button" data-lv="1">CE1</button><button class="tbtn g" type="button" data-lv="2">CE2</button></div>
+      <p class="tnote">Le jeu s'ouvre en plein écran. Les décors et l'histoire sont les mêmes, seules les énigmes changent.</p>
+    </div>
   </div>
+  <div class="tglow" id="tglow"></div>
 </div>
 
 <div class="ov" id="win" hidden>
@@ -1148,8 +1198,9 @@ function render(){
 const NAMES={grelot:'Grelot',bourrasque:'Mot de Bourrasque',pere:'Le Père Noël',mere:'La Mère Noël'};
 function say(who,text){queue.push({who,text})}
 /* le bandeau passe devant le jeu : on le lit, on clique sur Suivant ; quand tout est lu, il disparaît */
-const talkov=$('talkov'),wrapEl=document.querySelector('.wrap');let shown=null,readN=0;
+const talkov=$('talkov'),wrapEl=document.querySelector('.wrap');let shown=null,readN=0,titleOn=false;
 function showTalk(){
+  if(titleOn){talkov.hidden=true;return}
   const l=queue[0];
   if(!l){talkov.hidden=true;wrapEl.inert=false;shown=null;readN=0;return}
   if(shown!==l){shown=l;$('face').innerHTML=face(l.who);$('who').textContent=NAMES[l.who];const s=$('say');s.textContent=l.text;s.className='say'+(l.who==='bourrasque'?' note':'');
@@ -1223,13 +1274,120 @@ function intro(){queue=[];
   say('bourrasque',"Hi hi hi ! J'ai caché 23 parchemins dans la maison, la cuisine, l'atelier de fabrication, la salle du grand ordinateur, le dortoir des lutins et l'écurie. Quand une pièce est terminée, une boule-clé apparaît avec un chiffre du code. Bonne chance !");
   say('grelot',"Aide-moi ! Clique sur les objets du décor. Si tu es perdu, utilise la loupe magique.");
   S.intro=true;save()}
-const lvBox=$('levels');
-function pickLevel(){lvBox.hidden=false}
-lvBox.addEventListener('click',e=>{const b=e.target.closest('[data-lv]');if(!b)return;S.level=+b.dataset.lv;$('cnt').textContent=S.level===1?'463':'2745';lvBox.hidden=true;if(!S.intro)intro();save();render()});
-function resetAll(){S=fresh();start=Date.now();done=false;tries.fill(0);save();$('win').hidden=true;closeModal();queue=[];render();pickLevel();window.scrollTo({top:0,behavior:'smooth'})}
+/* ---------- page de titre ---------- */
+function titleArt(){
+  let sd=11;const rnd=()=>(sd=(sd*9301+49297)%233280)/233280;
+  const stars=R(120,()=>{const x=(rnd()*1600).toFixed(0),y=(rnd()*480).toFixed(0),r=(rnd()*1.7+.5).toFixed(1),t=rnd()<.45,d=(rnd()*2.6).toFixed(2);return `<circle${t?` class="twk" style="animation-delay:${d}s"`:''} cx="${x}" cy="${y}" r="${r}" fill="#fff"/>`});
+  const tree=(x,y,s,c,star)=>`<g transform="translate(${x} ${y}) scale(${s})"><rect x="-9" y="38" width="18" height="30" fill="#3b2416"/>${[[-55,100],[-105,80],[-150,60]].map(([t,w])=>`<path d="M0 ${t}L${w} ${t+95}H${-w}Z" fill="${c}"/><path d="M0 ${t}L${w*.45} ${t+43}Q${w*.22} ${t+34} 0 ${t+47}Q${-w*.22} ${t+34} ${-w*.45} ${t+43}Z" fill="#eef7ff"/>`).join('')}${star?'<path d="M0 -172l5 11h12l-10 7 4 12-11-7-11 7 4-12-10-7h12z" fill="#f2b632"/>':''}</g>`;
+  const deer=(x,y)=>`<g transform="translate(${x} ${y})"><ellipse rx="15" ry="6.5"/><path d="M-11 4l-6 12M-5 5l-2 13M7 5l5 12M11 3l9 10" stroke-width="3" stroke-linecap="round"/><path d="M11 -3l9-10 6 2-3 6-9 6z"/><path d="M20 -12l-3-9M20 -12l5-8M17 -16l-6-2M24 -17l6-1" stroke-width="2" stroke-linecap="round" fill="none"/></g>`;
+  /* guirlande le long du toit */
+  const lights=R(19,i=>{const t=i/18,x=560+480*t,y=t<.5?556-320*t:396+320*(t-.5);return `<line x1="${x}" y1="${y}" x2="${x}" y2="${y+9}" stroke="#2a3b2a" stroke-width="2"/><circle class="twk" style="animation-delay:${(i%4)*.6}s" cx="${x.toFixed(1)}" cy="${(y+14).toFixed(1)}" r="7" fill="${COLORS[i%7]}"/>`});
+  const far=R(16,i=>tree(40+i*102+(i%3)*14,600-((i*37)%40),.32,'#23485e'));
+  return `<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+   <linearGradient id="tsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#081431"/><stop offset=".55" stop-color="#173a63"/><stop offset="1" stop-color="#3c6d8e"/></linearGradient>
+   <radialGradient id="tmoon" cx="40%" cy="38%" r="65%"><stop offset="0" stop-color="#fffdf0"/><stop offset="1" stop-color="#f1dfa8"/></radialGradient>
+   <radialGradient id="tglass" cx="45%" cy="55%" r="70%"><stop offset="0" stop-color="#fff4c8"/><stop offset=".55" stop-color="#ffc85c"/><stop offset="1" stop-color="#e88a30"/></radialGradient>
+   <radialGradient id="thalo"><stop offset="0" stop-color="#ffd27a" stop-opacity=".55"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient>
+   <linearGradient id="twood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8d4b2a"/><stop offset="1" stop-color="#5f2f1b"/></linearGradient>
+   <filter id="tblur" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="28"/></filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#tsky)"/>
+  ${stars}
+  <g class="aur" opacity=".4" filter="url(#tblur)"><path d="M-80 250Q300 120 640 220T1300 170T1700 230" stroke="#4fe0a0" stroke-width="80" fill="none"/><path d="M-80 330Q420 220 820 300T1700 260" stroke="#7bc8ff" stroke-width="44" fill="none"/></g>
+  <circle cx="1330" cy="200" r="175" fill="#fff6d0" opacity=".1"/><circle cx="1330" cy="200" r="130" fill="#fff6d0" opacity=".12"/>
+  <circle cx="1330" cy="200" r="100" fill="url(#tmoon)"/>
+  <circle cx="1300" cy="175" r="16" fill="#e6d08f" opacity=".45"/><circle cx="1365" cy="235" r="11" fill="#e6d08f" opacity=".45"/><circle cx="1352" cy="160" r="7" fill="#e6d08f" opacity=".45"/>
+  <g class="bob"><path d="M1040 330Q1150 300 1250 250" stroke="#f2b632" stroke-width="3" stroke-dasharray="2 14" stroke-linecap="round" fill="none"/>
+   ${R(9,i=>`<circle class="twk" style="animation-delay:${i*.3}s" cx="${1060+i*22}" cy="${322-i*9-(i%2)*8}" r="${2+(i%3)}" fill="#ffe08a"/>`)}
+   <g fill="#0a1430" stroke="#0a1430"><g transform="translate(1270 232)"><path d="M-36 -16h44q12 0 16-14h7q-2 30-28 36h-39z" stroke="none"/><circle cx="-18" cy="-24" r="13" stroke="none"/><path d="M-46 10h64q12 0 17-9" stroke-width="3" fill="none"/></g>
+   <path d="M1300 210L1420 150" stroke-width="1.5" fill="none"/>${deer(1335,200)}${deer(1378,178)}${deer(1421,156)}</g></g>
+  <path d="M0 610Q300 530 620 595T1220 570T1600 600V900H0Z" fill="#2b4f72"/>
+  ${far}
+  <path d="M0 700Q400 640 800 690T1600 680V900H0Z" fill="#d6e7f6"/>
+  <ellipse cx="740" cy="815" rx="230" ry="40" fill="url(#thalo)"/>
+  <ellipse cx="800" cy="792" rx="320" ry="20" fill="#a9c4dd" opacity=".7"/>
+  <g>
+   <rect x="905" y="395" width="50" height="115" fill="#9b3b2c"/>${R(5,i=>`<line x1="905" y1="${415+i*20}" x2="955" y2="${415+i*20}" stroke="#7a2b20" stroke-width="2"/>`)}
+   <rect x="897" y="384" width="66" height="18" rx="9" fill="#f4fbff"/>
+   ${[0,1.3,2.6].map(d=>`<circle class="tsm" style="animation-delay:${d}s" cx="930" cy="372" r="16" fill="#dfe8f0"/>`).join('')}
+   <rect x="590" y="520" width="420" height="268" fill="url(#twood)"/>
+   ${R(8,i=>`<line x1="590" y1="${552+i*30}" x2="1010" y2="${552+i*30}" stroke="#4a2414" stroke-width="2" opacity=".45"/>`)}
+   <path d="M548 545L800 372L1052 545Z" fill="#4a2216"/>
+   <path d="M532 552L800 358L1068 552L1046 566L800 392L554 566Z" fill="#f4fbff"/>
+   ${R(12,i=>{const t=(i+.5)/12,x=t<.5?554+246*t*2:800+246*(t-.5)*2,y=t<.5?566-174*t*2:392+174*(t-.5)*2;return `<circle cx="${x.toFixed(1)}" cy="${(y+2).toFixed(1)}" r="${5+(i%3)*2}" fill="#f4fbff"/>`})}
+   ${lights}
+   <circle cx="800" cy="470" r="27" fill="#ffd77a" stroke="#e9d8b8" stroke-width="7"/><path d="M800 444V496M774 470H826" stroke="#e9d8b8" stroke-width="4"/>
+   <rect x="630" y="598" width="174" height="134" rx="8" fill="#e9d8b8"/>
+   <rect id="twin" x="641" y="609" width="152" height="112" fill="url(#tglass)"/>
+   <path d="M690 708l26-62 26 62z" fill="#2d7a4c" opacity=".55"/><circle cx="716" cy="642" r="4" fill="#fff4c8"/>
+   ${[[704,690,'#d42a3a'],[728,680,'#4fb3e8'],[716,698,'#f2b632'],[710,670,'#e46fb0']].map(([x,y,c])=>`<circle cx="${x}" cy="${y}" r="3.2" fill="${c}"/>`).join('')}
+   <path d="M641 609h34q-6 50 -22 112h-12z" fill="#c42a36"/><path d="M793 609h-34q6 50 22 112h12z" fill="#c42a36"/>
+   <rect x="714" y="609" width="6" height="112" fill="#e9d8b8"/><rect x="641" y="662" width="152" height="6" fill="#e9d8b8"/>
+   <rect x="620" y="728" width="194" height="15" rx="7" fill="#f4fbff"/>
+   <path d="M850 788V676a46 46 0 0 1 92 0V788Z" fill="#c42a36"/><path d="M873 640V788M896 630V788M919 640V788" stroke="#a51c2a" stroke-width="2"/>
+   <circle cx="928" cy="725" r="5" fill="#f2b632"/>
+   <circle cx="896" cy="684" r="21" fill="none" stroke="#1f8a4c" stroke-width="10"/>${[[880,672],[910,670],[884,700],[912,698]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3.5" fill="#d42a3a"/>`).join('')}
+   <path d="M896 703l-10 14M896 703l10 14" stroke="#d42a3a" stroke-width="5" stroke-linecap="round"/><circle cx="896" cy="703" r="5" fill="#d42a3a"/>
+   <rect x="836" y="784" width="120" height="12" rx="6" fill="#f4fbff"/>
+   <rect x="966" y="640" width="22" height="30" rx="4" fill="#ffd77a" stroke="#3b2416" stroke-width="3"/><circle cx="977" cy="655" r="26" fill="#ffd77a" opacity=".22"/>
+  </g>
+  <g><rect x="462" y="660" width="12" height="130" fill="#6a3a22"/><g transform="rotate(-6 468 680)"><rect x="400" y="660" width="140" height="44" rx="6" fill="#c98a50" stroke="#7a4a28" stroke-width="4"/><text x="470" y="690" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="22" fill="#5b2a1c">PÔLE NORD</text></g><rect x="398" y="654" width="146" height="10" rx="5" fill="#f4fbff" transform="rotate(-6 468 680)"/></g>
+  ${tree(330,765,1.3,'#1d5a3c',true)}${tree(170,805,1.75,'#174a32')}
+  <g class="fly"><g transform="translate(1000 560) rotate(14)"><rect x="-26" y="-18" width="52" height="36" rx="4" fill="#f6e7c4" stroke="#c9a24a" stroke-width="2"/><path d="M-16 -6h32M-16 2h26M-16 10h20" stroke="#a51c2a" stroke-width="2.5" stroke-linecap="round"/></g></g>
+  <path d="M1110 640q-70-46-140-12q-54 28-22 56q28 16 40-12M1100 690q-60-10-110 12" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity=".75"/>
+  <g class="peek">${face('bourrasque').replace('<svg ','<svg x="1112" y="590" width="118" height="118" ')}</g>
+  ${tree(1255,775,1.45,'#1d5a3c',true)}${tree(1440,815,1.85,'#174a32')}
+  <path d="M0 830Q420 790 820 815T1600 805V900H0Z" fill="#f4fbff"/>
+  </svg>`;
+}
+const titleEl=$('title');
+$('tscene').innerHTML=titleArt();
+$('tface').innerHTML=face('bourrasque');
+$('tsnow').innerHTML=R(46,i=>`<span class="flake" style="left:${(i*53)%100}%;font-size:${9+(i*37)%18}px;animation-duration:${8+(i*13)%9}s;animation-delay:-${(i*7)%14}s;--dx:${((i*29)%70)-35}px">❄</span>`);
+function dropAnims(){if(!titleEl.getAnimations)return;titleEl.getAnimations({subtree:true}).forEach(a=>{if(typeof CSSAnimation!=='undefined'&&a instanceof CSSAnimation)return;a.cancel()})}
+function showTitle(){const has=!!S.intro&&(S.level===1||S.level===2);
+  $('tcont').hidden=!has;$('tcont').textContent=has?`▶ Continuer la mission (${S.level===1?'CE1':'CE2'})`:'';
+  $('tlvlab').textContent=has?'ou commencer une nouvelle partie :':'Choisis ton niveau :';
+  titleOn=true;dropAnims();
+  titleEl.querySelectorAll('button').forEach(b=>b.disabled=false);
+  titleEl.hidden=false;talkov.hidden=true;wrapEl.inert=true}
+/* plein écran dès le départ (il faut un clic de l'élève : c'est celui sur le niveau) */
+function goFS(){const r=document.documentElement,req=r.requestFullscreen||r.webkitRequestFullscreen;
+  if(document.fullscreenElement||document.webkitFullscreenElement||!req)return Promise.resolve();
+  const wait=ms=>new Promise(ok=>setTimeout(ok,ms));
+  try{const p=req.call(r);return p&&p.then?Promise.race([p.then(()=>wait(250),()=>{}),wait(900)]):wait(400)}catch(e){return Promise.resolve()}}
+/* on entre dans la maison : la caméra plonge vers la fenêtre éclairée, puis fondu */
+async function enterHouse(){
+  titleEl.querySelectorAll('button').forEach(b=>b.disabled=true);
+  await goFS();
+  await new Promise(ok=>requestAnimationFrame(()=>requestAnimationFrame(ok)));
+  const sc=$('tscene'),glow=$('tglow'),reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduce&&sc.animate){
+    const w=$('twin').getBoundingClientRect(),o=sc.getBoundingClientRect();
+    sc.style.transformOrigin=`${w.left+w.width/2-o.left}px ${w.top+w.height/2-o.top}px`;
+    const k=Math.max(innerWidth/w.width,innerHeight/w.height)*1.25;
+    $('tcard').animate([{opacity:1,transform:'none'},{opacity:0,transform:'translateY(-60px) scale(.96)'}],{duration:550,easing:'ease-in',fill:'forwards'});
+    $('tsnow').animate([{opacity:1},{opacity:0}],{duration:900,fill:'forwards'});
+    glow.animate([{opacity:0},{opacity:0,offset:.62},{opacity:1}],{duration:2300,fill:'forwards'});
+    await sc.animate([{transform:'scale(1)'},{transform:`scale(${k})`}],{duration:2050,delay:250,easing:'cubic-bezier(.6,0,.8,.45)',fill:'forwards'}).finished;
+  }
+  titleOn=false;wrapEl.inert=false;start=Date.now()-S.elapsed*1000;render();
+  await titleEl.animate([{opacity:1},{opacity:0}],{duration:reduce?300:800,easing:'ease-out',fill:'forwards'}).finished;
+  titleEl.hidden=true;dropAnims();sc.style.transformOrigin='';
+  showTalk()}
+titleEl.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;
+  if(b.dataset.lv){const lv=+b.dataset.lv;if(S.intro||S.level){S=fresh();tries.fill(0);done=false;$('win').hidden=true;closeModal()}
+    S.level=lv;$('cnt').textContent=lv===1?'463':'2745';intro();save()}
+  else if(b.id==='tcont')queue=[{who:'grelot',text:"Te revoilà ! On continue la mission : il faut retrouver toutes les boules-clés avant minuit."}];
+  else return;
+  enterHouse()});
+function pickLevel(){showTitle()}
+function resetAll(){S=fresh();start=Date.now();done=false;tries.fill(0);save();$('win').hidden=true;closeModal();queue=[];showTitle();render();window.scrollTo({top:0,behavior:'smooth'})}
 $('again').addEventListener('click',resetAll);
 $('reset').addEventListener('click',()=>{const b=$('reset');if(b.dataset.c){delete b.dataset.c;b.textContent='Recommencer';resetAll()}else{b.dataset.c='1';b.textContent='Sûr ? Clique encore';setTimeout(()=>{delete b.dataset.c;b.textContent='Recommencer'},3000)}});
-if(!(S.level===1||S.level===2)){S.level=0;pickLevel()}else{$('cnt').textContent=S.level===1?'463':'2745';if(!S.intro)intro()}
+if(!(S.level===1||S.level===2))S.level=0;else $('cnt').textContent=S.level===1?'463':'2745';
+showTitle();
 setInterval(()=>{if(done)return;S.elapsed=Math.floor((Date.now()-start)/1000);$('timer').textContent='⏱ '+fmt(S.elapsed);if(S.elapsed%5===0)save()},1000);
 
 /* ---------- plein écran (vidéoprojecteur) ---------- */
